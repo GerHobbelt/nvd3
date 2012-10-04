@@ -17,6 +17,7 @@ JS_FILES = \
 	src/models/lineChart.js \
 	src/models/linePlusBarChart.js \
 	src/models/lineWithFocusChart.js \
+    src/models/lineWithBrushChart.js \
 	src/models/multiBar.js \
 	src/models/multiBarChart.js \
 	src/models/multiBarHorizontal.js \
@@ -36,7 +37,7 @@ JS_FILES = \
 JS_COMPILER = \
 	uglifyjs
 
-all: nv.d3.js nv.d3.min.js
+all: nv.d3.js 
 nv.d3.js: $(JS_FILES)
 nv.d3.min.js: $(JS_FILES)
 
