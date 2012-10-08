@@ -344,9 +344,9 @@ nv.models.multiBarWithBrushChart = function(callback) {
 		    }
 		}
 		
-		alert(extent);
-		alert(selected);
-		//brushCallback(selected);
+//		alert(extent);
+//		alert(selected);
+		brushCallback(selected);
 	    }
 
 
