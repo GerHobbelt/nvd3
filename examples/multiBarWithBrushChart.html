@@ -54,7 +54,8 @@ var test_data = stream_layers(3,10+Math.random()*100,.1).map(function(data, i) {
 
 
 nv.addGraph(function() {
-    var chart = nv.models.multiBarWithBrushChart(function (x) {alert(x);});
+//    var chart = nv.models.multiBarWithBrushChart(null);
+    var chart = nv.models.multiBarWithBrushChart(function(x){alert(x);});
 
     chart.xAxis
         .tickFormat(d3.format(',f'));

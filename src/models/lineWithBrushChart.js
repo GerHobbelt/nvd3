@@ -1,5 +1,5 @@
 
-nv.models.lineWithBrushChart = function(callback) {
+nv.models.lineWithBrushChart = function(callback, trendlines) {
 
     //============================================================
     // Public Variables with Default Settings
@@ -20,6 +20,7 @@ nv.models.lineWithBrushChart = function(callback) {
     , brush = d3.svg.brush()
     , brushCallback = callback
     , brushExtent = null
+    , trendlinesDone = false
     , tooltip = function(key, x, y, e, graph) {
         return '<h3>' + key + '</h3>' +
             '<p>' +  y + ' at ' + x + '</p>'
@@ -43,6 +44,10 @@ nv.models.lineWithBrushChart = function(callback) {
     ;
 
     //============================================================
+
+
+
+
 
 
     //============================================================
@@ -76,6 +81,65 @@ nv.models.lineWithBrushChart = function(callback) {
 
 
     function chart(selection) {
+
+
+	// Trendlines
+
+	if (trendlines != null && trendlinesDone == false) {
+	    var xm = {} , ym = {} , xym = {} , x2m = {}, 
+	    n = {}, m = {}, q = {}, i;
+
+	    selection.each(function(data) {
+		for (i=0; i < data.length; i++) {
+		    if (!n[data[i].key]) {
+			xm[data[i].key] = 0;
+			ym[data[i].key] = 0;
+			xym[data[i].key] = 0;
+			x2m[data[i].key] = 0;
+			n[data[i].key] = 1;
+			m[data[i].key] = 0;
+			q[data[i].key] = 0;
+		    }
+
+		    for (j in data[i].values) {
+			var point = data[i].values[j];
+			xm[data[i].key] = (xm[data[i].key]*n[data[i].key] + point.x) / (n[data[i].key] +1);
+			ym[data[i].key] = (ym[data[i].key]*n[data[i].key] + point.y) / (n[data[i].key] +1);
+			xym[data[i].key] = (xym[data[i].key]*n[data[i].key] + (point.x * point.y)) / (n[data[i].key] +1);
+			x2m[data[i].key] = (x2m[data[i].key]*n[data[i].key] + (point.x * point.x)) / (n[data[i].key] +1);
+			n[data[i].key]++;
+		    }
+
+		    // update coefficients
+		    m[data[i].key] = (xym[data[i].key] - (xm[data[i].key] * ym[data[i].key])) / (x2m[data[i].key] - (xm[data[i].key]*xm[data[i].key]));
+		    q[data[i].key] = ym[data[i].key] - (m[data[i].key] * xm[data[i].key]);
+		    
+		}
+
+
+		var max = data.length;
+		for (i=0; i<max; i++) {
+
+		     // add new series
+		    var x0 = data[i].values[0].x,
+		    x1 = data[i].values[data[i].values.length - 1].x,
+		    y0 = m[data[i].key] * x0 + q[data[i].key],
+		    y1 = m[data[i].key] * x1 + q[data[i].key];
+		    
+		    var values = [];
+		    values[0] = {'x': x0, 'y': y0 };
+		    values[1] = {'x': x1, 'y': y1 };
+
+		    data.push({'key': data[i].key + "-trend", 'color': data[i].color, 'values': values, 'dash': '5'});
+		}
+		
+
+	    });
+	    
+	    trendlinesDone = true;
+	    
+	}
+
 	selection.each(function(data) {
 	    var container = d3.select(this),
             that = this;
@@ -139,24 +203,10 @@ nv.models.lineWithBrushChart = function(callback) {
 	    //------------------------------------------------------------
 	    // Setup Brush
 
-
-	    gEnter.append('g').attr('class', 'nv-brushBackground');
-	    gEnter.append('g').attr('class', 'nv-x nv-brush');
-
-
-	    // function brushstart() {
-	    // 	svg.classed("selecting", true);
-	    // }
-
-	    // function brushmove() {
-	    // 	var s = d3.event.target.extent();
-	    // 	circle.classed("selected", function(d) { return s[0] <= d && d <= s[1]; });
-	    // }
-
-	    // function brushend() {
-	    // 	svg.classed("selecting", !d3.event.target.empty());
-	    // }
-
+	    if (brushCallback != null) {
+		gEnter.append('g').attr('class', 'nv-brushBackground');
+		gEnter.append('g').attr('class', 'nv-x nv-brush');
+	    }
 
 
 	    //------------------------------------------------------------
@@ -212,42 +262,49 @@ nv.models.lineWithBrushChart = function(callback) {
 	    //------------------------------------------------------------
 
 
+	    //------------------------------------------------------------
+	    // Brush stuff
 
-	    brush
-		.x(x)
-		.on('brush', onBrush).
-		on('brushend', tellModel)
-	    ;
+	    
+	    if (brushCallback != null) {
+		
+		brush
+		    .x(x)
+		    .on('brush', onBrush).
+		    on('brushend', tellModel)
+		;
 
-	    if (brushExtent) brush.extent(brushExtent);
+		if (brushExtent) brush.extent(brushExtent);
 
-	    var brushBG = g.select('.nv-brushBackground').selectAll('g')
-		.data([brushExtent || brush.extent()])
+		var brushBG = g.select('.nv-brushBackground').selectAll('g')
+		    .data([brushExtent || brush.extent()])
 
-	    var brushBGenter = brushBG.enter()
-		.append('g');
+		var brushBGenter = brushBG.enter()
+		    .append('g');
 
-	    brushBGenter.append('rect')
-		.attr('class', 'left')
-		.attr('x', 0)
-		.attr('y', 0)
-		.attr('height', availableHeight);
+		brushBGenter.append('rect')
+		    .attr('class', 'left')
+		    .attr('x', 0)
+		    .attr('y', 0)
+		    .attr('height', availableHeight);
 
-	    brushBGenter.append('rect')
-		.attr('class', 'right')
-		.attr('x', 0)
-		.attr('y', 0)
-		.attr('height', availableHeight);
+		brushBGenter.append('rect')
+		    .attr('class', 'right')
+		    .attr('x', 0)
+		    .attr('y', 0)
+		    .attr('height', availableHeight);
 
-	    gBrush = g.select('.nv-x.nv-brush')
-		.call(brush);
-	    gBrush.selectAll('rect')
-            //.attr('y', -5)
-		.attr('height', availableHeight);
-	    gBrush.selectAll('.resize').append('path').attr('d', resizePath);
+		gBrush = g.select('.nv-x.nv-brush')
+		    .call(brush);
+		gBrush.selectAll('rect')
+		//.attr('y', -5)
+		    .attr('height', availableHeight);
+		gBrush.selectAll('.resize').append('path').attr('d', resizePath);
 
-	    onBrush();
+		onBrush();
+	    }
 
+	    //------------------------------------------------------------
 
 
 
@@ -322,7 +379,6 @@ nv.models.lineWithBrushChart = function(callback) {
 	    function tellModel() {
 		brushExtent = brush.empty() ? null : brush.extent();
 		extent = brush.empty() ? x.domain() : brush.extent();
-//		alert('x1= '+extent[0]+' , x1= '+extent[1]);
 		brushCallback(extent);
 	    }
 
@@ -332,36 +388,8 @@ nv.models.lineWithBrushChart = function(callback) {
 
 
 		dispatch.brush({extent: extent, brush: brush});
-
-
 		updateBrushBG();
 
-		// tell controller
-
-		/*
-		// Update Main (Focus)
-		var focusLinesWrap = g.select('.nv-focus .nv-linesWrap')
-		.datum(
-		data
-                .filter(function(d) { return !d.disabled })
-                .map(function(d,i) {
-                return {
-                key: d.key,
-                values: d.values.filter(function(d,i) {
-                return lines.x()(d,i) >= extent[0] && lines.x()(d,i) <= extent[1];
-                })
-                }
-                })
-		);
-		d3.transition(focusLinesWrap).call(lines);
-
-
-		// Update Main (Focus) Axes
-		d3.transition(g.select('.nv-focus .nv-x.nv-axis'))
-		.call(xAxis);
-		d3.transition(g.select('.nv-focus .nv-y.nv-axis'))
-		.call(yAxis);
-		*/
 	    }
 
 	    //============================================================
@@ -441,8 +469,6 @@ nv.models.lineWithBrushChart = function(callback) {
     chart.legend = legend;
     chart.xAxis = xAxis;
     chart.yAxis = yAxis;
-    chart.brush = brush;
-    chart.brushCallback = brushCallback;
 
     d3.rebind(chart, lines, 'defined', 'isArea', 'x', 'y', 'size', 'xScale', 'yScale', 'xDomain', 'yDomain', 'forceX', 'forceY', 'interactive', 'clipEdge', 'clipVoronoi', 'id', 'interpolate');
 
