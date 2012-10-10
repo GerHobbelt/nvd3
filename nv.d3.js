@@ -4825,7 +4825,7 @@ nv.models.lineWithFocusChart = function() {
   return chart;
 }
 
-nv.models.lineWithBrushChart = function(callback, trendlines) {
+nv.models.lineWithBrushChart = function(options) {
 
     //============================================================
     // Public Variables with Default Settings
@@ -4844,7 +4844,9 @@ nv.models.lineWithBrushChart = function(callback, trendlines) {
     , showLegend = true
     , tooltips = true
     , brush = d3.svg.brush()
-    , brushCallback = callback
+    , brushCallback = options.callback
+    , trendlines = options.trendlines
+    , minmax = options.minmax
     , brushExtent = null
     , trendlinesDone = false
     , tooltip = function(key, x, y, e, graph) {
@@ -4911,7 +4913,7 @@ nv.models.lineWithBrushChart = function(callback, trendlines) {
 
 	// Trendlines
 
-	if (trendlines != null && trendlinesDone == false) {
+	if ((trendlines || minmax) && trendlinesDone == false) {
 	    var xm = {} , ym = {} , xym = {} , x2m = {}, 
 	    n = {}, m = {}, q = {}, i, ymax = {}, ymin = {};
 
@@ -4959,29 +4961,33 @@ nv.models.lineWithBrushChart = function(callback, trendlines) {
 		var max = data.length;
 		for (i=0; i<max; i++) {
 
-		     // add new series
+		    // add new series
 		    var x0 = data[i].values[0].x,
-		    x1 = data[i].values[data[i].values.length - 1].x,
-		    y0 = m[data[i].key] * x0 + q[data[i].key],
-		    y1 = m[data[i].key] * x1 + q[data[i].key];
+		    x1 = data[i].values[data[i].values.length - 1].x;
+		    
+		    if (trendlines) {
+			var y0 = m[data[i].key] * x0 + q[data[i].key],
+			y1 = m[data[i].key] * x1 + q[data[i].key];
+			var values = [];
+			values[0] = {'x': x0, 'y': y0 };
+			values[1] = {'x': x1, 'y': y1 };
+			
+			data.push({'key': data[i].key+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
+			
+		    }
 
-		    var values = [];
-		    values[0] = {'x': x0, 'y': y0 };
-		    values[1] = {'x': x1, 'y': y1 };
-		    /*
-		    var _min = [], _max = [];
-		    _min[0] = {'x':x0, 'y':ymin[data[i].key]};
-		    _min[1] = {'x':x1, 'y':ymin[data[i].key]};
-		    _max[0] = {'x':x0, 'y':ymax[data[i].key]};
-		    _max[1] = {'x':x1, 'y':ymax[data[i].key]};
-		    */
+		    
+		    if (minmax) {
+			var _min = [], _max = [];
+			_min[0] = {'x':x0, 'y':ymin[data[i].key]};
+			_min[1] = {'x':x1, 'y':ymin[data[i].key]};
+			_max[0] = {'x':x0, 'y':ymax[data[i].key]};
+			_max[1] = {'x':x1, 'y':ymax[data[i].key]};
+			data.push({'key': data[i].key + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
+			data.push({'key': data[i].key + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
 
-		    data.push({'key': data[i].key + "-trend", 'color': data[i].color, 'opacity': 0.4 , 'values': values, 'dash': '10'});
-		    /*
-		    data.push({'key': data[i].key + "-min", 'color': '#777777', 'values': _min, 'dash': '10'});
-		    data.push({'key': data[i].key + "-max", 'color': '#777777', 'values': _max, 'dash': '10'});
-		    */
-
+		    }
+		    
 		}
 		
 
