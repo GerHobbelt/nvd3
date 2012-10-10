@@ -3344,7 +3344,8 @@ nv.models.line = function() {
           .classed('hover', function(d) { return d.hover })
           .style('fill', function(d,i){ return color(d, i) })
           .style('stroke', function(d,i){ return color(d, i)})
-	  .style('stroke-dasharray', function(d,i){ return '5,'+ (d.dash || 0)});
+	  .style('stroke-dasharray', function(d,i){ return '5,'+ (d.dash || 0)})
+	  .style('opacity', function(d,i){return d.opacity || 1});
       d3.transition(groups)
           .style('stroke-opacity', 1)
           .style('fill-opacity', .5);
@@ -4912,7 +4913,7 @@ nv.models.lineWithBrushChart = function(callback, trendlines) {
 
 	if (trendlines != null && trendlinesDone == false) {
 	    var xm = {} , ym = {} , xym = {} , x2m = {}, 
-	    n = {}, m = {}, q = {}, i;
+	    n = {}, m = {}, q = {}, i, ymax = {}, ymin = {};
 
 	    selection.each(function(data) {
 		for (i=0; i < data.length; i++) {
@@ -4921,19 +4922,32 @@ nv.models.lineWithBrushChart = function(callback, trendlines) {
 			ym[data[i].key] = 0;
 			xym[data[i].key] = 0;
 			x2m[data[i].key] = 0;
-			n[data[i].key] = 1;
+			n[data[i].key] = 0;
 			m[data[i].key] = 0;
 			q[data[i].key] = 0;
+			ymax[data[i].key] = data[i].values[0].y;
+			ymin[data[i].key] = data[i].values[0].y;
 		    }
 
 		    for (j in data[i].values) {
 			var point = data[i].values[j];
-			xm[data[i].key] = (xm[data[i].key]*n[data[i].key] + point.x) / (n[data[i].key] +1);
-			ym[data[i].key] = (ym[data[i].key]*n[data[i].key] + point.y) / (n[data[i].key] +1);
-			xym[data[i].key] = (xym[data[i].key]*n[data[i].key] + (point.x * point.y)) / (n[data[i].key] +1);
-			x2m[data[i].key] = (x2m[data[i].key]*n[data[i].key] + (point.x * point.x)) / (n[data[i].key] +1);
+			xm[data[i].key] += point.x;
+			ym[data[i].key] += point.y;
+			xym[data[i].key] += (point.x * point.y);
+			x2m[data[i].key] += (point.x * point.x);
 			n[data[i].key]++;
+			if (point.y < ymin[data[i].key]) {
+			    ymin[data[i].key] = point.y;
+			}
+			if (point.y > ymax[data[i].key]) {
+			    ymax[data[i].key] = point.y;
+			}
 		    }
+
+		    xm[data[i].key] /= n[data[i].key];
+		    ym[data[i].key] /= n[data[i].key];
+		    xym[data[i].key] /= n[data[i].key];
+		    x2m[data[i].key] /= n[data[i].key];
 
 		    // update coefficients
 		    m[data[i].key] = (xym[data[i].key] - (xm[data[i].key] * ym[data[i].key])) / (x2m[data[i].key] - (xm[data[i].key]*xm[data[i].key]));
@@ -4950,12 +4964,24 @@ nv.models.lineWithBrushChart = function(callback, trendlines) {
 		    x1 = data[i].values[data[i].values.length - 1].x,
 		    y0 = m[data[i].key] * x0 + q[data[i].key],
 		    y1 = m[data[i].key] * x1 + q[data[i].key];
-		    
+
 		    var values = [];
 		    values[0] = {'x': x0, 'y': y0 };
 		    values[1] = {'x': x1, 'y': y1 };
+		    /*
+		    var _min = [], _max = [];
+		    _min[0] = {'x':x0, 'y':ymin[data[i].key]};
+		    _min[1] = {'x':x1, 'y':ymin[data[i].key]};
+		    _max[0] = {'x':x0, 'y':ymax[data[i].key]};
+		    _max[1] = {'x':x1, 'y':ymax[data[i].key]};
+		    */
 
-		    data.push({'key': data[i].key + "-trend", 'color': data[i].color, 'values': values, 'dash': '5'});
+		    data.push({'key': data[i].key + "-trend", 'color': data[i].color, 'opacity': 0.4 , 'values': values, 'dash': '10'});
+		    /*
+		    data.push({'key': data[i].key + "-min", 'color': '#777777', 'values': _min, 'dash': '10'});
+		    data.push({'key': data[i].key + "-max", 'color': '#777777', 'values': _max, 'dash': '10'});
+		    */
+
 		}
 		
 
