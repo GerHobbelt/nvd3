@@ -17,9 +17,10 @@ JS_FILES = \
 	src/models/lineChart.js \
 	src/models/linePlusBarChart.js \
 	src/models/lineWithFocusChart.js \
-    src/models/lineWithBrushChart.js \
+	src/models/lineWithBrushChart.js \
 	src/models/multiBar.js \
 	src/models/multiBarChart.js \
+	src/models/multiBarWithBrushChart.js \
 	src/models/multiBarHorizontal.js \
 	src/models/multiBarHorizontalChart.js \
 	src/models/multiChart.js \

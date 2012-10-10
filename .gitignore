@@ -22,3 +22,7 @@ _site
 ehthumbs.db
 Icon?
 Thumbs.db
+
+# Emacs generated files #
+#########################
+\#*#
