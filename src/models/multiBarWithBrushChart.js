@@ -136,10 +136,11 @@ nv.models.multiBarWithBrushChart = function(callback) {
 	    //------------------------------------------------------------
 	    // Setup Brush
 
-	    gEnter.append('g').attr('class', 'nv-brushBackground');
-	    gEnter.append('g').attr('class', 'nv-x nv-brush');
-
-
+	    if (brushCallback != null) {
+		gEnter.append('g').attr('class', 'nv-brushBackground');
+		gEnter.append('g').attr('class', 'nv-x nv-brush');
+	    }
+	    
 	    //------------------------------------------------------------
 
 
@@ -206,43 +207,44 @@ nv.models.multiBarWithBrushChart = function(callback) {
 
 	    //------------------------------------------------------------
 
+	    if (brushCallback != null) {
 
-	    brush
-		.x(x)
-		.on('brush', onBrush).
-		on('brushend', tellModel)
-	    ;
+		brush
+		    .x(x)
+		    .on('brush', onBrush).
+		    on('brushend', tellModel)
+		;
 
-	    if (brushExtent) brush.extent(brushExtent);
+		if (brushExtent) brush.extent(brushExtent);
 
-	    var brushBG = g.select('.nv-brushBackground').selectAll('g')
-		.data([brushExtent || brush.extent()])
+		var brushBG = g.select('.nv-brushBackground').selectAll('g')
+		    .data([brushExtent || brush.extent()])
 
-	    var brushBGenter = brushBG.enter()
-		.append('g');
+		var brushBGenter = brushBG.enter()
+		    .append('g');
 
-	    brushBGenter.append('rect')
-		.attr('class', 'left')
-		.attr('x', 0)
-		.attr('y', 0)
-		.attr('height', availableHeight);
+		brushBGenter.append('rect')
+		    .attr('class', 'left')
+		    .attr('x', 0)
+		    .attr('y', 0)
+		    .attr('height', availableHeight);
 
-	    brushBGenter.append('rect')
-		.attr('class', 'right')
-		.attr('x', 0)
-		.attr('y', 0)
-		.attr('height', availableHeight);
+		brushBGenter.append('rect')
+		    .attr('class', 'right')
+		    .attr('x', 0)
+		    .attr('y', 0)
+		    .attr('height', availableHeight);
 
-	    gBrush = g.select('.nv-x.nv-brush')
-		.call(brush);
-	    gBrush.selectAll('rect')
-            //.attr('y', -5)
-		.attr('height', availableHeight);
-	    gBrush.selectAll('.resize').append('path').attr('d', resizePath);
+		gBrush = g.select('.nv-x.nv-brush')
+		    .call(brush);
+		gBrush.selectAll('rect')
+		//.attr('y', -5)
+		    .attr('height', availableHeight);
+		gBrush.selectAll('.resize').append('path').attr('d', resizePath);
 
-	    onBrush();
+		onBrush();
 
-
+	    }
 
 
 	    //------------------------------------------------------------
@@ -391,20 +393,6 @@ nv.models.multiBarWithBrushChart = function(callback) {
 
 
 	    //------------------------------------------------------------
-
-
-	    function brushstart() {
-		svg.classed("selecting", true);
-	    }
-
-	    function brushmove() {
-		var s = d3.event.target.extent();
-		symbol.classed("selected", function(d) { return s[0] <= (d = x(d)) && d <= s[1]; });
-	    }
-
-	    function brushend() {
-		svg.classed("selecting", !d3.event.target.empty());
-	    }
 
 
 
