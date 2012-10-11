@@ -102,22 +102,22 @@ nv.models.lineWithBrushChart = function(options) {
 			n[k] = 0;
 			m[k] = 0;
 			q[k] = 0;
-			ymax[k] = +data[i].values[0].y;
-			ymin[k] = +data[i].values[0].y;
+			ymax[k] = +data[i].values[0][1];
+			ymin[k] = +data[i].values[0][1];
 		    }
 
 		    for (j in data[i].values) {
 			var point = data[i].values[j];
-			xm[k] += +point.x;
-			ym[k] += +point.y;
-			xym[k] += (+point.x * +point.y);
-			x2m[k] += (+point.x * +point.x);
+			xm[k] += +point[0];
+			ym[k] += +point[1];
+			xym[k] += (+point[0] * +point[1]);
+			x2m[k] += (+point[0] * +point[0]);
 			n[k]++;
-			if (point.y < ymin[k]) {
-			    ymin[k] = +point.y;
+			if (point[1] < ymin[k]) {
+			    ymin[k] = +point[1];
 			}
-			if (point.y > ymax[k]) {
-			    ymax[k] = +point.y;
+			if (point[1] > ymax[k]) {
+			    ymax[k] = +point[1];
 			}
 		    }
 
@@ -139,15 +139,15 @@ nv.models.lineWithBrushChart = function(options) {
 		    var k = data[i].key;
 
 		    // add new series
-		    var x0 = data[i].values[0].x,
-		    x1 = data[i].values[data[i].values.length - 1].x;
+		    var x0 = data[i].values[0][0],
+		    x1 = data[i].values[data[i].values.length - 1][0];
 		    
 		    if (trendlines) {
 			var y0 = m[k] * x0 + q[k],
 			y1 = m[k] * x1 + q[k];
 			var values = [];
-			values[0] = {'x': x0, 'y': y0 };
-			values[1] = {'x': x1, 'y': y1 };
+			values[0] = [x0, y0];
+			values[1] = [x1, y1];
 			
 			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
 			
@@ -156,10 +156,10 @@ nv.models.lineWithBrushChart = function(options) {
 		    
 		    if (minmax) {
 			var _min = [], _max = [];
-			_min[0] = {'x':x0, 'y':ymin[k]};
-			_min[1] = {'x':x1, 'y':ymin[k]};
-			_max[0] = {'x':x0, 'y':ymax[k]};
-			_max[1] = {'x':x1, 'y':ymax[k]};
+			_min[0] =[x0, ymin[k]];
+			_min[1] = [x1, ymin[k]];
+			_max[0] = [x0, ymax[k]];
+			_max[1] = [x1, ymax[k]];
 			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
 			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
 

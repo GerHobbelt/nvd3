@@ -79,23 +79,18 @@ function sinAndCos() {
       cos = [];
 
   for (var i = 0; i < 100; i++) {
-    sin.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) }); //the nulls are to show how defined works
-    cos.push({x: i, y: .5 * Math.cos(i/10)});
+    var x=i,
+      s = i%10==5 ? null : Math.sin(i/10), 
+      c =  .5 * Math.cos(i/10);
+    sin.push([x,s]); //the nulls are to show how defined works
+    cos.push([x,c]);
   }
 
-  return [
-    {
-      area: true,
-      values: sin,
-      key: "Sine Wave",
-      color: "#ff7f0e"
-    },
-    {
-      values: cos,
-      key: "Cosine Wave",
-      color: "#2ca02c"
-    }
-  ];
+    var series = [];
+    series.push({area: true, values: sin, key: "Sine Wave", color: "#ff7f0e"});
+    series.push({values: cos, key: "Cosine Wave", color: "#2ca02c" });
+
+  return series;
 }
 
 
