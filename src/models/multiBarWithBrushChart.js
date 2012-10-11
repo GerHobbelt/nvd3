@@ -341,7 +341,7 @@ nv.models.multiBarWithBrushChart = function(callback) {
 		var j=0;
 		for (i=0; i<data[0].values.length; i++) {
 		    if (extent[0] <= x.range()[i]  && x.range()[i] <= extent[1]) {
-			selected[j] = data[0].values[i].x;
+			selected[j] = data[0].values[i][0];
 			j++;
 		    }
 		}
