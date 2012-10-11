@@ -50,9 +50,8 @@ svg {
 
 // Wrapping in nv.addGraph allows for '0 timeout render', stors rendered charts in nv.graphs, and may do more in the future... it's NOT required
 nv.addGraph(function() {
-  var chart = nv.models.lineChart();
-//  var chart = nv.models.lineWithChart({'callback':function(x) {alert('x0= '+x[0]+'x1='+x[1]);}});
-//  var chart = nv.models.lineWithBrushChart({'trendlines':true, 'minmax':true, 'callback':function(x) {alert('x0= '+x[0]+'x1='+x[1]);}});
+//  var chart = nv.models.lineWithBrushChart({'callback':function(x) {alert('x0= '+x[0]+'x1='+x[1]);}});
+  var chart = nv.models.lineWithBrushChart({'callback':function(x) {alert(x)}, trendlines:true, minmax:true});
 
   chart.xAxis // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the partent chart, so need to chain separately
       .tickFormat(d3.format(',.1f'));
@@ -62,13 +61,12 @@ nv.addGraph(function() {
       .tickFormat(d3.format(',.2f'));
 
 
-  chart.brushCallback = function() { alert("brush event"); }
 
   d3.select('#chart1 svg')
       //.datum([]) //for testing noData
-      .datum(sinAndCos())
-    .transition().duration(500)
-      .call(chart);
+	.datum(sinAndCos())
+	.transition().duration(500)
+	.call(chart);
 
   //TODO: Figure out a good way to do this automatically
   nv.utils.windowResize(chart.update);
@@ -84,9 +82,8 @@ function sinAndCos() {
       cos = [];
 
   for (var i = 0; i < 100; i++) {
-
-    sin.push([i, i % 10 == 5 ? null : Math.sin(i/10)]); //the nulls are to show how defined works
-    cos.push([i, 0.5 * Math.cos(i/10)]);
+    sin.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) }); //the nulls are to show how defined works
+    cos.push({x: i, y: .5 * Math.cos(i/10)});
   }
 
   return [

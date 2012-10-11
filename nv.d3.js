@@ -4943,6 +4943,8 @@ nv.models.lineWithBrushChart = function(options) {
 			q[k] = 0;
 			ymax[k] = +data[i].values[0][1];
 			ymin[k] = +data[i].values[0][1];
+		
+//			ymax[k] = minmax(data[i].values[0]);
 		    }
 
 		    for (j in data[i].values) {
@@ -5252,7 +5254,43 @@ nv.models.lineWithBrushChart = function(options) {
 	    function tellModel() {
 		brushExtent = brush.empty() ? null : brush.extent();
 		extent = brush.empty() ? x.domain() : brush.extent();
-		brushCallback(extent);
+
+		var selected = {};
+		
+		for (i=0; i < data.length; i++) {
+		    var key = data[i].key;
+		    selected[key] = {min: 0, max:0};
+		    var values = data[i].values.sort(function(a,b){return ((a[0] < b[0]) ? -1 : ((a[0] > b[0]) ? 1 : 0));})
+		    
+		    // INEFFICIENT find min
+		    for (j=0; j < values.length; j++) {
+			if (values[j][0] > extent[0]) {
+			    break;
+			}
+			selected[key].min = values[j];
+		    }
+
+		    //INEFFICIENT find max
+		    for (j=values.length -1; j >=0 ; j--) {
+			if (values[j][0] < extent[1]) {
+			    break;
+			}
+			selected[key].max = values[j];
+		    }
+		}
+
+		
+
+		/*var j=0;
+		for (i=0; i<data[0].values.length; i++) {
+		    if (extent[0] <= x.range()[i]  && x.range()[i] <= extent[1]) {
+			selected[j] = data[0].values[i][0];
+			j++;
+		    }
+		}*/
+
+
+		brushCallback(selected);
 	    }
 
 	    function onBrush() {
