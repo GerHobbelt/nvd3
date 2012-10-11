@@ -116,9 +116,9 @@ nv.models.line = function() {
           .attr('class', function(d,i) { return 'nv-group nv-series-' + i })
           .classed('hover', function(d) { return d.hover })
           .style('fill', function(d,i){ return color(d, i) })
-          .style('stroke', function(d,i){ return color(d, i)});
-//	  .style('stroke-dasharray', function(d,i){ return '5,'+ (d.dash || 0)})
-//	  .style('opacity', function(d,i){return d.opacity || 1});
+          .style('stroke', function(d,i){ return color(d, i)})
+	  .style('stroke-dasharray', function(d,i){ return '5,'+ (d.dash || 0)})
+	  .style('opacity', function(d,i){return d.opacity || 1});
       d3.transition(groups)
           .style('stroke-opacity', 1)
           .style('fill-opacity', .5);
