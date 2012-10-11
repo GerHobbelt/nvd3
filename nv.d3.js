@@ -4932,41 +4932,42 @@ nv.models.lineWithBrushChart = function(options) {
 
 	    selection.each(function(data) {
 		for (i=0; i < data.length; i++) {
-		    if (!n[data[i].key]) {
-			xm[data[i].key] = 0;
-			ym[data[i].key] = 0;
-			xym[data[i].key] = 0;
-			x2m[data[i].key] = 0;
-			n[data[i].key] = 0;
-			m[data[i].key] = 0;
-			q[data[i].key] = 0;
-			ymax[data[i].key] = data[i].values[0].y;
-			ymin[data[i].key] = data[i].values[0].y;
+		    var k = data[i].key;
+		    if (!n[k]) {
+			xm[k] = 0;
+			ym[k] = 0;
+			xym[k] = 0;
+			x2m[k] = 0;
+			n[k] = 0;
+			m[k] = 0;
+			q[k] = 0;
+			ymax[k] = +data[i].values[0].y;
+			ymin[k] = +data[i].values[0].y;
 		    }
 
 		    for (j in data[i].values) {
 			var point = data[i].values[j];
-			xm[data[i].key] += point.x;
-			ym[data[i].key] += point.y;
-			xym[data[i].key] += (point.x * point.y);
-			x2m[data[i].key] += (point.x * point.x);
-			n[data[i].key]++;
-			if (point.y < ymin[data[i].key]) {
-			    ymin[data[i].key] = point.y;
+			xm[k] += +point.x;
+			ym[k] += +point.y;
+			xym[k] += (+point.x * +point.y);
+			x2m[k] += (+point.x * +point.x);
+			n[k]++;
+			if (point.y < ymin[k]) {
+			    ymin[k] = +point.y;
 			}
-			if (point.y > ymax[data[i].key]) {
-			    ymax[data[i].key] = point.y;
+			if (point.y > ymax[k]) {
+			    ymax[k] = +point.y;
 			}
 		    }
 
-		    xm[data[i].key] /= n[data[i].key];
-		    ym[data[i].key] /= n[data[i].key];
-		    xym[data[i].key] /= n[data[i].key];
-		    x2m[data[i].key] /= n[data[i].key];
+		    xm[k] /= n[k];
+		    ym[k] /= n[k];
+		    xym[k] /= n[k];
+		    x2m[k] /= n[k];
 
 		    // update coefficients
-		    m[data[i].key] = (xym[data[i].key] - (xm[data[i].key] * ym[data[i].key])) / (x2m[data[i].key] - (xm[data[i].key]*xm[data[i].key]));
-		    q[data[i].key] = ym[data[i].key] - (m[data[i].key] * xm[data[i].key]);
+		    m[k] = (xym[k] - (xm[k] * ym[k])) / (x2m[k] - (xm[k]*xm[k]));
+		    q[k] = ym[k] - (m[k] * xm[k]);
 		    
 		}
 
@@ -4974,30 +4975,32 @@ nv.models.lineWithBrushChart = function(options) {
 		var max = data.length;
 		for (i=0; i<max; i++) {
 
+		    var k = data[i].key;
+
 		    // add new series
 		    var x0 = data[i].values[0].x,
 		    x1 = data[i].values[data[i].values.length - 1].x;
 		    
 		    if (trendlines) {
-			var y0 = m[data[i].key] * x0 + q[data[i].key],
-			y1 = m[data[i].key] * x1 + q[data[i].key];
+			var y0 = m[k] * x0 + q[k],
+			y1 = m[k] * x1 + q[k];
 			var values = [];
 			values[0] = {'x': x0, 'y': y0 };
 			values[1] = {'x': x1, 'y': y1 };
 			
-			data.push({'key': data[i].key+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
+			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
 			
 		    }
 
 		    
 		    if (minmax) {
 			var _min = [], _max = [];
-			_min[0] = {'x':x0, 'y':ymin[data[i].key]};
-			_min[1] = {'x':x1, 'y':ymin[data[i].key]};
-			_max[0] = {'x':x0, 'y':ymax[data[i].key]};
-			_max[1] = {'x':x1, 'y':ymax[data[i].key]};
-			data.push({'key': data[i].key + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
-			data.push({'key': data[i].key + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
+			_min[0] = {'x':x0, 'y':ymin[k]};
+			_min[1] = {'x':x1, 'y':ymin[k]};
+			_max[0] = {'x':x0, 'y':ymax[k]};
+			_max[1] = {'x':x1, 'y':ymax[k]};
+			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
+			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
 
 		    }
 		    
