@@ -3048,6 +3048,7 @@ nv.models.legend = function() {
     , color = nv.utils.defaultColor()
     , align = true
     , dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout')
+    , trendlineDone = false
     ;
 
   //============================================================
@@ -4989,9 +4990,8 @@ nv.models.lineWithBrushChart = function(options) {
 			var y0 = m[k] * x0 + q[k],
 			y1 = m[k] * x1 + q[k];
 			var values = [];
-			values[0] = [x0, y0];
-			values[1] = [x1, y1];
-			
+			values[0] = {'x':x0, 'y':y0};
+			values[1] = {'x':x1, 'y':y1};
 			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
 			
 		    }
@@ -4999,10 +4999,11 @@ nv.models.lineWithBrushChart = function(options) {
 		    
 		    if (minmax) {
 			var _min = [], _max = [];
-			_min[0] =[x0, ymin[k]];
-			_min[1] = [x1, ymin[k]];
-			_max[0] = [x0, ymax[k]];
-			_max[1] = [x1, ymax[k]];
+			_min[0] = {'x': x0, 'y': ymin[k]};
+			_min[1] = {'x': x1, 'y': ymin[k]};
+			_max[0] = {'x': x0, 'y': ymax[k]};
+			_max[1] = {'x': x1, 'y': ymax[k]};
+
 			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
 			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
 
@@ -5405,21 +5406,21 @@ nv.models.lineWithBrushChart = function(options) {
 	height = _;
 	return chart;
     };
-/*
-    chart.x = function(_) {
-	if (!arguments.length) return getX;
-	getX = _;
-	scatter.x(_);
-	return chart;
-    };
+    /*
+      chart.x = function(_) {
+      if (!arguments.length) return getX;
+      getX = _;
+      scatter.x(_);
+      return chart;
+      };
 
-    chart.y = function(_) {
-	if (!arguments.length) return getY;
-	getY = _;
-	scatter.y(_);
-	return chart;
-    };
-*/
+      chart.y = function(_) {
+      if (!arguments.length) return getY;
+      getY = _;
+      scatter.y(_);
+      return chart;
+      };
+    */
     chart.color = function(_) {
 	if (!arguments.length) return color;
 	color = nv.utils.getColor(_);
