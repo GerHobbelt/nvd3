@@ -566,7 +566,7 @@ nv.models.lineWithBrushChart = function(options) {
 	height = _;
 	return chart;
     };
-
+/*
     chart.x = function(_) {
 	if (!arguments.length) return getX;
 	getX = _;
@@ -580,7 +580,7 @@ nv.models.lineWithBrushChart = function(options) {
 	scatter.y(_);
 	return chart;
     };
-
+*/
     chart.color = function(_) {
 	if (!arguments.length) return color;
 	color = nv.utils.getColor(_);
