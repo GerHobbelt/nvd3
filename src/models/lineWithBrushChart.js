@@ -88,7 +88,6 @@ nv.models.lineWithBrushChart = function(options) {
 
 
 	// Trendlines
-
 	if ((trendlines || minmax) && trendlinesDone == false) {
 	    var xm = {} , ym = {} , xym = {} , x2m = {}, 
 	    n = {}, m = {}, q = {}, i, ymax = {}, ymin = {};
