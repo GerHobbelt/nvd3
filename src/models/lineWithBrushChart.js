@@ -152,7 +152,7 @@ nv.models.lineWithBrushChart = function(options) {
 			var values = [];
 			values[0] = {'x':x0, 'y':y0};
 			values[1] = {'x':x1, 'y':y1};
-			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
+			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6, 'generated':true});
 			
 		    }
 
@@ -164,8 +164,8 @@ nv.models.lineWithBrushChart = function(options) {
 			_max[0] = {'x': x0, 'y': ymax[k]};
 			_max[1] = {'x': x1, 'y': ymax[k]};
 
-			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
-			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
+			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4, 'generated':true});
+			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4, 'generated':true});
 
 		    }
 		    
@@ -421,6 +421,9 @@ nv.models.lineWithBrushChart = function(options) {
 		var selected = {};
 		
 		for (i=0; i < data.length; i++) {
+		    if (data[i].generated) {
+			continue;
+		    }
 		    var key = data[i].key;
 		    selected[key] = {min: 0, max:0};
 		    var values = data[i].values.sort(function(a,b){return (( +getX(a) < +getX(b)) ? -1 : (( +getX(a) > +getX(b)) ? 1 : 0));})
