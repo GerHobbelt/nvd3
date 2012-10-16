@@ -17,6 +17,8 @@ nv.models.lineWithBrushChart = function(options) {
     , height = null
     , showLegend = true
     , tooltips = true
+    , getX = function(d) { return d.x } // accessor to get the x value from a data point
+    , getY = function(d) { return d.y } // accessor to get the y value from a data point
     , brush = d3.svg.brush()
     , brushCallback = options.callback
     , trendlines = options.trendlines
@@ -86,7 +88,6 @@ nv.models.lineWithBrushChart = function(options) {
 
 
 	// Trendlines
-
 	if ((trendlines || minmax) && trendlinesDone == false) {
 	    var xm = {} , ym = {} , xym = {} , x2m = {}, 
 	    n = {}, m = {}, q = {}, i, ymax = {}, ymin = {};
@@ -102,24 +103,24 @@ nv.models.lineWithBrushChart = function(options) {
 			n[k] = 0;
 			m[k] = 0;
 			q[k] = 0;
-			ymax[k] = +data[i].values[0][1];
-			ymin[k] = +data[i].values[0][1];
-		
-//			ymax[k] = minmax(data[i].values[0]);
+			ymax[k] = + getY(data[i].values[0]);
+			ymin[k] = + getY(data[i].values[0]);
+			
+			//			ymax[k] = minmax(data[i].values[0]);
 		    }
 
 		    for (j in data[i].values) {
 			var point = data[i].values[j];
-			xm[k] += +point[0];
-			ym[k] += +point[1];
-			xym[k] += (+point[0] * +point[1]);
-			x2m[k] += (+point[0] * +point[0]);
+			xm[k] += + getX(point);
+			ym[k] += +getY(point);
+			xym[k] += (+getX(point) * +getY(point));
+			x2m[k] += (+getX(point) * +getX(point));
 			n[k]++;
-			if (point[1] < ymin[k]) {
-			    ymin[k] = +point[1];
+			if (getY(point) < ymin[k]) {
+			    ymin[k] = +getY(point);
 			}
-			if (point[1] > ymax[k]) {
-			    ymax[k] = +point[1];
+			if (getY(point) > ymax[k]) {
+			    ymax[k] = +getY(point);
 			}
 		    }
 
@@ -141,29 +142,29 @@ nv.models.lineWithBrushChart = function(options) {
 		    var k = data[i].key;
 
 		    // add new series
-		    var x0 = data[i].values[0][0],
-		    x1 = data[i].values[data[i].values.length - 1][0];
+		    var x0 = getX(data[i].values[0]),
+		    x1 = getX(data[i].values[data[i].values.length - 1]);
 		    
 		    if (trendlines) {
 			var y0 = m[k] * x0 + q[k],
 			y1 = m[k] * x1 + q[k];
 			var values = [];
-			values[0] = [x0, y0];
-			values[1] = [x1, y1];
-			
-			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6});
+			values[0] = {'x':x0, 'y':y0};
+			values[1] = {'x':x1, 'y':y1};
+			data.push({'key': k+'-trend', 'color': data[i].color, 'values': values, 'dash': '10', 'opacity':0.6, 'generated':true});
 			
 		    }
 
 		    
 		    if (minmax) {
 			var _min = [], _max = [];
-			_min[0] =[x0, ymin[k]];
-			_min[1] = [x1, ymin[k]];
-			_max[0] = [x0, ymax[k]];
-			_max[1] = [x1, ymax[k]];
-			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4});
-			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4});
+			_min[0] = {'x': x0, 'y': ymin[k]};
+			_min[1] = {'x': x1, 'y': ymin[k]};
+			_max[0] = {'x': x0, 'y': ymax[k]};
+			_max[1] = {'x': x1, 'y': ymax[k]};
+
+			data.push({'key': k + "-min", 'color': data[i].color, 'values': _min, 'dash': '5', 'opacity':0.4, 'generated':true});
+			data.push({'key': k + "-max", 'color': data[i].color, 'values': _max, 'dash': '5', 'opacity':0.4, 'generated':true});
 
 		    }
 		    
@@ -419,13 +420,16 @@ nv.models.lineWithBrushChart = function(options) {
 		var selected = {};
 		
 		for (i=0; i < data.length; i++) {
+		    if (data[i].generated) {
+			continue;
+		    }
 		    var key = data[i].key;
 		    selected[key] = {min: 0, max:0};
-		    var values = data[i].values.sort(function(a,b){return ((a[0] < b[0]) ? -1 : ((a[0] > b[0]) ? 1 : 0));})
+		    var values = data[i].values.sort(function(a,b){return (( +getX(a) < +getX(b)) ? -1 : (( +getX(a) > +getX(b)) ? 1 : 0));})
 		    
 		    // INEFFICIENT find min
 		    for (j=0; j < values.length; j++) {
-			if (values[j][0] > extent[0]) {
+			if (getX(values[j]) > extent[0]) {
 			    break;
 			}
 			selected[key].min = values[j];
@@ -433,7 +437,7 @@ nv.models.lineWithBrushChart = function(options) {
 
 		    //INEFFICIENT find max
 		    for (j=values.length -1; j >=0 ; j--) {
-			if (values[j][0] < extent[1]) {
+			if (getX(values[j]) < extent[1]) {
 			    break;
 			}
 			selected[key].max = values[j];
@@ -443,12 +447,12 @@ nv.models.lineWithBrushChart = function(options) {
 		
 
 		/*var j=0;
-		for (i=0; i<data[0].values.length; i++) {
-		    if (extent[0] <= x.range()[i]  && x.range()[i] <= extent[1]) {
-			selected[j] = data[0].values[i][0];
-			j++;
-		    }
-		}*/
+		  for (i=0; i<data[0].values.length; i++) {
+		  if (extent[0] <= x.range()[i]  && x.range()[i] <= extent[1]) {
+		  selected[j] = data[0].values[i][0];
+		  j++;
+		  }
+		  }*/
 
 
 		brushCallback(selected);
@@ -564,7 +568,21 @@ nv.models.lineWithBrushChart = function(options) {
 	height = _;
 	return chart;
     };
+    /*
+      chart.x = function(_) {
+      if (!arguments.length) return getX;
+      getX = _;
+      scatter.x(_);
+      return chart;
+      };
 
+      chart.y = function(_) {
+      if (!arguments.length) return getY;
+      getY = _;
+      scatter.y(_);
+      return chart;
+      };
+    */
     chart.color = function(_) {
 	if (!arguments.length) return color;
 	color = nv.utils.getColor(_);

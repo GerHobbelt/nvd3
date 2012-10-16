@@ -1,5 +1,5 @@
 
-nv.models.multiBarWithBrushChart = function(callback) {
+nv.models.multiBarWithBrushChart = function(options) {
 
     //============================================================
     // Public Variables with Default Settings
@@ -10,7 +10,7 @@ nv.models.multiBarWithBrushChart = function(callback) {
     , yAxis = nv.models.axis()
     , legend = nv.models.legend()
     , controls = nv.models.legend()
-    , brushCallback = callback
+    , brushCallback = options.callback || null
     , brush = d3.svg.brush()
     , brushExtent = null
     ;
@@ -23,6 +23,8 @@ nv.models.multiBarWithBrushChart = function(callback) {
     , showLegend = true
     , reduceXTicks = true // if false a tick will show for every data point
     , rotateLabels = 0
+    , getX = function(d) { return d.x } // accessor to get the x value from a data point
+    , getY = function(d) { return d.y } // accessor to get the y value from a data point
     , tooltips = true
     , tooltip = function(key, x, y, e, graph) {
         return '<h3>' + key + '</h3>' +
@@ -337,18 +339,24 @@ nv.models.multiBarWithBrushChart = function(callback) {
 		//		alert('x1= '+extent[0]+' , x1= '+extent[1]);
 
 		//alert('domain: '+x.domain(extent[0])+'\nrange: '+x.range(extent[0]));
-		var selected = [];
-		var j=0;
-		for (i=0; i<data[0].values.length; i++) {
-		    if (extent[0] <= x.range()[i]  && x.range()[i] <= extent[1]) {
-			selected[j] = data[0].values[i][0];
-			j++;
+		var selected = {};
+	
+		for(k=0; k < data.length; k++){
+		    selected[k] = [];
+		    var j=0;
+		    for (i=0; i<data[k].values.length; i++) {
+		   
+			if (extent[0] <= x.range()[i]  && x.range()[i] <= extent[1]) {
+			    selected[k][j] = data[k].values[i];
+			    j++;
+			}
 		    }
 		}
-		
 //		alert(extent);
 //		alert(selected);
 		brushCallback(selected);
+
+
 	    }
 
 
