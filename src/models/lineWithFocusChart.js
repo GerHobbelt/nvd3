@@ -488,9 +488,21 @@ nv.models.lineWithFocusChart = function() {
     return chart;
   };
 
+  chart.width2 = function(_) {
+    if (!arguments.length) return width2;
+    width2 = _;
+    return chart;
+  };
+
   chart.height = function(_) {
     if (!arguments.length) return height;
     height = _;
+    return chart;
+  };
+
+  chart.height2 = function(_) {
+    if (!arguments.length) return height2;
+    height2 = _;
     return chart;
   };
 
