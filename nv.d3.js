@@ -3187,7 +3187,7 @@ nv.models.legend = function() {
       //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
 
       // NEW ALIGNING CODE, TODO: clean up
-      if (align) {
+      if (align)  {
         var seriesWidths = [];
         series.each(function(d,i) {
 	      // 28 is ~ the width of the circle plus some padding
@@ -3200,7 +3200,7 @@ nv.models.legend = function() {
         var legendHeight = 0;
         var columnWidths = [];
 	var xPositions = [];
-	var isColumnVisible = [];
+    	var isColumnVisible = [];
 
 	while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
 	  columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
@@ -3245,7 +3245,7 @@ nv.models.legend = function() {
 			}
 		}
 	}
-
+	
 	for (var i = 0, curX = 0; i < seriesPerRow; i++) {
 	    xPositions[i] = curX;
 	    curX += columnWidths[i];
@@ -3265,70 +3265,95 @@ nv.models.legend = function() {
 
         height = margin.top + margin.bottom + (Math.ceil(seriesWidths.length / seriesPerRow) * 20);
 	if (showLegendSlider) {
-      		var elm1 = container.append("svg:path").attr("class","nv-legend-right").style("cursor","pointer")
-		    	.attr("d", d3.svg.symbol().type("triangle-down").size(32))
-			.attr("transform", 'translate(' + availableWidth + ',' + (numRows * 20)/2 + ') rotate(-90)');
-      		var elm2 = container.append("svg:path").attr("class","nv-legend-left").style("cursor","pointer")
-		    	.attr("d", d3.svg.symbol().type("triangle-down").size(32))
-			.attr("transform", 'translate(-20,' + (numRows * 20)/2 + ') rotate(90)')
-			.style("display","none");
-          	container.selectAll("[class^=nv-legend-]").on('click', function() {
-				var left = d3.select(this).attr("class") == "nv-legend-left";
-          			var mode = 0;
-				var toHideIdx = -1;
-				var toShowIdx = -1;
-				if (!left) {
-					if (isColumnVisible[isColumnVisible.length-1]) { return}
-					//Loop through column visiblities and make the first visible
-					//one hidden and the first hidden on visble
-					for (var i = 0; i < isColumnVisible.length; i++) {
-						if (mode == 0 && isColumnVisible[i]) {
-							isColumnVisible[i] = false;;
-							toHideIdx = i;
-							mode = 1;
-						} else if(mode == 1 && !isColumnVisible[i]) {
-							isColumnVisible[i] = true;;
-							toShowIdx = i;
-							break;
+			if (container.selectAll("path[class^=nv-legend-]")[0].length == 0 ) {
+				var elm1 = container.append("svg:path").attr("class","nv-legend-right").style("cursor","pointer")
+					.attr("d", d3.svg.symbol().type("triangle-down").size(32))
+				.attr("transform", 'translate(' + availableWidth + ',' + (numRows * 20)/2 + ') rotate(-90)');
+				var elm2 = container.append("svg:path").attr("class","nv-legend-left").style("cursor","pointer")
+					.attr("d", d3.svg.symbol().type("triangle-down").size(32))
+				.attr("transform", 'translate(-20,' + (numRows * 20)/2 + ') rotate(90)')
+				.style("display","none");
+			}
+			//attr that allows us to specify the context of the function so that we can
+			//call it manually
+			container.selectAll("path[class^=nv-legend-]").on('click', function(d,i,that) {
+					var left = d3.select(that?that:this).attr("class") == "nv-legend-left";
+					var mode = 0;
+					var toHideIdx = -1;
+					var toShowIdx = -1;
+					if (!left) {
+						if (isColumnVisible[isColumnVisible.length-1]) { return}
+						
+						//if that is set, then we called this manually and don't
+						// want to adjust the global offset state
+						if(!that) legendOffset--;
+						//Loop through column visiblities and make the first visible
+						//one hidden and the first hidden on visble
+						for (var i = 0; i < isColumnVisible.length; i++) {
+							if (mode == 0 && isColumnVisible[i]) {
+								isColumnVisible[i] = false;;
+								toHideIdx = i;
+								mode = 1;
+							} else if(mode == 1 && !isColumnVisible[i]) {
+								isColumnVisible[i] = true;;
+								toShowIdx = i;
+								break;
+							}
+						};
+							wrapTran[0] -= columnWidths[toHideIdx];
+					} else {
+						if (isColumnVisible[0]) { return}
+						//Loop through column visiblities and make the first last invisible
+						//one visible and the last visble one hidden
+						for (var i = 0; i < isColumnVisible.length; i++) {
+							if (mode == 0 && isColumnVisible[i]) {
+								isColumnVisible[i-1] = true;
+								toShowIdx = i-1;
+								mode = 1;
+							} else if(mode == 1 && !isColumnVisible[i]) {
+								isColumnVisible[i-1] = false;
+								toHideIdx = i-1;
+								break;
+							}
+						};
+						
+						//if that is set, then we called this manually and don't
+						// want to adjust the global offset state
+						if(!that) legendOffset++;
+						if (toHideIdx == -1) {
+							isColumnVisible[isColumnVisible.length-1] = false;
 						}
-					};
-			       		wrapTran[0] -= columnWidths[toHideIdx];
-				} else {
-					if (isColumnVisible[0]) { return}
-					//Loop through column visiblities and make the first last invisible
-					//one visible and the last visble one hidden
-					for (var i = 0; i < isColumnVisible.length; i++) {
-						if (mode == 0 && isColumnVisible[i]) {
-							isColumnVisible[i-1] = true;
-							toShowIdx = i-1;
-							mode = 1;
-						} else if(mode == 1 && !isColumnVisible[i]) {
-							isColumnVisible[i-1] = false;
-							toHideIdx = i-1;
-							break;
-						}
-					};
-					if (toHideIdx == -1) {
-						isColumnVisible[isColumnVisible.length-1] = false;
+							wrapTran[0] += columnWidths[toShowIdx];
 					}
-			       		wrapTran[0] += columnWidths[toShowIdx];
-				}
-				series.style("display",function(d, i) {
-					return isColumnVisible[i % seriesPerRow] ? "block" : "none";
-				});
-				if (isColumnVisible[0]) {
-					container.select(".nv-legend-left").style("display","none");
-				} else {
-					container.select(".nv-legend-left").style("display","block");
-				}
-				if (isColumnVisible[isColumnVisible.length-1]) {
-					container.select(".nv-legend-right").style("display","none");
-				}else{
-					container.select(".nv-legend-right").style("display","block");
-				}
-			       wrap.attr('transform', 'translate(' + wrapTran[0] + ',' + wrapTran[1] + ')');
-			})
-	}
+					series.style("display",function(d, i) {
+						return isColumnVisible[i % seriesPerRow] ? "block" : "none";
+					});
+					if (isColumnVisible[0]) {
+						container.select(".nv-legend-left").style("display","none");
+					} else {
+						container.select(".nv-legend-left").style("display","block");
+					}
+					if (isColumnVisible[isColumnVisible.length-1]) {
+						container.select(".nv-legend-right").style("display","none");
+					}else{
+						container.select(".nv-legend-right").style("display","block");
+					}
+					wrap.attr('transform', 'translate(' + wrapTran[0] + ',' + wrapTran[1] + ')');
+				})
+			}
+		if (legendOffset > 0) {
+				for (var i = 0; i <legendOffset; i++) {
+					container.selectAll(".nv-legend-left").each(function(d, i) {
+						d3.select(this).on("click")(d, i,this);
+					});
+				};
+		} else if (legendOffset < 0) {
+				for (var i = 0; i > legendOffset; i--) {
+					container.selectAll(".nv-legend-right").each(function(d, i) {
+						d3.select(this).on("click")(d, i,this);
+					});
+				};
+		}
       } else {
 
         var ypos = 5,
