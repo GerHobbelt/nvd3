@@ -1,11 +1,15 @@
+Please see Novus' official statement on nvd3 with an explanation,
+apology, and commitment to its permanent status as an open-source
+project.
+[http://nvd3.org/statement.html](http://nvd3.org/statement.html)
+
 # nvd3 - v0.0.1
 
-***This is the last open source state of NVD3 by Novus Partners.  Novus may be closing source of further development, this may become the initial state of a new open source d3 reusable chart library.
-
-A reusable chart library for d3.JS by Bob Monteverde
+A reusable chart library for d3.JS by Bob Monteverde of Novus Partners.
 
 Currently in an early stage of development, but will be a very active project.  It may change quite a bit from its current state, but will always try to follow the style in which d3.js was done.
 
+You can also check out the [examples page](http://nvd3.org/ghpages/examples.html)
 
 ---
 
@@ -17,7 +21,7 @@ Minifying your fork:
 
 The Makefile requires [UglifyJS](https://github.com/mishoo/UglifyJS).
 
-The easist way to install is to install via npm. Run `npm install
+The easiest way to install is to install via npm. Run `npm install
 uglify-js` from your home directory, then add the output from `npm bin`
 into your path so that you have access to `uglifyjs` from the command
 line (remember to restart your terminal window when adding to the path.)
@@ -31,3 +35,9 @@ Without UglifyJS, you won't get the minified version when running make.
 If you need to minify please build pull request in separate branch, and
 merge and minify in yout master.
 
+## (Officially) Supported Browsers
+
+* Chrome latest version (preferred)
+* Firefox latest version
+* Safari latest version
+* Internet Explorer 9 and 10
