@@ -806,7 +806,7 @@ nv.models.historicalBar = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
       //------------------------------------------------------------
@@ -5980,7 +5980,7 @@ nv.models.multiBar = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
 
@@ -8566,7 +8566,7 @@ nv.models.ohlcBar = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
       //------------------------------------------------------------
@@ -8879,6 +8879,7 @@ nv.models.pie = function() {
     , donutLabelsOutside = false
     , labelThreshold = .02 //if slice percentage is under this, don't show label
     , donut = false
+    , labelSunbeamLayout = false
     , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
     ;
 
@@ -8890,6 +8891,7 @@ nv.models.pie = function() {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
           radius = Math.min(availableWidth, availableHeight) / 2,
+          arcRadius = radius-(radius / 5),
           container = d3.select(this);
 
 
@@ -8922,7 +8924,7 @@ nv.models.pie = function() {
 
 
       var arc = d3.svg.arc()
-                  .outerRadius((radius-(radius / 5)));
+                  .outerRadius(arcRadius);
 
       if (donut) arc.innerRadius(radius / 2);
 
@@ -9008,9 +9010,21 @@ nv.models.pie = function() {
 
               group
                 .attr('transform', function(d) {
-                   d.outerRadius = radius + 10; // Set Outer Coordinate
-                   d.innerRadius = radius + 15; // Set Inner Coordinate
-                   return 'translate(' + labelsArc.centroid(d) + ')'
+                     if (labelSunbeamLayout) {
+                       d.outerRadius = arcRadius + 10; // Set Outer Coordinate
+                       d.innerRadius = arcRadius + 15; // Set Inner Coordinate
+                       var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
+                       if ((d.startAngle+d.endAngle)/2 < Math.PI) {
+                       	 rotateAngle -= 90;
+                       } else {
+                       	 rotateAngle += 90;
+                       }
+                       return 'translate(' + labelsArc.centroid(d) + ') rotate(' + rotateAngle + ')';
+                     } else {
+                       d.outerRadius = radius + 10; // Set Outer Coordinate
+                       d.innerRadius = radius + 15; // Set Inner Coordinate
+                       return 'translate(' + labelsArc.centroid(d) + ')'
+                     }
                 });
 
               group.append('rect')
@@ -9020,7 +9034,7 @@ nv.models.pie = function() {
                   .attr("ry", 3);
 
               group.append('text')
-                  .style('text-anchor', 'middle') //center the text on it's origin
+                  .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
                   .style('fill', '#000')
 
 
@@ -9028,9 +9042,21 @@ nv.models.pie = function() {
 
           slices.select(".nv-label").transition()
             .attr('transform', function(d) {
-                d.outerRadius = radius + 10; // Set Outer Coordinate
-                d.innerRadius = radius + 15; // Set Inner Coordinate
-                return 'translate(' + labelsArc.centroid(d) + ')';
+            	if (labelSunbeamLayout) {
+                  d.outerRadius = arcRadius + 10; // Set Outer Coordinate
+                  d.innerRadius = arcRadius + 15; // Set Inner Coordinate
+                  var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
+                  if ((d.startAngle+d.endAngle)/2 < Math.PI) {
+                    rotateAngle -= 90;
+                  } else {
+                    rotateAngle += 90;
+                  }
+                  return 'translate(' + labelsArc.centroid(d) + ') rotate(' + rotateAngle + ')';
+                } else {
+                  d.outerRadius = radius + 10; // Set Outer Coordinate
+                  d.innerRadius = radius + 15; // Set Inner Coordinate
+                  return 'translate(' + labelsArc.centroid(d) + ')'
+                }
             });
 
           slices.each(function(d, i) {
@@ -9038,6 +9064,7 @@ nv.models.pie = function() {
 
             slice
               .select(".nv-label text")
+                .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
                 .text(function(d, i) {
                   var percent = (d.endAngle - d.startAngle) / (2 * Math.PI);
                   return (d.value && percent > labelThreshold) ? getX(d.data) : '';
@@ -9131,6 +9158,12 @@ nv.models.pie = function() {
   chart.showLabels = function(_) {
     if (!arguments.length) return showLabels;
     showLabels = _;
+    return chart;
+  };
+  
+  chart.labelSunbeamLayout = function(_) {
+    if (!arguments.length) return labelSunbeamLayout;
+    labelSunbeamLayout = _;
     return chart;
   };
 
@@ -9560,7 +9593,7 @@ nv.models.scatter = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
 
@@ -11225,7 +11258,7 @@ nv.models.scatterPlusLineChart = function() {
 
 
   return chart;
-};
+}
 
 nv.models.sparkline = function() {
 
