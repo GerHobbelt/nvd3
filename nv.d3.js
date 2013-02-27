@@ -7288,6 +7288,7 @@ nv.models.multiBarHorizontal = function() {
     , getY = function(d) { return d.y }
     , forceY = [0] // 0 is forced by default.. this makes sense for the majority of bar graphs... user can always do chart.forceY([]) to remove
     , color = nv.utils.defaultColor()
+    , barColor = null // adding the ability to set the color for each rather than the whole group
     , stacked = false
     , showValues = false
     , valuePadding = 60
@@ -7480,9 +7481,11 @@ nv.models.multiBarHorizontal = function() {
 
       bars
           .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
-          //.attr('transform', function(d,i,j) {
-              //return 'translate(' + y0(stacked ? d.y0 : 0) + ',' + x(getX(d,i)) + ')'
-          //})
+
+      if (barColor) {
+        bars.style('fill', barColor).style('stroke', barColor);
+      }
+
       if (stacked)
         d3.transition(bars)
             //.delay(function(d,i) { return i * delay / data[0].values.length })
@@ -7603,6 +7606,12 @@ nv.models.multiBarHorizontal = function() {
   chart.color = function(_) {
     if (!arguments.length) return color;
     color = nv.utils.getColor(_);
+    return chart;
+  };
+
+  chart.barColor = function(_) {
+    if (!arguments.length) return barColor;
+    barColor = nv.utils.getColor(_);
     return chart;
   };
 
@@ -12096,6 +12105,7 @@ nv.models.stackedAreaChart = function() {
     , state = { style: stacked.style() }
     , noData = 'No Data Available.'
     , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , controlWidth = 250
     ;
 
   xAxis
@@ -12199,7 +12209,7 @@ nv.models.stackedAreaChart = function() {
 
       if (showLegend) {
         legend
-          .width( availableWidth * 2 / 3 );
+          .width( availableWidth - controlWidth );
 
         g.select('.nv-legendWrap')
             .datum(data)
@@ -12212,7 +12222,7 @@ nv.models.stackedAreaChart = function() {
         }
 
         g.select('.nv-legendWrap')
-            .attr('transform', 'translate(' + ( availableWidth * 1 / 3 ) + ',' + (-margin.top) +')');
+            .attr('transform', 'translate(' + controlWidth + ',' + (-margin.top) +')');
       }
 
       //------------------------------------------------------------
@@ -12229,7 +12239,7 @@ nv.models.stackedAreaChart = function() {
         ];
 
         controls
-          .width( Math.min(280, availableWidth * 1 / 3) )
+          .width( controlWidth )
           .color(['#444', '#444', '#444']);
 
         g.select('.nv-controlsWrap')
