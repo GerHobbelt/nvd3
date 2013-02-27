@@ -172,6 +172,11 @@ nv.models.discreteBarChart = function() {
             .attr('transform', function(d,i,j) { return 'translate(0,' + (j % 2 == 0 ? '5' : '17') + ')' })
       }
 
+      if (rotateLabels)
+        xTicks
+            .selectAll('text')
+            .attr('transform', 'rotate(' + rotateLabels + ')')
+
       yAxis
         .scale(y)
         .ticks( availableHeight / 36 )
@@ -256,6 +261,12 @@ nv.models.discreteBarChart = function() {
     if (!arguments.length) return color;
     color = nv.utils.getColor(_);
     discretebar.color(color);
+    return chart;
+  };
+
+  chart.rotateLabels = function(_) {
+    if (!arguments.length) return rotateLabels;
+    rotateLabels = _;
     return chart;
   };
 
