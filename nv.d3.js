@@ -806,7 +806,7 @@ nv.models.historicalBar = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
       //------------------------------------------------------------
@@ -5980,7 +5980,7 @@ nv.models.multiBar = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
 
@@ -7288,6 +7288,7 @@ nv.models.multiBarHorizontal = function() {
     , getY = function(d) { return d.y }
     , forceY = [0] // 0 is forced by default.. this makes sense for the majority of bar graphs... user can always do chart.forceY([]) to remove
     , color = nv.utils.defaultColor()
+    , barColor = null // adding the ability to set the color for each rather than the whole group
     , stacked = false
     , showValues = false
     , valuePadding = 60
@@ -7480,9 +7481,11 @@ nv.models.multiBarHorizontal = function() {
 
       bars
           .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
-          //.attr('transform', function(d,i,j) {
-              //return 'translate(' + y0(stacked ? d.y0 : 0) + ',' + x(getX(d,i)) + ')'
-          //})
+
+      if (barColor) {
+        bars.style('fill', barColor).style('stroke', barColor);
+      }
+
       if (stacked)
         d3.transition(bars)
             //.delay(function(d,i) { return i * delay / data[0].values.length })
@@ -7603,6 +7606,12 @@ nv.models.multiBarHorizontal = function() {
   chart.color = function(_) {
     if (!arguments.length) return color;
     color = nv.utils.getColor(_);
+    return chart;
+  };
+
+  chart.barColor = function(_) {
+    if (!arguments.length) return barColor;
+    barColor = nv.utils.getColor(_);
     return chart;
   };
 
@@ -8566,7 +8575,7 @@ nv.models.ohlcBar = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
       //------------------------------------------------------------
@@ -8879,6 +8888,7 @@ nv.models.pie = function() {
     , donutLabelsOutside = false
     , labelThreshold = .02 //if slice percentage is under this, don't show label
     , donut = false
+    , labelSunbeamLayout = false
     , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
     ;
 
@@ -8890,6 +8900,7 @@ nv.models.pie = function() {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
           radius = Math.min(availableWidth, availableHeight) / 2,
+          arcRadius = radius-(radius / 5),
           container = d3.select(this);
 
 
@@ -8922,7 +8933,7 @@ nv.models.pie = function() {
 
 
       var arc = d3.svg.arc()
-                  .outerRadius((radius-(radius / 5)));
+                  .outerRadius(arcRadius);
 
       if (donut) arc.innerRadius(radius / 2);
 
@@ -9008,9 +9019,21 @@ nv.models.pie = function() {
 
               group
                 .attr('transform', function(d) {
-                   d.outerRadius = radius + 10; // Set Outer Coordinate
-                   d.innerRadius = radius + 15; // Set Inner Coordinate
-                   return 'translate(' + labelsArc.centroid(d) + ')'
+                     if (labelSunbeamLayout) {
+                       d.outerRadius = arcRadius + 10; // Set Outer Coordinate
+                       d.innerRadius = arcRadius + 15; // Set Inner Coordinate
+                       var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
+                       if ((d.startAngle+d.endAngle)/2 < Math.PI) {
+                       	 rotateAngle -= 90;
+                       } else {
+                       	 rotateAngle += 90;
+                       }
+                       return 'translate(' + labelsArc.centroid(d) + ') rotate(' + rotateAngle + ')';
+                     } else {
+                       d.outerRadius = radius + 10; // Set Outer Coordinate
+                       d.innerRadius = radius + 15; // Set Inner Coordinate
+                       return 'translate(' + labelsArc.centroid(d) + ')'
+                     }
                 });
 
               group.append('rect')
@@ -9020,7 +9043,7 @@ nv.models.pie = function() {
                   .attr("ry", 3);
 
               group.append('text')
-                  .style('text-anchor', 'middle') //center the text on it's origin
+                  .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
                   .style('fill', '#000')
 
 
@@ -9028,9 +9051,21 @@ nv.models.pie = function() {
 
           slices.select(".nv-label").transition()
             .attr('transform', function(d) {
-                d.outerRadius = radius + 10; // Set Outer Coordinate
-                d.innerRadius = radius + 15; // Set Inner Coordinate
-                return 'translate(' + labelsArc.centroid(d) + ')';
+            	if (labelSunbeamLayout) {
+                  d.outerRadius = arcRadius + 10; // Set Outer Coordinate
+                  d.innerRadius = arcRadius + 15; // Set Inner Coordinate
+                  var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
+                  if ((d.startAngle+d.endAngle)/2 < Math.PI) {
+                    rotateAngle -= 90;
+                  } else {
+                    rotateAngle += 90;
+                  }
+                  return 'translate(' + labelsArc.centroid(d) + ') rotate(' + rotateAngle + ')';
+                } else {
+                  d.outerRadius = radius + 10; // Set Outer Coordinate
+                  d.innerRadius = radius + 15; // Set Inner Coordinate
+                  return 'translate(' + labelsArc.centroid(d) + ')'
+                }
             });
 
           slices.each(function(d, i) {
@@ -9038,6 +9073,7 @@ nv.models.pie = function() {
 
             slice
               .select(".nv-label text")
+                .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
                 .text(function(d, i) {
                   var percent = (d.endAngle - d.startAngle) / (2 * Math.PI);
                   return (d.value && percent > labelThreshold) ? getX(d.data) : '';
@@ -9131,6 +9167,12 @@ nv.models.pie = function() {
   chart.showLabels = function(_) {
     if (!arguments.length) return showLabels;
     showLabels = _;
+    return chart;
+  };
+  
+  chart.labelSunbeamLayout = function(_) {
+    if (!arguments.length) return labelSunbeamLayout;
+    labelSunbeamLayout = _;
     return chart;
   };
 
@@ -9560,7 +9602,7 @@ nv.models.scatter = function() {
 
       if (y.domain()[0] === y.domain()[1])
         y.domain()[0] ?
-            y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
+            y.domain([y.domain()[0] + y.domain()[0] * 0.01, y.domain()[1] - y.domain()[1] * 0.01])
           : y.domain([-1,1]);
 
 
@@ -11225,7 +11267,7 @@ nv.models.scatterPlusLineChart = function() {
 
 
   return chart;
-};
+}
 
 nv.models.sparkline = function() {
 
@@ -12063,6 +12105,7 @@ nv.models.stackedAreaChart = function() {
     , state = { style: stacked.style() }
     , noData = 'No Data Available.'
     , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , controlWidth = 250
     ;
 
   xAxis
@@ -12166,7 +12209,7 @@ nv.models.stackedAreaChart = function() {
 
       if (showLegend) {
         legend
-          .width( availableWidth * 2 / 3 );
+          .width( availableWidth - controlWidth );
 
         g.select('.nv-legendWrap')
             .datum(data)
@@ -12179,7 +12222,7 @@ nv.models.stackedAreaChart = function() {
         }
 
         g.select('.nv-legendWrap')
-            .attr('transform', 'translate(' + ( availableWidth * 1 / 3 ) + ',' + (-margin.top) +')');
+            .attr('transform', 'translate(' + controlWidth + ',' + (-margin.top) +')');
       }
 
       //------------------------------------------------------------
@@ -12196,7 +12239,7 @@ nv.models.stackedAreaChart = function() {
         ];
 
         controls
-          .width( Math.min(280, availableWidth * 1 / 3) )
+          .width( controlWidth )
           .color(['#444', '#444', '#444']);
 
         g.select('.nv-controlsWrap')
