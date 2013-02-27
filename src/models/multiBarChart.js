@@ -224,8 +224,8 @@ nv.models.multiBarChart = function() {
       if(rotateLabels)
         xTicks
             .selectAll('text')
-            .attr('transform', function(d,i,j) { return 'rotate('+rotateLabels+' 0,0)' })
-            .attr('text-transform', rotateLabels > 0 ? 'start' : 'end');
+            .attr('transform', function(d,i,j) { return 'rotate('+rotateLabels+' 0,0)'; })
+            .attr('text-anchor', rotateLabels > 0 ? 'start' : 'end');
 
       g.select('.nv-x.nv-axis').selectAll('g.nv-axisMaxMin text')
           .style('opacity', 1);
