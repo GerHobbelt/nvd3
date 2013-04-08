@@ -4,9 +4,6 @@ nv.models.axis = function() {
   // Public Variables with Default Settings
   //------------------------------------------------------------
 
-  var axis = d3.svg.axis()
-    ;
-
   var margin = {top: 0, right: 0, bottom: 0, left: 0}
     , width = 60 //only used for tickLabel currently
     , height = 60 //only used for tickLabel currently
@@ -16,14 +13,7 @@ nv.models.axis = function() {
     , highlightZero = true
     , rotateLabels = 0
     , rotateYLabel = true
-    , staggerLabels = false
     , ticks = null
-    ;
-
-  axis
-    .scale(scale)
-    .orient('bottom')
-    .tickFormat(function(d) { return d })
     ;
 
   //============================================================
@@ -33,7 +23,11 @@ nv.models.axis = function() {
   // Private Variables
   //------------------------------------------------------------
 
-  var scale0;
+  var axis = d3.svg.axis()
+               .scale(scale)
+               .orient('bottom')
+               .tickFormat(function(d) { return d }) //TODO: decide if we want to keep this
+    , scale0;
 
   //============================================================
 
@@ -68,11 +62,6 @@ nv.models.axis = function() {
 
       scale0 = scale0 || axis.scale();
 
-      var fmt = axis.tickFormat();
-      if (fmt == null) {
-        fmt = scale0.tickFormat();
-      }
-
       var axisLabel = g.selectAll('text.nv-axislabel')
           .data([axisLabelText || null]);
       axisLabel.exit().remove();
@@ -98,8 +87,7 @@ nv.models.axis = function() {
                 .attr('y', -axis.tickPadding())
                 .attr('text-anchor', 'middle')
                 .text(function(d,i) {
-                  var v = fmt(d);
-                  return ('' + v).match('NaN') ? '' : v;
+                  return ('' + axis.tickFormat()(d)).match('NaN') ? '' : axis.tickFormat()(d)
                 });
             d3.transition(axisMaxMin)
                 .attr('transform', function(d,i) {
@@ -108,26 +96,25 @@ nv.models.axis = function() {
           }
           break;
         case 'bottom':
-          var xLabelMargin = 30;
-          var maxTextWidth = 30;
+        var xLabelMargin = 30;
+        var maxTextWidth = 30;
+        if(rotateLabels%360){
           var xTicks = g.selectAll('g').select("text");
-          if (rotateLabels%360) {
-            //Calculate the longest xTick width
-            xTicks.each(function(d,i){
-              var width = this.getBBox().width;
-              if(width > maxTextWidth) maxTextWidth = width;
-            });
-            //Convert to radians before calculating sin. Add 30 to margin for healthy padding.
-            var sin = Math.abs(Math.sin(rotateLabels*Math.PI/180));
-            var xLabelMargin = (sin ? sin*maxTextWidth : maxTextWidth)+30;
-            //Rotate all xTicks
-            xTicks
-              .attr('transform', function(d,i,j) { return 'rotate(' + rotateLabels + ' 0,0)' })
-              .attr('text-anchor', rotateLabels%360 > 0 ? 'start' : 'end');
-          }
-          axisLabel.enter().append('text').attr('class', 'nv-axislabel')
-            .attr('text-anchor', 'middle')
-            .attr('y', xLabelMargin);
+          //Calculate the longest xTick width
+          xTicks.each(function(d,i){
+            var width = this.getBBox().width;
+            if(width > maxTextWidth) maxTextWidth = width;
+          });
+          //Convert to radians before calculating sin. Add 30 to margin for healthy padding.
+          var sin = Math.abs(Math.sin(rotateLabels*Math.PI/180));
+          var xLabelMargin = (sin ? sin*maxTextWidth : maxTextWidth)+30;
+          //Rotate all xTicks
+          xTicks.attr('transform', function(d,i,j) { return 'rotate(' + rotateLabels + ' 0,0)' })
+          .attr('text-anchor', rotateLabels%360 > 0 ? 'start' : 'end');
+        }
+        axisLabel.enter().append('text').attr('class', 'nv-axislabel')
+              .attr('text-anchor', 'middle')
+              .attr('y', xLabelMargin);
           var w = (scale.range().length==2) ? scale.range()[1] : (scale.range()[scale.range().length-1]+(scale.range()[1]-scale.range()[0]));
           axisLabel
               .attr('x', w/2);
@@ -144,20 +131,15 @@ nv.models.axis = function() {
                 .attr('dy', '.71em')
                 .attr('y', axis.tickPadding())
                 .attr('transform', function(d,i,j) { return 'rotate(' + rotateLabels + ' 0,0)' })
-                .attr('text-anchor', rotateLabels ? (rotateLabels%360 > 0 ? 'start' : 'end') : 'middle')
+                .attr('text-anchor', rotateLabels%360 > 0 ? 'start' : 'end')
                 .text(function(d,i) {
-                  var v = fmt(d);
-                  return ('' + v).match('NaN') ? '' : v;
+                  return ('' + axis.tickFormat()(d)).match('NaN') ? '' : axis.tickFormat()(d)
                 });
             d3.transition(axisMaxMin)
                 .attr('transform', function(d,i) {
                   return 'translate(' + scale.range()[i] + ',0)'
                 });
           }
-          if (staggerLabels)
-            xTicks
-                .attr('transform', function(d,i) { return 'translate(0,' + (i % 2 == 0 ? '0' : '12') + ')' });
-
           break;
         case 'right':
           axisLabel.enter().append('text').attr('class', 'nv-axislabel')
@@ -182,8 +164,7 @@ nv.models.axis = function() {
                 .attr('x', axis.tickPadding())
                 .attr('text-anchor', 'start')
                 .text(function(d,i) {
-                  var v = fmt(d);
-                  return ('' + v).match('NaN') ? '' : v;
+                  return ('' + axis.tickFormat()(d)).match('NaN') ? '' : axis.tickFormat()(d)
                 });
             d3.transition(axisMaxMin)
                 .attr('transform', function(d,i) {
@@ -216,8 +197,7 @@ nv.models.axis = function() {
                 .attr('x', -axis.tickPadding())
                 .attr('text-anchor', 'end')
                 .text(function(d,i) {
-                  var v = fmt(d);
-                  return ('' + v).match('NaN') ? '' : v;
+                  return ('' + axis.tickFormat()(d)).match('NaN') ? '' : axis.tickFormat()(d)
                 });
             d3.transition(axisMaxMin)
                 .attr('transform', function(d,i) {
@@ -226,14 +206,46 @@ nv.models.axis = function() {
               .select('text')
                 .style('opacity', 1);
           }
+          // add tooltips to the left tick labels if they're truncated
+          g.selectAll('text')
+		      .on('mouseover', function(d,i) {
+		          var currTick = d3.select(this).classed('hover', true);
+		          //console.log(currTick.node().offsetLeft+" - "+currTick.node().clientWidth)
+		          var currTickContainer = d3.select(currTick.node().parentNode);
+		          var coordStr = currTickContainer.attr("transform")
+		          var regex = /translate\(([\d\.]+),([\d\.]+)\)/;
+		          var coordX = coordStr.replace(regex, "$1");
+		          var coordY = coordStr.replace(regex, "$2");
+		          var mainGContainer = d3.select(container.node().ownerSVGElement).select("g.nvd3.nv-wrap")
+		          var marginStr = mainGContainer.attr("transform")
+		          var marginX = marginStr.replace(regex, "$1");
+		          var marginY = marginStr.replace(regex, "$2");	          
+		          
+		          var tooltipText = "<div class='tick-tooltip'>"+axis.tickFormat()(d)+"</div>"
+		          var offsetLeft = this.offsetLeft+parseInt(coordX)
+		          if (offsetLeft < 0)
+		        	  offsetLeft= 0;
+	
+		          var offsetTop = this.offsetTop+parseInt(coordY)+parseInt(marginY)
+		          if (offsetTop < 0)
+		        	  offsetTop= 0;
+		          
+		          if (parseInt(marginX) < currTick.node().clientWidth)
+		        	  nv.tooltip.show([offsetLeft, offsetTop], tooltipText, 'w', null, container.node().ownerSVGElement.parentNode);
+		        })
+		      .on('mouseout', function(d,i) {
+			      d3.select(this).classed('hover', false);
+			      nv.tooltip.cleanup();
+		        });
+          
           break;
       }
       axisLabel
           .text(function(d) { return d });
 
 
+      //check if max and min overlap other values, if so, hide the values that overlap
       if (showMaxMin && (axis.orient() === 'left' || axis.orient() === 'right')) {
-        //check if max and min overlap other values, if so, hide the values that overlap
         g.selectAll('g') // the g's wrapping each tick
             .each(function(d,i) {
               if (scale(d) < scale.range()[1] + 10 || scale(d) > scale.range()[0] - 10) { // 10 is assuming text height is 16... if d is 0, leave it!
@@ -243,12 +255,6 @@ nv.models.axis = function() {
                   d3.select(this).select('text').remove(); // Don't remove the ZERO line!!
               }
             });
-
-        //if Max and Min = 0 only show min, Issue #281
-        if (scale.domain()[0] == scale.domain()[1] && scale.domain()[0] == 0)
-          wrap.selectAll('g.nv-axisMaxMin')
-            .style('opacity', function(d,i) { return !i ? 1 : 0 });
-        
       }
 
       if (showMaxMin && (axis.orient() === 'top' || axis.orient() === 'bottom')) {
@@ -290,9 +296,6 @@ nv.models.axis = function() {
   //============================================================
   // Expose Public Variables
   //------------------------------------------------------------
-
-  // expose chart's sub-components
-  chart.axis = axis;
 
   d3.rebind(chart, axis, 'orient', 'tickValues', 'tickSubdivide', 'tickSize', 'tickPadding', 'tickFormat');
   d3.rebind(chart, scale, 'domain', 'range', 'rangeBand', 'rangeBands'); //these are also accessible by chart.scale(), but added common ones directly for ease of use
@@ -361,13 +364,6 @@ nv.models.axis = function() {
     rotateLabels = _;
     return chart;
   }
-
-  chart.staggerLabels = function(_) {
-    if (!arguments.length) return staggerLabels;
-    staggerLabels = _;
-    return chart;
-  };
-
 
   //============================================================
 
