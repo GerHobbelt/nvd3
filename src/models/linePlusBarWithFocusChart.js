@@ -107,7 +107,7 @@ nv.models.linePlusBarWithFocusChart = function() {
                              - margin.top - margin.bottom - height2,
           availableHeight2 = height2 - margin2.top - margin2.bottom;
 
-      chart.update = function() { chart(selection) };
+      chart.update = function() { container.transition().call(chart); };
       chart.container = this;
 
 
@@ -356,7 +356,7 @@ nv.models.linePlusBarWithFocusChart = function() {
           });
         }
 
-        selection.call(chart);
+        chart.update();
       });
 
       dispatch.on('tooltipShow', function(e) {
@@ -423,6 +423,7 @@ nv.models.linePlusBarWithFocusChart = function() {
         .color(data.map(function(d,i) {
           return d.color || color(d, i);
         }).filter(function(d,i) { return !data[i].disabled && data[i].bar }));
+
 
         lines
         .width(availableWidth)
@@ -649,6 +650,13 @@ nv.models.linePlusBarWithFocusChart = function() {
     noData = _;
     return chart;
   };
+
+  chart.brushExtent = function(_) {
+    if (!arguments.length) return brushExtent;
+    brushExtent = _;
+    return chart;
+  };
+
 
   //============================================================
 

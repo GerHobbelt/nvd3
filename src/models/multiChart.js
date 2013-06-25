@@ -44,7 +44,7 @@ nv.models.multiChart = function() {
     var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
         top = e.pos[1] + ( offsetElement.offsetTop || 0),
         x = xAxis.tickFormat()(lines1.x()(e.point, e.pointIndex)),
-        y = (e.series.bar ? yAxis1 : yAxis2).tickFormat()(lines1.y()(e.point, e.pointIndex)),
+        y = ((e.series.yAxis == 2) ? yAxis2 : yAxis1).tickFormat()(lines1.y()(e.point, e.pointIndex)),
         content = tooltip(e.series.key, x, y, e, chart);
 
     nv.tooltip.show([left, top], content, undefined, undefined, offsetElement.offsetParent);
@@ -54,6 +54,9 @@ nv.models.multiChart = function() {
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
+
+      chart.update = function() { container.transition().call(chart); };
+      chart.container = this;
 
       var availableWidth = (width  || parseInt(container.style('width')) || 960)
                              - margin.left - margin.right,
@@ -253,7 +256,7 @@ nv.models.multiChart = function() {
             return d;
           });
         }
-        selection.transition().call(chart);
+        chart.update();
       });
 
       dispatch.on('tooltipShow', function(e) {
@@ -261,9 +264,6 @@ nv.models.multiChart = function() {
       });
 
     });
-
-    chart.update = function() { chart(selection) };
-    chart.container = this;
 
     return chart;
   }
