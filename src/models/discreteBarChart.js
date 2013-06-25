@@ -14,6 +14,9 @@ nv.models.discreteBarChart = function() {
     , width = null
     , height = null
     , color = nv.utils.getColor()
+    , showXAxis = true
+    , showYAxis = true
+    , rightAlignYAxis = false
     , staggerLabels = false
     , tooltips = true
     , tooltip = function(key, x, y, e, graph) {
@@ -33,7 +36,7 @@ nv.models.discreteBarChart = function() {
     .tickFormat(function(d) { return d })
     ;
   yAxis
-    .orient('left')
+    .orient((rightAlignYAxis) ? 'right' : 'left')
     .tickFormat(d3.format(',.1f'))
     ;
 
@@ -119,6 +122,11 @@ nv.models.discreteBarChart = function() {
 
       g.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+      if (rightAlignYAxis) {
+          g.select(".nv-y.nv-axis")
+              .attr("transform", "translate(" + availableWidth + ",0)");
+      }
+
       //------------------------------------------------------------
 
 
@@ -152,38 +160,43 @@ nv.models.discreteBarChart = function() {
       //------------------------------------------------------------
       // Setup Axes
 
-      xAxis
-        .scale(x)
-        .ticks( availableWidth / 100 )
-        .tickSize(-availableHeight, 0);
+      if (showXAxis) {
+          xAxis
+            .scale(x)
+            .ticks( availableWidth / 100 )
+            .tickSize(-availableHeight, 0);
 
-      g.select('.nv-x.nv-axis')
-          .attr('transform', 'translate(0,' + (y.range()[0] + ((discretebar.showValues() && y.domain()[0] < 0) ? 16 : 0)) + ')');
-      //d3.transition(g.select('.nv-x.nv-axis'))
-      g.select('.nv-x.nv-axis').transition().duration(0)
-          .call(xAxis);
+          g.select('.nv-x.nv-axis')
+              .attr('transform', 'translate(0,' + (y.range()[0] + ((discretebar.showValues() && y.domain()[0] < 0) ? 16 : 0)) + ')');
+          //d3.transition(g.select('.nv-x.nv-axis'))
+          g.select('.nv-x.nv-axis').transition().duration(0)
+              .call(xAxis);
 
 
-      var xTicks = g.select('.nv-x.nv-axis').selectAll('g');
+          var xTicks = g.select('.nv-x.nv-axis').selectAll('g');
 
-      if (staggerLabels) {
-        xTicks
-            .selectAll('text')
-            .attr('transform', function(d,i,j) { return 'translate(0,' + (j % 2 == 0 ? '5' : '17') + ')' })
+          if (staggerLabels) {
+            xTicks
+                .selectAll('text')
+                .attr('transform', function(d,i,j) { return 'translate(0,' + (j % 2 == 0 ? '5' : '17') + ')' })
+          }
+
+          if (rotateLabels) {
+              xTicks
+                .selectAll('text')
+                .attr('transform', 'rotate(' + rotateLabels + ')');
+		  }
       }
 
-      if (rotateLabels)
-        xTicks
-            .selectAll('text')
-            .attr('transform', 'rotate(' + rotateLabels + ')')
+      if (showYAxis) {
+          yAxis
+            .scale(y)
+            .ticks( availableHeight / 36 )
+            .tickSize( -availableWidth, 0);
 
-      yAxis
-        .scale(y)
-        .ticks( availableHeight / 36 )
-        .tickSize( -availableWidth, 0);
-
-      d3.transition(g.select('.nv-y.nv-axis'))
-          .call(yAxis);
+          d3.transition(g.select('.nv-y.nv-axis'))
+              .call(yAxis);
+      }
 
       //------------------------------------------------------------
 
@@ -267,6 +280,25 @@ nv.models.discreteBarChart = function() {
   chart.rotateLabels = function(_) {
     if (!arguments.length) return rotateLabels;
     rotateLabels = _;
+    return chart;
+  };
+  
+  chart.showXAxis = function(_) {
+    if (!arguments.length) return showXAxis;
+    showXAxis = _;
+    return chart;
+  };
+
+  chart.showYAxis = function(_) {
+    if (!arguments.length) return showYAxis;
+    showYAxis = _;
+    return chart;
+  };
+
+  chart.rightAlignYAxis = function(_) {
+    if(!arguments.length) return rightAlignYAxis;
+    rightAlignYAxis = _;
+    yAxis.orient( (_) ? 'right' : 'left');
     return chart;
   };
 
