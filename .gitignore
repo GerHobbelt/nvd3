@@ -22,6 +22,10 @@ ehthumbs.db
 Icon?
 Thumbs.db
 
+#  nodejs packages   #
+######################
+node_modules
+
 # Emacs generated files #
 #########################
 \#*#
@@ -30,3 +34,4 @@ Thumbs.db
 #######################
 *.bak
 *~
+
