@@ -127,7 +127,7 @@ nv.models.indentedTree = function() {
             .text(function(d) { return column.format ? column.format(d) :
                                         (d[column.key] || '-') });
 
-        if  (column.showCount) {
+        if (column.showCount) {
           nodeName.append('span')
               .attr('class', 'nv-childrenCount');
 
@@ -183,7 +183,7 @@ nv.models.indentedTree = function() {
       function click(d, _, unshift) {
         d3.event.stopPropagation();
 
-        if(d3.event.shiftKey && !unshift) {
+        if (d3.event.shiftKey && !unshift) {
           //If you shift-click, it'll toggle fold all the children, instead of itself
           d3.event.shiftKey = false;
           d.values && d.values.forEach(function(node){
@@ -193,7 +193,7 @@ nv.models.indentedTree = function() {
           });
           return true;
         }
-        if(!hasChildren(d)) {
+        if (!hasChildren(d)) {
           //download file
           //window.location.href = d.url;
           return true;
@@ -222,8 +222,6 @@ nv.models.indentedTree = function() {
 
         return (values && values.length);
       }
-
-
     });
 
     return chart;
@@ -298,14 +296,14 @@ nv.models.indentedTree = function() {
     return chart;
   };
 
-  chart.iconOpen = function(_){
-     if (!arguments.length) return iconOpen;
+  chart.iconOpen = function(_) {
+    if (!arguments.length) return iconOpen;
     iconOpen = _;
     return chart;
   }
 
-  chart.iconClose = function(_){
-     if (!arguments.length) return iconClose;
+  chart.iconClose = function(_) {
+    if (!arguments.length) return iconClose;
     iconClose = _;
     return chart;
   }
