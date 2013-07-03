@@ -12,6 +12,7 @@ nv.models.legend = function() {
     , color = nv.utils.defaultColor()
     , align = true
     , legendOffset = 0
+    , rightAlign = true
     , dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout')
     ;
 
@@ -83,57 +84,57 @@ nv.models.legend = function() {
         var legendWidth = 0;
         var legendHeight = 0;
         var columnWidths = [];
-    var xPositions = [];
+        var xPositions = [];
         var isColumnVisible = [];
 
-    while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
-      columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
-      isColumnVisible[seriesPerRow] = true;
-      legendWidth += seriesWidths[seriesPerRow++];
-    }
+        while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
+          columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
+          isColumnVisible[seriesPerRow] = true;
+          legendWidth += seriesWidths[seriesPerRow++];
+        }
 
-    while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
-      columnWidths = [];
-      seriesPerRow--;
+        while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
+          columnWidths = [];
+          seriesPerRow--;
 
-      for (k = 0; k < seriesWidths.length; k++) {
-        if (seriesWidths[k] > (columnWidths[k % seriesPerRow] || 0) )
-          columnWidths[k % seriesPerRow] = seriesWidths[k];
-      }
+          for (k = 0; k < seriesWidths.length; k++) {
+            if (seriesWidths[k] > (columnWidths[k % seriesPerRow] || 0) )
+              columnWidths[k % seriesPerRow] = seriesWidths[k];
+          }
 
-      legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
+          legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
               return prev + cur;
-      });
-    }
+          });
+        }
         var showLegendSlider = false;
-    var numRows = Math.ceil(seriesWidths.length / seriesPerRow)+1
+        var numRows = Math.ceil(seriesWidths.length / seriesPerRow)+1
 
-    // Check if our number of rows exceeds the maximum. If it does,
-    // recalculate things.
-    if (maxRows !== false && numRows > maxRows ) {
-        numRows = maxRows;
-        seriesPerRow = Math.ceil(seriesWidths.length/numRows);
-        for (var i = 0; i < seriesWidths.length; i++) {
-            var col = i % seriesPerRow
-            if(columnWidths[col] === undefined) {
-                columnWidths[col] = 0;
-            }
-            columnWidths[col] = Math.max(seriesWidths[i],columnWidths[col])
-        };
-        legendWidth = 0;
-        for(i =0;i<seriesPerRow;i++) {
-            legendWidth += columnWidths[i];
-            if (legendWidth > availableWidth) {
-                isColumnVisible[i] = false;
-                showLegendSlider = true;
+        // Check if our number of rows exceeds the maximum. If it does,
+        // recalculate things.
+        if (maxRows !== false && numRows > maxRows ) {
+            numRows = maxRows;
+            seriesPerRow = Math.ceil(seriesWidths.length/numRows);
+            for (var i = 0; i < seriesWidths.length; i++) {
+                var col = i % seriesPerRow
+                if (columnWidths[col] === undefined) {
+                    columnWidths[col] = 0;
+                }
+                columnWidths[col] = Math.max(seriesWidths[i],columnWidths[col])
+            };
+            legendWidth = 0;
+            for (i = 0; i < seriesPerRow; i++) {
+                legendWidth += columnWidths[i];
+                if (legendWidth > availableWidth) {
+                    isColumnVisible[i] = false;
+                    showLegendSlider = true;
+                }
             }
         }
-    }
 
-    for (var i = 0, curX = 0; i < seriesPerRow; i++) {
-        xPositions[i] = curX;
-        curX += columnWidths[i];
-    }
+        for (var i = 0, curX = 0; i < seriesPerRow; i++) {
+            xPositions[i] = curX;
+            curX += columnWidths[i];
+        }
 
         series
             .attr('transform', function(d, i) {
@@ -141,22 +142,27 @@ nv.models.legend = function() {
             });
         series
             .style('display',function(d, i) {
-            return isColumnVisible[ i % seriesPerRow] ? 'block' : 'none';
-        });
+                return isColumnVisible[ i % seriesPerRow] ? 'block' : 'none';
+            });
 
         //position legend as far right as possible within the total width
-        g.attr('transform', 'translate(' + Math.max(0,width - margin.right - legendWidth) + ',' + margin.top + ')');
+        if (rightAlign) {
+            g.attr('transform', 'translate(' + Math.max(0, width - margin.right - legendWidth) + ',' + margin.top + ')');
+        }
+        else {
+           g.attr('transform', 'translate(0' + ',' + margin.top + ')');
+        }
 
         height = margin.top + margin.bottom + (Math.ceil(seriesWidths.length / seriesPerRow) * 20);
-    if (showLegendSlider) {
-            if (container.selectAll("path[class^=nv-legend-]")[0].length == 0 ) {
-                var elm1 = container.append("svg:path").attr("class","nv-legend-right").style("cursor","pointer")
+        if (showLegendSlider) {
+            if (container.selectAll("path[class^=nv-legend-]")[0].length == 0) {
+                var elm1 = container.append("svg:path").attr("class", "nv-legend-right").style("cursor", "pointer")
                     .attr("d", d3.svg.symbol().type("triangle-down").size(32))
-                .attr("transform", 'translate(' + availableWidth + ',' + (numRows * 20)/2 + ') rotate(-90)');
+                    .attr("transform", 'translate(' + availableWidth + ',' + (numRows * 20)/2 + ') rotate(-90)');
                 var elm2 = container.append("svg:path").attr("class","nv-legend-left").style("cursor","pointer")
                     .attr("d", d3.svg.symbol().type("triangle-down").size(32))
-                .attr("transform", 'translate(-20,' + (numRows * 20)/2 + ') rotate(90)')
-                .style("display","none");
+                    .attr("transform", 'translate(-20,' + (numRows * 20)/2 + ') rotate(90)')
+                    .style("display", "none");
             }
             //attr that allows us to specify the context of the function so that we can
             //call it manually
@@ -170,7 +176,7 @@ nv.models.legend = function() {
 
                         //if that is set, then we called this manually and don't
                         // want to adjust the global offset state
-                        if(!that) legendOffset--;
+                        if (!that) legendOffset--;
                         //Loop through column visiblities and make the first visible
                         //one hidden and the first hidden on visble
                         for (var i = 0; i < isColumnVisible.length; i++) {
@@ -178,15 +184,15 @@ nv.models.legend = function() {
                                 isColumnVisible[i] = false;;
                                 toHideIdx = i;
                                 mode = 1;
-                            } else if(mode == 1 && !isColumnVisible[i]) {
+                            } else if (mode == 1 && !isColumnVisible[i]) {
                                 isColumnVisible[i] = true;;
                                 toShowIdx = i;
                                 break;
                             }
                         };
-                            wrapTran[0] -= columnWidths[toHideIdx];
+                        wrapTran[0] -= columnWidths[toHideIdx];
                     } else {
-                        if (isColumnVisible[0]) { return}
+                        if (isColumnVisible[0]) { return; }
                         //Loop through column visiblities and make the first last invisible
                         //one visible and the last visble one hidden
                         for (var i = 0; i < isColumnVisible.length; i++) {
@@ -194,7 +200,7 @@ nv.models.legend = function() {
                                 isColumnVisible[i-1] = true;
                                 toShowIdx = i-1;
                                 mode = 1;
-                            } else if(mode == 1 && !isColumnVisible[i]) {
+                            } else if (mode == 1 && !isColumnVisible[i]) {
                                 isColumnVisible[i-1] = false;
                                 toHideIdx = i-1;
                                 break;
@@ -203,11 +209,11 @@ nv.models.legend = function() {
 
                         //if that is set, then we called this manually and don't
                         // want to adjust the global offset state
-                        if(!that) legendOffset++;
+                        if (!that) legendOffset++;
                         if (toHideIdx == -1) {
                             isColumnVisible[isColumnVisible.length-1] = false;
                         }
-                            wrapTran[0] += columnWidths[toShowIdx];
+                        wrapTran[0] += columnWidths[toShowIdx];
                     }
                     series.style("display",function(d, i) {
                         return isColumnVisible[i % seriesPerRow] ? "block" : "none";
@@ -219,12 +225,12 @@ nv.models.legend = function() {
                     }
                     if (isColumnVisible[isColumnVisible.length-1]) {
                         container.select(".nv-legend-right").style("display","none");
-                    }else{
+                    } else {
                         container.select(".nv-legend-right").style("display","block");
                     }
                     wrap.attr('transform', 'translate(' + wrapTran[0] + ',' + wrapTran[1] + ')');
-                })
-            }
+            });
+        }
         if (legendOffset > 0) {
                 for (var i = 0; i <legendOffset; i++) {
                     container.selectAll(".nv-legend-left").each(function(d, i) {
@@ -239,7 +245,6 @@ nv.models.legend = function() {
                 };
         }
       } else {
-
         var ypos = 5,
             newxpos = 5,
             maxwidth = 0,
@@ -321,6 +326,12 @@ nv.models.legend = function() {
   chart.align = function(_) {
     if (!arguments.length) return align;
     align = _;
+    return chart;
+  };
+
+  chart.rightAlign = function(_) {
+    if (!arguments.length) return rightAlign;
+    rightAlign = _;
     return chart;
   };
 
