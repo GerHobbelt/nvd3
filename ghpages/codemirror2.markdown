@@ -65,23 +65,23 @@ title: Simple Line Chart
 
 
 
-<div class="accordion" id="codeAccordian"> 
-  <div class="accordion-group"> 
-    <div class="accordion-heading"> 
-      <a class="accordion-toggle" data-toggle="collapse" data-parent="#codeAccordian" href="#collapseOne"> 
+<div class="accordion" id="codeAccordian">
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#codeAccordian" href="#collapseOne">
         HTML / CSS Markup
-      </a> 
-    </div> 
-    <div id="collapseOne" class="accordion-body collapse in"> 
+      </a>
+    </div>
+    <div id="collapseOne" class="accordion-body collapse in">
       <div class="accordion-inner">
 <textarea id="codeMarkup" name="codeMarkup">
 &lt;div id="chart">
   &lt;svg style="height:400px">&lt;/svg>
 &lt;/div>
 </textarea>
-      </div> 
-    </div> 
-  </div> 
+      </div>
+    </div>
+  </div>
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse" data-parent="#codeAccordian" href="#collapseTwo">

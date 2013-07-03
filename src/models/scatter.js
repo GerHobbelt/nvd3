@@ -167,9 +167,9 @@ nv.models.scatter = function() {
                 var pX = getX(point,pointIndex) + Math.random() * 1e-7;
                 var pY = getY(point,pointIndex) + Math.random() * 1e-7;
 
-                return [x(pX), 
-                        y(pY), 
-                        groupIndex, 
+                return [x(pX),
+                        y(pY),
+                        groupIndex,
                         pointIndex, point]; //temp hack to add noise untill I think of a better way so there are no duplicates
               })
               .filter(function(pointArray, pointIndex) {
@@ -237,10 +237,10 @@ nv.models.scatter = function() {
           pointPaths.exit().remove();
           pointPaths
               .attr('d', function(d) {
-                if (d.data.length === 0) 
+                if (d.data.length === 0)
                     return 'M 0 0'
-                else 
-                    return 'M' + d.data.join('L') + 'Z'; 
+                else
+                    return 'M' + d.data.join('L') + 'Z';
               });
 
           pointPaths
@@ -301,7 +301,7 @@ nv.models.scatter = function() {
             .selectAll('.nv-point')
               //.data(dataWithPoints)
               //.style('pointer-events', 'auto') // recativate events, disabled by css
-              .on('click', function(d,i) { 
+              .on('click', function(d,i) {
                 //nv.log('test', d, i);
                 if (needsUpdate || !data[d.series]) return 0; //check if this is a dummy point
                 var series = data[d.series],

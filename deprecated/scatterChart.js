@@ -10,7 +10,7 @@ nv.models.scatterChart = function() {
       tooltips = true,
       tooltipX = function(key, x, y) { return '<strong>' + x + '</strong>' },
       tooltipY = function(key, x, y) { return '<strong>' + y + '</strong>' },
-      tooltip = function(key, x, y, e, graph) { 
+      tooltip = function(key, x, y, e, graph) {
         return '<h3>' + key + '</h3>' +
                '<p>' +  y + ' at ' + x + '</p>'
       };
@@ -169,7 +169,7 @@ nv.models.scatterChart = function() {
             return d;
           });
         }
-        
+
         chart.update();
       });
 

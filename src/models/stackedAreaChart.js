@@ -236,7 +236,7 @@ nv.models.stackedAreaChart = function() {
 
         g.select('.nv-x.nv-axis')
             .attr('transform', 'translate(0,' + availableHeight + ')');
- 
+
         g.select('.nv-x.nv-axis')
           .transition().duration(0)
             .call(xAxis);
@@ -249,7 +249,7 @@ nv.models.stackedAreaChart = function() {
           .tickSize(-availableWidth, 0)
           .setTickFormat(stacked.offset() == 'expand' ? d3.format('%') : yAxisTickFormat);
 
-  
+
         g.select('.nv-y.nv-axis')
           .transition().duration(0)
             .call(yAxis);
@@ -303,7 +303,7 @@ nv.models.stackedAreaChart = function() {
           data.forEach(function(d) {
              d.disabled = true;
           });
-          d.disabled = false;  
+          d.disabled = false;
 
           state.disabled = data.map(function(d) { return !!d.disabled });
           dispatch.stateChange(state);

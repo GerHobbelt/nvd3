@@ -2,14 +2,14 @@
 nv.models.lineChart = function() {
   var margin = {top: 30, right: 20, bottom: 50, left: 60},
       color = nv.utils.defaultColor(),
-      width = null, 
+      width = null,
       height = null,
       showLegend = true,
       showControls = true,
       fisheye = 0,
       pauseFisheye = false,
       tooltips = true,
-      tooltip = function(key, x, y, e, graph) { 
+      tooltip = function(key, x, y, e, graph) {
         return '<h3>' + key + '</h3>' +
                '<p>' +  y + ' at ' + x + '</p>'
       },
@@ -189,7 +189,7 @@ nv.models.lineChart = function() {
       }
 
 
-      controls.dispatch.on('legendClick', function(d,i) { 
+      controls.dispatch.on('legendClick', function(d,i) {
         d.disabled = !d.disabled;
 
         fisheye = d.disabled ? 0 : 5;
@@ -213,7 +213,7 @@ nv.models.lineChart = function() {
 
 
 
-      legend.dispatch.on('legendClick', function(d,i) { 
+      legend.dispatch.on('legendClick', function(d,i) {
         d.disabled = !d.disabled;
 
         if (!data.filter(function(d) { return !d.disabled }).length) {

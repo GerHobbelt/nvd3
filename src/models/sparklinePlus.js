@@ -34,7 +34,7 @@ nv.models.sparklinePlus = function() {
           availableHeight = (height || parseInt(container.style('height')) || 400)
                              - margin.top - margin.bottom;
 
-      
+
 
       chart.update = function() { chart(selection) };
       chart.container = this;
@@ -109,7 +109,7 @@ nv.models.sparklinePlus = function() {
 
 
       var valueWrap = g.select('.nv-valueWrap');
-      
+
       var value = valueWrap.selectAll('.nv-currentValue')
           .data([currentValue]);
 

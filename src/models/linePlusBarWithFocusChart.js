@@ -165,7 +165,7 @@ nv.models.linePlusBarWithFocusChart = function() {
         });
 
       x   .range([0, availableWidth]);
-      
+
       x2  .domain(d3.extent(d3.merge(series1.concat(series2)), function(d) { return d.x } ))
           .range([0, availableWidth]);
 
@@ -181,7 +181,7 @@ nv.models.linePlusBarWithFocusChart = function() {
       var g = wrap.select('g');
 
       gEnter.append('g').attr('class', 'nv-legendWrap');
-      
+
       var focusEnter = gEnter.append('g').attr('class', 'nv-focus');
       focusEnter.append('g').attr('class', 'nv-x nv-axis');
       focusEnter.append('g').attr('class', 'nv-y1 nv-axis');
@@ -248,13 +248,13 @@ nv.models.linePlusBarWithFocusChart = function() {
         .color(data.map(function(d,i) {
           return d.color || color(d, i);
         }).filter(function(d,i) { return !data[i].disabled && !data[i].bar }));
-        
+
       var bars2Wrap = g.select('.nv-context .nv-barsWrap')
           .datum(dataBars.length ? dataBars : [{values:[]}]);
 
       var lines2Wrap = g.select('.nv-context .nv-linesWrap')
           .datum(!dataLines[0].disabled ? dataLines : [{values:[]}]);
-          
+
       g.select('.nv-context')
           .attr('transform', 'translate(0,' + ( availableHeight1 + margin.bottom + margin2.top) + ')')
 
@@ -322,10 +322,10 @@ nv.models.linePlusBarWithFocusChart = function() {
       g.select('.nv-context .nv-y1.nv-axis')
           .style('opacity', dataBars.length ? 1 : 0)
           .attr('transform', 'translate(0,' + x2.range()[0] + ')');
-          
+
       d3.transition(g.select('.nv-context .nv-y1.nv-axis'))
           .call(y3Axis);
-          
+
 
       y4Axis
         .scale(y4)
@@ -338,14 +338,14 @@ nv.models.linePlusBarWithFocusChart = function() {
 
       d3.transition(g.select('.nv-context .nv-y2.nv-axis'))
           .call(y4Axis);
-          
+
       //------------------------------------------------------------
 
       //============================================================
       // Event Handling/Dispatching (in chart's scope)
       //------------------------------------------------------------
 
-      legend.dispatch.on('legendClick', function(d,i) { 
+      legend.dispatch.on('legendClick', function(d,i) {
         d.disabled = !d.disabled;
 
         if (!data.filter(function(d) { return !d.disabled }).length) {
@@ -416,7 +416,7 @@ nv.models.linePlusBarWithFocusChart = function() {
 
         //------------------------------------------------------------
         // Prepare Main (Focus) Bars and Lines
-        
+
         bars
         .width(availableWidth)
         .height(availableHeight1)
@@ -444,7 +444,7 @@ nv.models.linePlusBarWithFocusChart = function() {
                   }
                 })
             );
-        
+
         var focusLinesWrap = g.select('.nv-focus .nv-linesWrap')
             .datum(dataLines[0].disabled ? [{values:[]}] :
               dataLines
@@ -457,10 +457,10 @@ nv.models.linePlusBarWithFocusChart = function() {
                   }
                 })
              );
-                 
+
         //------------------------------------------------------------
-        
-        
+
+
         //------------------------------------------------------------
         // Update Main (Focus) X Axis
 
@@ -469,31 +469,31 @@ nv.models.linePlusBarWithFocusChart = function() {
         } else {
             x = lines.xScale();
         }
-        
+
         xAxis
         .scale(x)
         .ticks( availableWidth / 100 )
         .tickSize(-availableHeight1, 0);
 
         xAxis.domain([Math.ceil(extent[0]), Math.floor(extent[1])]);
-        
+
         d3.transition(g.select('.nv-x.nv-axis'))
           .call(xAxis);
         //------------------------------------------------------------
-        
-        
+
+
         //------------------------------------------------------------
         // Update Main (Focus) Bars and Lines
 
         d3.transition(focusBarsWrap).call(bars);
         d3.transition(focusLinesWrap).call(lines);
-        
+
         //------------------------------------------------------------
-        
-          
+
+
         //------------------------------------------------------------
         // Setup and Update Main (Focus) Y Axes
-        
+
         g.select('.nv-focus .nv-x.nv-axis')
           .attr('transform', 'translate(0,' + y1.range()[0] + ')');
 

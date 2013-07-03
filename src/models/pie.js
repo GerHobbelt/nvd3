@@ -144,7 +144,7 @@ nv.models.pie = function() {
         if (showLabels) {
           // This does the normal label
           var labelsArc = d3.svg.arc().innerRadius(0);
-          
+
           if (pieLabelsOutside){ labelsArc = arc; }
 
           if (donutLabelsOutside) { labelsArc = d3.svg.arc().outerRadius(arc.outerRadius()); }
@@ -160,9 +160,9 @@ nv.models.pie = function() {
                        d.innerRadius = arcRadius + 15; // Set Inner Coordinate
                        var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
                        if ((d.startAngle+d.endAngle)/2 < Math.PI) {
-                       	 rotateAngle -= 90;
+                         rotateAngle -= 90;
                        } else {
-                       	 rotateAngle += 90;
+                         rotateAngle += 90;
                        }
                        return 'translate(' + labelsArc.centroid(d) + ') rotate(' + rotateAngle + ')';
                      } else {
@@ -187,7 +187,7 @@ nv.models.pie = function() {
 
           slices.select(".nv-label").transition()
             .attr('transform', function(d) {
-            	if (labelSunbeamLayout) {
+                if (labelSunbeamLayout) {
                   d.outerRadius = arcRadius + 10; // Set Outer Coordinate
                   d.innerRadius = arcRadius + 15; // Set Inner Coordinate
                   var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
@@ -301,7 +301,7 @@ nv.models.pie = function() {
     getY = d3.functor(_);
     return chart;
   };
-  
+
   chart.description = function(_) {
     if (!arguments.length) return getDescription;
     getDescription = _;
@@ -313,7 +313,7 @@ nv.models.pie = function() {
     showLabels = _;
     return chart;
   };
-  
+
   chart.labelSunbeamLayout = function(_) {
     if (!arguments.length) return labelSunbeamLayout;
     labelSunbeamLayout = _;
@@ -325,7 +325,7 @@ nv.models.pie = function() {
     donutLabelsOutside = _;
     return chart;
   };
-  
+
   chart.pieLabelsOutside = function(_) {
     if (!arguments.length) return pieLabelsOutside;
     pieLabelsOutside = _;
@@ -337,7 +337,7 @@ nv.models.pie = function() {
     donut = _;
     return chart;
   };
-  
+
   chart.donutRatio = function(_) {
     if (!arguments.length) return donutRatio;
     donutRatio = _;

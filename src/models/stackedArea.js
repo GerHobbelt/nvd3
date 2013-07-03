@@ -323,12 +323,12 @@ nv.models.stackedArea = function() {
   };
 
   chart.interpolate = function(_) {
-	    if (!arguments.length) return interpolate;
-	    interpolate = _;
-	    return interpolate;
-  
+        if (!arguments.length) return interpolate;
+        interpolate = _;
+        return interpolate;
+
   };
-  
+
   //============================================================
 
 

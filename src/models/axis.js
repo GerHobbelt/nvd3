@@ -241,36 +241,36 @@ nv.models.axis = function() {
           }
           // add tooltips to the left tick labels if they're truncated
           g.selectAll('text')
-		      .on('mouseover', function(d,i) {
-		          var currTick = d3.select(this).classed('hover', true);
-		          //console.log(currTick.node().offsetLeft+" - "+currTick.node().clientWidth)
-		          var currTickContainer = d3.select(currTick.node().parentNode);
-		          var coordStr = currTickContainer.attr("transform")
-		          var regex = /translate\(([\d\.]+),([\d\.]+)\)/;
-		          var coordX = coordStr.replace(regex, "$1");
-		          var coordY = coordStr.replace(regex, "$2");
-		          var mainGContainer = d3.select(container.node().ownerSVGElement).select("g.nvd3.nv-wrap")
-		          var marginStr = mainGContainer.attr("transform")
-		          var marginX = marginStr.replace(regex, "$1");
-		          var marginY = marginStr.replace(regex, "$2");	          
-		          
-		          var tooltipText = "<div class='tick-tooltip'>" + fmt(d) + "</div>"
-		          var offsetLeft = this.offsetLeft + parseInt(coordX)
-		          if (offsetLeft < 0)
-		        	  offsetLeft = 0;
-	
-		          var offsetTop = this.offsetTop + parseInt(coordY) + parseInt(marginY)
-		          if (offsetTop < 0)
-		        	  offsetTop = 0;
-		          
-		          if (parseInt(marginX) < currTick.node().clientWidth)
-		        	  nv.tooltip.show([offsetLeft, offsetTop], tooltipText, 'w', null, container.node().ownerSVGElement.parentNode);
-		        })
-		      .on('mouseout', function(d,i) {
-			      d3.select(this).classed('hover', false);
-			      nv.tooltip.cleanup();
-		        });
-          
+              .on('mouseover', function(d,i) {
+                  var currTick = d3.select(this).classed('hover', true);
+                  //console.log(currTick.node().offsetLeft+" - "+currTick.node().clientWidth)
+                  var currTickContainer = d3.select(currTick.node().parentNode);
+                  var coordStr = currTickContainer.attr("transform")
+                  var regex = /translate\(([\d\.]+),([\d\.]+)\)/;
+                  var coordX = coordStr.replace(regex, "$1");
+                  var coordY = coordStr.replace(regex, "$2");
+                  var mainGContainer = d3.select(container.node().ownerSVGElement).select("g.nvd3.nv-wrap")
+                  var marginStr = mainGContainer.attr("transform")
+                  var marginX = marginStr.replace(regex, "$1");
+                  var marginY = marginStr.replace(regex, "$2");
+
+                  var tooltipText = "<div class='tick-tooltip'>" + fmt(d) + "</div>"
+                  var offsetLeft = this.offsetLeft + parseInt(coordX)
+                  if (offsetLeft < 0)
+                      offsetLeft = 0;
+
+                  var offsetTop = this.offsetTop + parseInt(coordY) + parseInt(marginY)
+                  if (offsetTop < 0)
+                      offsetTop = 0;
+
+                  if (parseInt(marginX) < currTick.node().clientWidth)
+                      nv.tooltip.show([offsetLeft, offsetTop], tooltipText, 'w', null, container.node().ownerSVGElement.parentNode);
+                })
+              .on('mouseout', function(d,i) {
+                  d3.select(this).classed('hover', false);
+                  nv.tooltip.cleanup();
+                });
+
           break;
       }
       axisLabel
@@ -285,7 +285,7 @@ nv.models.axis = function() {
               if (scale(d) < scale.range()[1] + 10 || scale(d) > scale.range()[0] - 10) { // 10 is assuming text height is 16... if d is 0, leave it!
                 if (d > 1e-10 || d < -1e-10) // accounts for minor floating point errors... though could be problematic if the scale is EXTREMELY SMALL
                   d3.select(this).attr('opacity', 0);
-                
+
                 d3.select(this).select('text').attr('opacity', 0); // Don't remove the ZERO line!!
               }
             });

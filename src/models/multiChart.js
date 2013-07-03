@@ -6,7 +6,7 @@ nv.models.multiChart = function() {
 
   var margin = {top: 30, right: 20, bottom: 50, left: 60},
       color = d3.scale.category20().range(),
-      width = null, 
+      width = null,
       height = null,
       showLegend = true,
       tooltips = true,
@@ -107,7 +107,7 @@ nv.models.multiChart = function() {
         legend.width( availableWidth / 2 );
 
         g.select('.legendWrap')
-            .datum(data.map(function(series) { 
+            .datum(data.map(function(series) {
               series.originalKey = series.originalKey === undefined ? series.key : series.originalKey;
               series.key = series.originalKey + (series.yAxis == 1 ? '' : ' (right axis)');
               return series;
@@ -215,7 +215,7 @@ nv.models.multiChart = function() {
 
       if(dataLines1.length){d3.transition(lines1Wrap).call(lines1);}
       if(dataLines2.length){d3.transition(lines2Wrap).call(lines2);}
-      
+
 
 
       xAxis
@@ -246,7 +246,7 @@ nv.models.multiChart = function() {
           .style('opacity', series2.length ? 1 : 0)
           .attr('transform', 'translate(' + x.range()[1] + ',0)');
 
-      legend.dispatch.on('legendClick', function(d,i) { 
+      legend.dispatch.on('legendClick', function(d,i) {
         d.disabled = !d.disabled;
 
         if (!data.filter(function(d) { return !d.disabled }).length) {

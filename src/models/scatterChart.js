@@ -308,7 +308,7 @@ nv.models.scatterChart = function() {
         gEnter.select('.nv-distWrap').append('g')
             .attr('class', 'nv-distributionY');
         g.select('.nv-distributionY')
-            .attr('transform', 
+            .attr('transform',
               'translate(' + (rightAlignYAxis ? availableWidth : -distY.size() ) + ',0)')
             .datum(data.filter(function(d) { return !d.disabled }))
             .call(distY);
@@ -349,10 +349,10 @@ nv.models.scatterChart = function() {
 
         if (showXAxis)
           g.select('.nv-x.nv-axis').call(xAxis);
-        
+
         if (showYAxis)
           g.select('.nv-y.nv-axis').call(yAxis);
-        
+
         g.select('.nv-distributionX')
             .datum(data.filter(function(d) { return !d.disabled }))
             .call(distX);
@@ -410,7 +410,7 @@ nv.models.scatterChart = function() {
           data.forEach(function(d) {
              d.disabled = true;
           });
-          d.disabled = false;  
+          d.disabled = false;
 
           state.disabled = data.map(function(d) { return !!d.disabled });
           dispatch.stateChange(state);
@@ -634,7 +634,7 @@ nv.models.scatterChart = function() {
     defaultState = _;
     return chart;
   };
-  
+
   chart.noData = function(_) {
     if (!arguments.length) return noData;
     noData = _;

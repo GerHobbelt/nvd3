@@ -26,40 +26,40 @@ nv.addGraph(function() {
 
 
 function exampleData() {
- return  [ 
+ return  [
     {
       key: "Cumulative Return",
       values: [
-        { 
+        {
           "label" : "CDS / Options" ,
           "value" : -29.765957771107
-        } , 
-        { 
-          "label" : "Cash" , 
+        } ,
+        {
+          "label" : "Cash" ,
           "value" : 0
-        } , 
-        { 
-          "label" : "Corporate Bonds" , 
+        } ,
+        {
+          "label" : "Corporate Bonds" ,
           "value" : 32.807804682612
-        } , 
-        { 
-          "label" : "Equity" , 
+        } ,
+        {
+          "label" : "Equity" ,
           "value" : 196.45946739256
-        } , 
-        { 
+        } ,
+        {
           "label" : "Index Futures" ,
           "value" : 0.19434030906893
-        } , 
-        { 
-          "label" : "Options" , 
+        } ,
+        {
+          "label" : "Options" ,
           "value" : -98.079782601442
-        } , 
-        { 
-          "label" : "Preferred" , 
+        } ,
+        {
+          "label" : "Preferred" ,
           "value" : -13.925743130903
-        } , 
-        { 
-          "label" : "Not Available" , 
+        } ,
+        {
+          "label" : "Not Available" ,
           "value" : -5.1387322875705
         }
       ]

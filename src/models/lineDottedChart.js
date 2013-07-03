@@ -6,7 +6,7 @@ nv.models.lineDottedChart = function() {
   //------------------------------------------------------------
 
   var lines = nv.models.lineDotted()
-	, xAxis = nv.models.axis()
+    , xAxis = nv.models.axis()
     , yAxis = nv.models.axis()
     , legend = nv.models.legend()
     ;
@@ -204,7 +204,7 @@ nv.models.lineDottedChart = function() {
       // Event Handling/Dispatching (in chart's scope)
       //------------------------------------------------------------
 
-      legend.dispatch.on('legendClick', function(d,i) { 
+      legend.dispatch.on('legendClick', function(d,i) {
         d.disabled = !d.disabled;
 
         if (!data.filter(function(d) { return !d.disabled }).length) {

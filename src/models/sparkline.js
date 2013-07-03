@@ -71,7 +71,7 @@ nv.models.sparkline = function() {
               var yValues = data.map(function(d, i) { return getY(d,i); });
               function pointIndex(index) {
                   if (index != -1) {
-	              var result = data[index];
+                  var result = data[index];
                       result.pointIndex = index;
                       return result;
                   } else {

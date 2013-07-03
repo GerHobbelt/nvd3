@@ -32,7 +32,7 @@ nv.models.scatterPlusLineChart = function() {
     , tooltips     = true
     , tooltipX     = function(key, x, y) { return '<strong>' + x + '</strong>' }
     , tooltipY     = function(key, x, y) { return '<strong>' + y + '</strong>' }
-    , tooltip      = function(key, x, y, date) { return '<h3>' + key + '</h3>' 
+    , tooltip      = function(key, x, y, date) { return '<h3>' + key + '</h3>'
                                                       + '<p>' + date + '</p>' }
     , state = {}
     , defaultState = null
@@ -258,7 +258,7 @@ nv.models.scatterPlusLineChart = function() {
           .attr('y2', function(d,i) { return y(x.domain()[1] * d.slope + d.intercept) })
           .style('stroke', function(d,i,j) { return color(d,j) })
           .style('stroke-opacity', function(d,i) {
-            return (d.disabled || typeof d.slope === 'undefined' || typeof d.intercept === 'undefined') ? 0 : 1 
+            return (d.disabled || typeof d.slope === 'undefined' || typeof d.intercept === 'undefined') ? 0 : 1
           });
 
 
@@ -361,7 +361,7 @@ nv.models.scatterPlusLineChart = function() {
 
         if (showYAxis)
           g.select('.nv-y.nv-axis').call(yAxis);
-        
+
         g.select('.nv-distributionX')
             .datum(data.filter(function(d) { return !d.disabled }))
             .call(distX);
@@ -419,7 +419,7 @@ nv.models.scatterPlusLineChart = function() {
           data.forEach(function(d) {
              d.disabled = true;
           });
-          d.disabled = false;  
+          d.disabled = false;
 
           state.disabled = data.map(function(d) { return !!d.disabled });
           dispatch.stateChange(state);

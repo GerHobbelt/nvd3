@@ -147,28 +147,28 @@ nv.models.indentedTree = function() {
 
       node
         .order()
-        .on('click', function(d) { 
+        .on('click', function(d) {
           dispatch.elementClick({
             row: this, //TODO: decide whether or not this should be consistent with scatter/line events or should be an html link (a href)
             data: d,
             pos: [d.x, d.y]
           });
         })
-        .on('dblclick', function(d) { 
+        .on('dblclick', function(d) {
           dispatch.elementDblclick({
             row: this,
             data: d,
             pos: [d.x, d.y]
           });
         })
-        .on('mouseover', function(d) { 
+        .on('mouseover', function(d) {
           dispatch.elementMouseover({
             row: this,
             data: d,
             pos: [d.x, d.y]
           });
         })
-        .on('mouseout', function(d) { 
+        .on('mouseout', function(d) {
           dispatch.elementMouseout({
             row: this,
             data: d,

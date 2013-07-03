@@ -78,7 +78,7 @@ nv.models.multiBarHorizontal = function() {
               f.y1 = negBase - f.size;
               negBase = negBase - f.size;
             } else
-            { 
+            {
               f.y1 = posBase;
               posBase = posBase + f.size;
             }
@@ -265,7 +265,7 @@ nv.models.multiBarHorizontal = function() {
           //.delay(function(d,i) { return i * delay / data[0].values.length })
             .attr('transform', function(d,i) {
               //TODO: stacked must be all positive or all negative, not both?
-              return 'translate(' + 
+              return 'translate(' +
               (getY(d,i) < 0 ? y(getY(d,i)) : y(0))
               + ',' +
               (d.series * x.rangeBand() / data.length

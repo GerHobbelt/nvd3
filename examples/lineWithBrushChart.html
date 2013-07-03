@@ -66,9 +66,9 @@ nv.addGraph(function() {
 
   d3.select('#chart1 svg')
       //.datum([]) //for testing noData
-	.datum(sinAndCos())
-	.transition().duration(500)
-	.call(chart);
+    .datum(sinAndCos())
+    .transition().duration(500)
+    .call(chart);
 
   //TODO: Figure out a good way to do this automatically
   nv.utils.windowResize(chart.update);

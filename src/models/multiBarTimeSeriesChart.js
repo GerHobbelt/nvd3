@@ -196,7 +196,7 @@ nv.models.multiBarTimeSeriesChart = function() {
 
       xAxis
         .scale(x)
-        .ticks(availableWidth / 100)        
+        .ticks(availableWidth / 100)
         .tickSize(-availableHeight, 0);
 
       g.select('.nv-x.nv-axis')

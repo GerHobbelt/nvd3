@@ -185,7 +185,7 @@ nv.models.discreteBarChart = function() {
               xTicks
                 .selectAll('text')
                 .attr('transform', 'rotate(' + rotateLabels + ')');
-		  }
+          }
       }
 
       if (showYAxis) {
@@ -282,7 +282,7 @@ nv.models.discreteBarChart = function() {
     rotateLabels = _;
     return chart;
   };
-  
+
   chart.showXAxis = function(_) {
     if (!arguments.length) return showXAxis;
     showXAxis = _;

@@ -52,7 +52,7 @@
   // --------------------------- EXAMPLE ONE ---------------------------------
 
 
-  nv.addGraph(function() {  
+  nv.addGraph(function() {
     var chart = nv.models.lineChart()
                   .showLegend(false)
                   .margin({top: 10, bottom: 30, left: 40, right: 10});

@@ -86,7 +86,7 @@ nv.models.multiBar = function() {
               f.y1 = negBase;
               negBase = negBase - f.size;
             } else
-            { 
+            {
               f.y1 = f.size + posBase;
               posBase = posBase + f.size;
             }
@@ -264,7 +264,7 @@ nv.models.multiBar = function() {
 
       if (stacked)
             bars.transition()
-          
+
             .delay(function(d,i) { return i * delay / data[0].values.length })
             .attr('y', function(d,i) {
 

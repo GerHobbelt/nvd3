@@ -29,7 +29,7 @@ nv.addGraph(function() {
 
 function testData() {
   return stream_layers(3,128,.1).map(function(data, i) {
-    return { 
+    return {
       key: 'Stream' + i,
       values: data
     };

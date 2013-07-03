@@ -155,10 +155,10 @@ nv.models.multiBarTimeSeries = function() {
       for(var ei=0; ei<seriesData.length; ei+=1) {
           maxElements = Math.max(seriesData[ei].length, maxElements);
       }
-      
+
       var bandWidth = (availableWidth / maxElements)-0.1;
       var barWidth = bandWidth / data.length;
-      
+
       var barsEnter = bars.enter().append('rect')
           .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
           .attr('x', function(d,i,j) {

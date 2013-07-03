@@ -23,8 +23,8 @@ You can also check out the [examples page](http://nvd3.org/ghpages/examples.html
 
 # Installation Instructions
 
-d3.v3.js is a dependency of nv.d3.js. Be sure to include in in your project, then:  
-Add a script tag to include nv.d3.js OR nv.d3.min.js in your project.  
+d3.v3.js is a dependency of nv.d3.js. Be sure to include in in your project, then:
+Add a script tag to include nv.d3.js OR nv.d3.min.js in your project.
 Also add a link to the nv.d3.css file.
 
 See wiki -> Documentation for more detail
@@ -68,7 +68,7 @@ Then, you can use these commands:
     grunt watch # watch file changes in src/, and rebuild nv.d3.js, it's very helpful when delevop nvd3
     grunt lint # run jshint on src/**/*.js
 
-**We ask that you DO NOT minify pull requests... 
+**We ask that you DO NOT minify pull requests...
 If you need to minify please build pull request in separate branch, and
 merge and minify in your master.
 
