@@ -467,13 +467,22 @@ nv.models.lineWithFocusChart = function() {
 
   chart.margin2 = function(_) {
     if (!arguments.length) return margin2;
-    margin2 = _;
+    margin2.top    = typeof _.top    != 'undefined' ? _.top    : margin2.top;
+    margin2.right  = typeof _.right  != 'undefined' ? _.right  : margin2.right;
+    margin2.bottom = typeof _.bottom != 'undefined' ? _.bottom : margin2.bottom;
+    margin2.left   = typeof _.left   != 'undefined' ? _.left   : margin2.left;
     return chart;
   };
 
   chart.width = function(_) {
     if (!arguments.length) return width;
     width = _;
+    return chart;
+  };
+
+  chart.width2 = function(_) {
+    if (!arguments.length) return width2;
+    width2 = _;
     return chart;
   };
 
