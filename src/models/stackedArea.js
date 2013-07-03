@@ -142,11 +142,11 @@ nv.models.stackedArea = function() {
 
       var area = d3.svg.area()
           .x(function(d,i)  { return x(getX(d,i)) })
-          .y0(function(d) { 
-              return y(d.display.y0) 
+          .y0(function(d) {
+              return y(d.display.y0)
           })
-          .y1(function(d) { 
-              return y(d.display.y + d.display.y0) 
+          .y1(function(d) {
+              return y(d.display.y + d.display.y0)
           })
           .interpolate(interpolate);
 
@@ -157,8 +157,8 @@ nv.models.stackedArea = function() {
 
 
       var path = g.select('.nv-areaWrap').selectAll('path.nv-area')
-          .data(function(d) { 
-            return d 
+          .data(function(d) {
+            return d
           });
           //.data(function(d) { return d }, function(d) { return d.key });
       path.enter().append('path').attr('class', function(d,i) { return 'nv-area nv-area-' + i })
@@ -194,14 +194,14 @@ nv.models.stackedArea = function() {
           .attr('d', function(d,i) { return zeroArea(d.values,i) })
           .remove();
       path
-          .style('fill', function(d,i){ 
-            return d.color || color(d, d.seriesIndex) 
+          .style('fill', function(d,i){
+            return d.color || color(d, d.seriesIndex)
           })
           .style('stroke', function(d,i){ return d.color || color(d, d.seriesIndex) });
       //d3.transition(path)
       path
-          .attr('d', function(d,i) { 
-            return area(d.values,i) 
+          .attr('d', function(d,i) {
+            return area(d.values,i)
           })
 
 
