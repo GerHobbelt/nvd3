@@ -243,44 +243,31 @@ nv.models.scatter = function() {
                     return 'M' + d.data.join('L') + 'Z';
               });
 
+          var mouseEventCallback = function(d,mDispatch) {
+                if (needsUpdate) return 0;
+                var series = data[d.series];
+                if (typeof series === 'undefined') return;
+                
+                var point  = series.values[d.point];
+
+                mDispatch({
+                  point: point,
+                  series: series,
+                  pos: [x(getX(point, d.point)) + margin.left, y(getY(point, d.point)) + margin.top],
+                  seriesIndex: d.series,
+                  pointIndex: d.point
+                });
+          };
+
           pointPaths
               .on('click', function(d) {
-                if (needsUpdate) return 0;
-                var series = data[d.series],
-                    point  = series.values[d.point];
-
-                dispatch.elementClick({
-                  point: point,
-                  series: series,
-                  pos: [x(getX(point, d.point)) + margin.left, y(getY(point, d.point)) + margin.top],
-                  seriesIndex: d.series,
-                  pointIndex: d.point
-                });
+                mouseEventCallback(d, dispatch.elementClick);
               })
               .on('mouseover', function(d) {
-                if (needsUpdate) return 0;
-                var series = data[d.series],
-                    point  = series.values[d.point];
-
-                dispatch.elementMouseover({
-                  point: point,
-                  series: series,
-                  pos: [x(getX(point, d.point)) + margin.left, y(getY(point, d.point)) + margin.top],
-                  seriesIndex: d.series,
-                  pointIndex: d.point
-                });
+                mouseEventCallback(d, dispatch.elementMouseover);
               })
               .on('mouseout', function(d, i) {
-                if (needsUpdate) return 0;
-                var series = data[d.series],
-                    point  = series.values[d.point];
-
-                dispatch.elementMouseout({
-                  point: point,
-                  series: series,
-                  seriesIndex: d.series,
-                  pointIndex: d.point
-                });
+                mouseEventCallback(d, dispatch.elementMouseout);
               });
 
 
@@ -371,22 +358,24 @@ nv.models.scatter = function() {
         var points = groups.selectAll('circle.nv-point')
             .data(function(d) { return d.values }, pointKey);
         points.enter().append('circle')
-            .attr('cx', function(d,i) { return x0(getX(d,i)) })
-            .attr('cy', function(d,i) { return y0(getY(d,i)) })
+            .attr('cx', function(d,i) { return nv.utils.NaNtoZero(x0(getX(d,i))) })
+            .attr('cy', function(d,i) { return nv.utils.NaNtoZero(y0(getY(d,i))) })
             .attr('r', function(d,i) { return Math.sqrt(z(getSize(d,i))/Math.PI) });
         points.exit().remove();
         groups.exit().selectAll('path.nv-point').transition()
-            .attr('cx', function(d,i) { return x(getX(d,i)) })
-            .attr('cy', function(d,i) { return y(getY(d,i)) })
+            .attr('cx', function(d,i) { return nv.utils.NaNtoZero(x(getX(d,i))) })
+            .attr('cy', function(d,i) { return nv.utils.NaNtoZero(y(getY(d,i))) })
             .remove();
         points.each(function(d,i) {
           d3.select(this)
             .classed('nv-point', true)
-            .classed('nv-point-' + i, true);
+            .classed('nv-point-' + i, true)
+            .classed('hover',false)
+            ;
         });
         points.transition()
-            .attr('cx', function(d,i) { return x(getX(d,i)) })
-            .attr('cy', function(d,i) { return y(getY(d,i)) })
+            .attr('cx', function(d,i) { return nv.utils.NaNtoZero(x(getX(d,i))) })
+            .attr('cy', function(d,i) { return nv.utils.NaNtoZero(y(getY(d,i))) })
             .attr('r', function(d,i) { return Math.sqrt(z(getSize(d,i))/Math.PI) });
 
       } else {
@@ -411,7 +400,9 @@ nv.models.scatter = function() {
         points.each(function(d,i) {
           d3.select(this)
             .classed('nv-point', true)
-            .classed('nv-point-' + i, true);
+            .classed('nv-point-' + i, true)
+            .classed('hover',false)
+            ;
         });
         points.transition()
             .attr('transform', function(d,i) {
@@ -445,17 +436,23 @@ nv.models.scatter = function() {
   //============================================================
   // Event Handling/Dispatching (out of chart's scope)
   //------------------------------------------------------------
+  chart.clearHighlights = function() {
+      //Remove the 'hover' class from all highlighted points.
+      d3.selectAll(".nv-chart-" + id + " .nv-point.hover").classed("hover",false);
+  };
+
+  chart.highlightPoint = function(seriesIndex,pointIndex,isHoverOver) {
+      d3.select(".nv-chart-" + id + " .nv-series-" + seriesIndex + " .nv-point-" + pointIndex)
+          .classed("hover",isHoverOver); 
+  };
+
 
   dispatch.on('elementMouseover.point', function(d) {
-    if (interactive)
-      d3.select('.nv-chart-' + id + ' .nv-series-' + d.seriesIndex + ' .nv-point-' + d.pointIndex)
-          .classed('hover', true);
+     if (interactive) chart.highlightPoint(d.seriesIndex,d.pointIndex,true);
   });
 
   dispatch.on('elementMouseout.point', function(d) {
-    if (interactive)
-      d3.select('.nv-chart-' + id + ' .nv-series-' + d.seriesIndex + ' .nv-point-' + d.pointIndex)
-          .classed('hover', false);
+     if (interactive) chart.highlightPoint(d.seriesIndex,d.pointIndex,false);
   });
 
   //============================================================

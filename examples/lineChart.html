@@ -19,7 +19,7 @@ svg {
 
 #chart1 svg {
   height: 500px;
-  min-width: 100px;
+  min-width: 1200px;
   min-height: 100px;
 /*
   margin: 50px;
@@ -27,12 +27,16 @@ svg {
   For example width should be =< margin.left + margin.right + 1,
   of course 1 pixel for the entire chart would not be very useful, BUT should not have errors
 */
-}
 
+}
+#chart1 {
+  margin-top: 200px;
+  margin-left: 100px;
+}
 </style>
 <body>
 
-  <div id="chart1">
+  <div id="chart1" >
     <svg style="height: 500px;"></svg>
   </div>
 
@@ -40,6 +44,7 @@ svg {
 <script src="../nv.d3.js"></script>
 <script src="../src/tooltip.js"></script>
 <script src="../src/utils.js"></script>
+<script src="../src/interactiveLayer.js"></script>
 <script src="../src/models/legend.js"></script>
 <script src="../src/models/axis.js"></script>
 <script src="../src/models/scatter.js"></script>
@@ -88,11 +93,16 @@ nv.addGraph(function() {
 
 function sinAndCos() {
   var sin = [],
-      cos = [];
+      cos = [],
+      rand = [],
+      rand2 = []
+      ;
 
   for (var i = 0; i < 100; i++) {
     sin.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) }); //the nulls are to show how defined works
     cos.push({x: i, y: .5 * Math.cos(i/10)});
+    rand.push({x:i, y: Math.random() / 10});
+    rand2.push({x: i, y: Math.cos(i/10) + Math.random() / 10 })
   }
 
   return [
@@ -106,6 +116,17 @@ function sinAndCos() {
       values: cos,
       key: "Cosine Wave",
       color: "#2ca02c"
+    },
+    {
+      values: rand,
+      key: "Random Points",
+      color: "#2222ff"
+    }
+    ,
+    {
+      values: rand2,
+      key: "Random Cosine",
+      color: "#667711"
     }
   ];
 }
