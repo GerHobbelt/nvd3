@@ -3977,7 +3977,7 @@ nv.models.indentedTree = function() {
             .text(function(d) { return column.format ? column.format(d) :
                                         (d[column.key] || '-') });
 
-        if (column.showCount) {
+        if  (column.showCount) {
           nodeName.append('span')
               .attr('class', 'nv-childrenCount');
 
@@ -4033,7 +4033,7 @@ nv.models.indentedTree = function() {
       function click(d, _, unshift) {
         d3.event.stopPropagation();
 
-        if (d3.event.shiftKey && !unshift) {
+        if(d3.event.shiftKey && !unshift) {
           //If you shift-click, it'll toggle fold all the children, instead of itself
           d3.event.shiftKey = false;
           d.values && d.values.forEach(function(node){
@@ -4043,7 +4043,7 @@ nv.models.indentedTree = function() {
           });
           return true;
         }
-        if (!hasChildren(d)) {
+        if(!hasChildren(d)) {
           //download file
           //window.location.href = d.url;
           return true;
@@ -4072,6 +4072,8 @@ nv.models.indentedTree = function() {
 
         return (values && values.length);
       }
+
+
     });
 
     return chart;
@@ -4146,14 +4148,14 @@ nv.models.indentedTree = function() {
     return chart;
   };
 
-  chart.iconOpen = function(_) {
-    if (!arguments.length) return iconOpen;
+  chart.iconOpen = function(_){
+     if (!arguments.length) return iconOpen;
     iconOpen = _;
     return chart;
   }
 
-  chart.iconClose = function(_) {
-    if (!arguments.length) return iconClose;
+  chart.iconClose = function(_){
+     if (!arguments.length) return iconClose;
     iconClose = _;
     return chart;
   }
@@ -4176,7 +4178,6 @@ nv.models.indentedTree = function() {
     , color = nv.utils.defaultColor()
     , align = true
     , legendOffset = 0
-    , rightAlign = true
     , dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout')
     ;
 
@@ -4237,10 +4238,10 @@ nv.models.indentedTree = function() {
       if (align)  {
         var seriesWidths = [];
         series.each(function(d,i) {
-            var legendText = d3.select(this).select('text');
-            var svgComputedTextLength = legendText.node().getComputedTextLength()
-                                       || nv.utils.calcApproxTextWidth(legendText);
-            seriesWidths.push(svgComputedTextLength + 28); // 28 is ~ the width of the circle plus some padding
+              var legendText = d3.select(this).select('text');
+              var svgComputedTextLength = legendText.node().getComputedTextLength()
+                                         || nv.utils.calcApproxTextWidth(legendText);
+              seriesWidths.push(svgComputedTextLength + 28); // 28 is ~ the width of the circle plus some padding
         });
 
         //nv.log('Series Widths: ', JSON.stringify(seriesWidths));
@@ -4248,57 +4249,57 @@ nv.models.indentedTree = function() {
         var legendWidth = 0;
         var legendHeight = 0;
         var columnWidths = [];
-        var xPositions = [];
+    var xPositions = [];
         var isColumnVisible = [];
 
-        while (legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
-          columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
-          isColumnVisible[seriesPerRow] = true;
-          legendWidth += seriesWidths[seriesPerRow++];
-        }
+    while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
+      columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
+      isColumnVisible[seriesPerRow] = true;
+      legendWidth += seriesWidths[seriesPerRow++];
+    }
 
-        while (legendWidth > availableWidth && seriesPerRow > 1 ) {
-          columnWidths = [];
-          seriesPerRow--;
+    while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
+      columnWidths = [];
+      seriesPerRow--;
 
-          for (k = 0; k < seriesWidths.length; k++) {
-            if (seriesWidths[k] > (columnWidths[k % seriesPerRow] || 0) )
-              columnWidths[k % seriesPerRow] = seriesWidths[k];
-          }
+      for (k = 0; k < seriesWidths.length; k++) {
+        if (seriesWidths[k] > (columnWidths[k % seriesPerRow] || 0) )
+          columnWidths[k % seriesPerRow] = seriesWidths[k];
+      }
 
-          legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
+      legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
               return prev + cur;
-          });
-        }
+      });
+    }
         var showLegendSlider = false;
-        var numRows = Math.ceil(seriesWidths.length / seriesPerRow) + 1;
+    var numRows = Math.ceil(seriesWidths.length / seriesPerRow)+1
 
-        // Check if our number of rows exceeds the maximum. If it does,
-        // recalculate things.
-        if (maxRows !== false && numRows > maxRows) {
-            numRows = maxRows;
-            seriesPerRow = Math.ceil(seriesWidths.length / numRows);
-            for (var i = 0; i < seriesWidths.length; i++) {
-                var col = i % seriesPerRow;
-                if (columnWidths[col] === undefined) {
-                    columnWidths[col] = 0;
-                }
-                columnWidths[col] = Math.max(seriesWidths[i],columnWidths[col]);
+    // Check if our number of rows exceeds the maximum. If it does,
+    // recalculate things.
+    if (maxRows !== false && numRows > maxRows ) {
+        numRows = maxRows;
+        seriesPerRow = Math.ceil(seriesWidths.length/numRows);
+        for (var i = 0; i < seriesWidths.length; i++) {
+            var col = i % seriesPerRow
+            if(columnWidths[col] === undefined) {
+                columnWidths[col] = 0;
             }
-            legendWidth = 0;
-            for (i = 0; i < seriesPerRow; i++) {
-                legendWidth += columnWidths[i];
-                if (legendWidth > availableWidth) {
-                    isColumnVisible[i] = false;
-                    showLegendSlider = true;
-                }
+            columnWidths[col] = Math.max(seriesWidths[i],columnWidths[col])
+        };
+        legendWidth = 0;
+        for(i =0;i<seriesPerRow;i++) {
+            legendWidth += columnWidths[i];
+            if (legendWidth > availableWidth) {
+                isColumnVisible[i] = false;
+                showLegendSlider = true;
             }
         }
+    }
 
-        for (var i = 0, curX = 0; i < seriesPerRow; i++) {
-            xPositions[i] = curX;
-            curX += columnWidths[i];
-        }
+    for (var i = 0, curX = 0; i < seriesPerRow; i++) {
+        xPositions[i] = curX;
+        curX += columnWidths[i];
+    }
 
         series
             .attr('transform', function(d, i) {
@@ -4306,108 +4307,105 @@ nv.models.indentedTree = function() {
             });
         series
             .style('display',function(d, i) {
-                return isColumnVisible[ i % seriesPerRow] ? 'block' : 'none';
-            });
+            return isColumnVisible[ i % seriesPerRow] ? 'block' : 'none';
+        });
 
         //position legend as far right as possible within the total width
-        if (rightAlign) {
-            g.attr('transform', 'translate(' + Math.max(0, width - margin.right - legendWidth) + ',' + margin.top + ')');
-        } else {
-           g.attr('transform', 'translate(0' + ',' + margin.top + ')');
-        }
+        g.attr('transform', 'translate(' + Math.max(0,width - margin.right - legendWidth) + ',' + margin.top + ')');
 
         height = margin.top + margin.bottom + (Math.ceil(seriesWidths.length / seriesPerRow) * 20);
-        if (showLegendSlider) {
-            if (container.selectAll("path[class^=nv-legend-]")[0].length == 0) {
-                var elm1 = container.append("svg:path").attr("class", "nv-legend-right").style("cursor", "pointer")
+    if (showLegendSlider) {
+            if (container.selectAll("path[class^=nv-legend-]")[0].length == 0 ) {
+                var elm1 = container.append("svg:path").attr("class","nv-legend-right").style("cursor","pointer")
                     .attr("d", d3.svg.symbol().type("triangle-down").size(32))
-                    .attr("transform", 'translate(' + availableWidth + ',' + (numRows * 20)/2 + ') rotate(-90)');
+                .attr("transform", 'translate(' + availableWidth + ',' + (numRows * 20)/2 + ') rotate(-90)');
                 var elm2 = container.append("svg:path").attr("class","nv-legend-left").style("cursor","pointer")
                     .attr("d", d3.svg.symbol().type("triangle-down").size(32))
-                    .attr("transform", 'translate(-20,' + (numRows * 20)/2 + ') rotate(90)')
-                    .style("display", "none");
+                .attr("transform", 'translate(-20,' + (numRows * 20)/2 + ') rotate(90)')
+                .style("display","none");
             }
             //attr that allows us to specify the context of the function so that we can
             //call it manually
-            container.selectAll("path[class^=nv-legend-]").on('click', function(d, i, that) {
-                var left = d3.select(that?that:this).attr("class") == "nv-legend-left";
-                var mode = 0;
-                var toHideIdx = -1;
-                var toShowIdx = -1;
-                if (!left) {
-                    if (isColumnVisible[isColumnVisible.length-1]) { return; }
+            container.selectAll("path[class^=nv-legend-]").on('click', function(d,i,that) {
+                    var left = d3.select(that?that:this).attr("class") == "nv-legend-left";
+                    var mode = 0;
+                    var toHideIdx = -1;
+                    var toShowIdx = -1;
+                    if (!left) {
+                        if (isColumnVisible[isColumnVisible.length-1]) { return}
 
-                    //if that is set, then we called this manually and don't
-                    // want to adjust the global offset state
-                    if (!that) legendOffset--;
-                    //Loop through column visiblities and make the first visible
-                    //one hidden and the first hidden on visble
-                    for (var i = 0; i < isColumnVisible.length; i++) {
-                        if (mode == 0 && isColumnVisible[i]) {
-                            isColumnVisible[i] = false;;
-                            toHideIdx = i;
-                            mode = 1;
-                        } else if (mode == 1 && !isColumnVisible[i]) {
-                            isColumnVisible[i] = true;;
-                            toShowIdx = i;
-                            break;
-                        }
-                    };
-                    wrapTran[0] -= columnWidths[toHideIdx];
-                } else {
-                    if (isColumnVisible[0]) { return; }
-                    //Loop through column visiblities and make the first last invisible
-                    //one visible and the last visble one hidden
-                    for (var i = 0; i < isColumnVisible.length; i++) {
-                        if (mode == 0 && isColumnVisible[i]) {
-                            isColumnVisible[i-1] = true;
-                            toShowIdx = i-1;
-                            mode = 1;
-                        } else if (mode == 1 && !isColumnVisible[i]) {
-                            isColumnVisible[i-1] = false;
-                            toHideIdx = i-1;
-                            break;
-                        }
-                    };
+                        //if that is set, then we called this manually and don't
+                        // want to adjust the global offset state
+                        if(!that) legendOffset--;
+                        //Loop through column visiblities and make the first visible
+                        //one hidden and the first hidden on visble
+                        for (var i = 0; i < isColumnVisible.length; i++) {
+                            if (mode == 0 && isColumnVisible[i]) {
+                                isColumnVisible[i] = false;;
+                                toHideIdx = i;
+                                mode = 1;
+                            } else if(mode == 1 && !isColumnVisible[i]) {
+                                isColumnVisible[i] = true;;
+                                toShowIdx = i;
+                                break;
+                            }
+                        };
+                            wrapTran[0] -= columnWidths[toHideIdx];
+                    } else {
+                        if (isColumnVisible[0]) { return}
+                        //Loop through column visiblities and make the first last invisible
+                        //one visible and the last visble one hidden
+                        for (var i = 0; i < isColumnVisible.length; i++) {
+                            if (mode == 0 && isColumnVisible[i]) {
+                                isColumnVisible[i-1] = true;
+                                toShowIdx = i-1;
+                                mode = 1;
+                            } else if(mode == 1 && !isColumnVisible[i]) {
+                                isColumnVisible[i-1] = false;
+                                toHideIdx = i-1;
+                                break;
+                            }
+                        };
 
-                    //if that is set, then we called this manually and don't
-                    // want to adjust the global offset state
-                    if (!that) legendOffset++;
-                    if (toHideIdx == -1) {
-                        isColumnVisible[isColumnVisible.length-1] = false;
+                        //if that is set, then we called this manually and don't
+                        // want to adjust the global offset state
+                        if(!that) legendOffset++;
+                        if (toHideIdx == -1) {
+                            isColumnVisible[isColumnVisible.length-1] = false;
+                        }
+                            wrapTran[0] += columnWidths[toShowIdx];
                     }
-                    wrapTran[0] += columnWidths[toShowIdx];
-                }
-                series.style("display",function(d, i) {
-                    return isColumnVisible[i % seriesPerRow] ? "block" : "none";
-                });
-                if (isColumnVisible[0]) {
-                    container.select(".nv-legend-left").style("display","none");
-                } else {
-                    container.select(".nv-legend-left").style("display","block");
-                }
-                if (isColumnVisible[isColumnVisible.length-1]) {
-                    container.select(".nv-legend-right").style("display","none");
-                } else {
-                    container.select(".nv-legend-right").style("display","block");
-                }
-                wrap.attr('transform', 'translate(' + wrapTran[0] + ',' + wrapTran[1] + ')');
-            });
-        }
+                    series.style("display",function(d, i) {
+                        return isColumnVisible[i % seriesPerRow] ? "block" : "none";
+                    });
+                    if (isColumnVisible[0]) {
+                        container.select(".nv-legend-left").style("display","none");
+                    } else {
+                        container.select(".nv-legend-left").style("display","block");
+                    }
+                    if (isColumnVisible[isColumnVisible.length-1]) {
+                        container.select(".nv-legend-right").style("display","none");
+                    }else{
+                        container.select(".nv-legend-right").style("display","block");
+                    }
+                    wrap.attr('transform', 'translate(' + wrapTran[0] + ',' + wrapTran[1] + ')');
+                })
+            }
         if (legendOffset > 0) {
-            for (var i = 0; i <legendOffset; i++) {
-                container.selectAll(".nv-legend-left").each(function(d, i) {
-                    d3.select(this).on("click")(d, i, this);
-                });
-            };
+                for (var i = 0; i <legendOffset; i++) {
+                    container.selectAll(".nv-legend-left").each(function(d, i) {
+                        d3.select(this).on("click")(d, i,this);
+                    });
+                };
         } else if (legendOffset < 0) {
-            for (var i = 0; i > legendOffset; i--) {
-                container.selectAll(".nv-legend-right").each(function(d, i) {
-                    d3.select(this).on("click")(d, i, this);
-                });
-            };
+                for (var i = 0; i > legendOffset; i--) {
+                    container.selectAll(".nv-legend-right").each(function(d, i) {
+                        d3.select(this).on("click")(d, i,this);
+                    });
+                };
         }
       } else {
+
         var ypos = 5,
             newxpos = 5,
             maxwidth = 0,
@@ -4432,7 +4430,9 @@ nv.models.indentedTree = function() {
         g.attr('transform', 'translate(' + (width - margin.right - maxwidth) + ',' + margin.top + ')');
 
         height = margin.top + margin.bottom + ypos + 15;
+
       }
+
     });
 
     return chart;
@@ -4487,12 +4487,6 @@ nv.models.indentedTree = function() {
   chart.align = function(_) {
     if (!arguments.length) return align;
     align = _;
-    return chart;
-  };
-
-  chart.rightAlign = function(_) {
-    if (!arguments.length) return rightAlign;
-    rightAlign = _;
     return chart;
   };
 
@@ -8561,22 +8555,13 @@ nv.models.lineWithFocusChart = function() {
 
   chart.margin2 = function(_) {
     if (!arguments.length) return margin2;
-    margin2.top    = typeof _.top    != 'undefined' ? _.top    : margin2.top;
-    margin2.right  = typeof _.right  != 'undefined' ? _.right  : margin2.right;
-    margin2.bottom = typeof _.bottom != 'undefined' ? _.bottom : margin2.bottom;
-    margin2.left   = typeof _.left   != 'undefined' ? _.left   : margin2.left;
+    margin2 = _;
     return chart;
   };
 
   chart.width = function(_) {
     if (!arguments.length) return width;
     width = _;
-    return chart;
-  };
-
-  chart.width2 = function(_) {
-    if (!arguments.length) return width2;
-    width2 = _;
     return chart;
   };
 
@@ -11856,11 +11841,7 @@ nv.models.multiChart = function() {
         return '<h3>' + key + '</h3>' +
                '<p>' +  y + ' at ' + x + '</p>'
       },
-      x,
-      y,
-      yDomain1,
-      yDomain2
-      ; //can be accessed via chart.lines.[x/y]Scale()
+      x, y; //can be accessed via chart.lines.[x/y]Scale()
 
   //============================================================
   // Private Variables
@@ -12039,10 +12020,10 @@ nv.models.multiChart = function() {
         return a.map(function(aVal,i){return {x: aVal.x, y: aVal.y + b[i].y}})
       }).concat([{x:0, y:0}]) : []
 
-      yScale1 .domain(yDomain1 || d3.extent(d3.extent(d3.merge(series1).concat(extraValue1), function(d) { return d.y; } ).concat(lines1.forceY())))
+      yScale1 .domain(d3.extent(d3.merge(series1).concat(extraValue1), function(d) { return d.y } ))
               .range([0, availableHeight])
 
-      yScale2 .domain(yDomain2 || d3.extent(d3.extent(d3.merge(series2).concat(extraValue2), function(d) { return d.y; } ).concat(lines2.forceY())))
+      yScale2 .domain(d3.extent(d3.merge(series2).concat(extraValue2), function(d) { return d.y } ))
               .range([0, availableHeight])
 
       lines1.yDomain(yScale1.domain())
@@ -12239,18 +12220,6 @@ nv.models.multiChart = function() {
     getY = _;
     lines1.y(_);
     bars1.y(_);
-    return chart;
-  };
-
-  chart.yDomain1 = function(_) {
-    if (!arguments.length) return yDomain1;
-    yDomain1 = _;
-    return chart;
-  };
-
-  chart.yDomain2 = function(_) {
-    if (!arguments.length) return yDomain2;
-    yDomain2 = _;
     return chart;
   };
 
@@ -16076,34 +16045,30 @@ nv.models.stackedArea = function() {
 
 
       // Injecting point index into each point because d3.layout.stack().out does not give index
+      // ***Also storing getY(d,i) as stackedY so that it can be set to 0 if series is disabled
       data = data.map(function(aseries, i) {
-               aseries.seriesIndex = i;
                aseries.values = aseries.values.map(function(d, j) {
                  d.index = j;
-                 d.seriesIndex = i;
+                 d.stackedY = aseries.disabled ? 0 : getY(d,j);
                  return d;
                })
                return aseries;
              });
 
-      var dataFiltered = data.filter(function(series) {
-            return !series.disabled;
-      });
 
       data = d3.layout.stack()
                .order(order)
                .offset(offset)
                .values(function(d) { return d.values })  //TODO: make values customizeable in EVERY model in this fashion
                .x(getX)
-               .y(getY)
+               .y(function(d) { return d.stackedY })
                .out(function(d, y0, y) {
-                    var yHeight = (getY(d) === 0) ? 0 : y;
-                    d.display = {
-                      y: yHeight,
-                     y0: y0
-                    };
+                  d.display = {
+                    y: y,
+                   y0: y0
+                  };
                 })
-              (dataFiltered);
+              (data);
 
 
       //------------------------------------------------------------
@@ -16130,12 +16095,12 @@ nv.models.stackedArea = function() {
         .y(function(d) { return d.display.y + d.display.y0 })
         .forceY([0])
         .color(data.map(function(d,i) {
-          return d.color || color(d, d.seriesIndex);
-        }));
+          return d.color || color(d, i);
+        }).filter(function(d,i) { return !data[i].disabled }));
 
 
       var scatterWrap = g.select('.nv-scatterWrap')
-          .datum(data);
+          .datum(data.filter(function(d) { return !d.disabled }))
 
       //d3.transition(scatterWrap).call(scatter);
       scatterWrap.call(scatter);
@@ -16159,12 +16124,8 @@ nv.models.stackedArea = function() {
 
       var area = d3.svg.area()
           .x(function(d,i)  { return x(getX(d,i)) })
-          .y0(function(d) {
-              return y(d.display.y0)
-          })
-          .y1(function(d) {
-              return y(d.display.y + d.display.y0)
-          })
+          .y0(function(d) { return y(d.display.y0) })
+          .y1(function(d) { return y(d.display.y + d.display.y0) })
           .interpolate(interpolate);
 
       var zeroArea = d3.svg.area()
@@ -16174,9 +16135,7 @@ nv.models.stackedArea = function() {
 
 
       var path = g.select('.nv-areaWrap').selectAll('path.nv-area')
-          .data(function(d) {
-            return d
-          });
+          .data(function(d) { return d });
           //.data(function(d) { return d }, function(d) { return d.key });
       path.enter().append('path').attr('class', function(d,i) { return 'nv-area nv-area-' + i })
           .on('mouseover', function(d,i) {
@@ -16211,15 +16170,11 @@ nv.models.stackedArea = function() {
           .attr('d', function(d,i) { return zeroArea(d.values,i) })
           .remove();
       path
-          .style('fill', function(d,i){
-            return d.color || color(d, d.seriesIndex)
-          })
-          .style('stroke', function(d,i){ return d.color || color(d, d.seriesIndex) });
+          .style('fill', function(d,i){ return d.color || color(d, i) })
+          .style('stroke', function(d,i){ return d.color || color(d, i) });
       //d3.transition(path)
       path
-          .attr('d', function(d,i) {
-            return area(d.values,i)
-          })
+          .attr('d', function(d,i) { return area(d.values,i) })
 
 
       //============================================================
@@ -16409,6 +16364,12 @@ nv.models.stackedAreaChart = function() {
     ;
   yAxis
     .orient((rightAlignYAxis) ? 'right' : 'left')
+    ;
+  stacked.scatter
+    .pointActive(function(d) {
+      //console.log(stacked.y()(d), !!Math.round(stacked.y()(d) * 100));
+      return !!Math.round(stacked.y()(d) * 100);
+    })
     ;
 
   //============================================================
