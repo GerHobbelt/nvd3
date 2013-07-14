@@ -50,8 +50,7 @@ JS_FILES = \
 
 
 JS_COMPILER = \
-	cat
-#   uglifyjs
+	uglifyjs
 
 all: nv.d3.js
 nv.d3.js: $(JS_FILES)
