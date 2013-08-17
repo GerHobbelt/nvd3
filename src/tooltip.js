@@ -5,7 +5,7 @@ window.nv.tooltip.show is the old tooltip code.
 window.nv.tooltip.* also has various helper methods.
 */
 (function() {
-
+  "use strict";
   window.nv.tooltip = {};
 
   /* Model which can be instantiated to handle tooltip rendering.
@@ -49,6 +49,9 @@ window.nv.tooltip.* also has various helper methods.
         //Generates a unique id when you create a new tooltip() object
         ,   id = "nvtooltip-" + Math.floor(Math.random() * 100000)
         ;
+
+        //CSS class to specify whether element should not have mouse events.
+        var  nvPointerEventsClass = "nv-pointer-events-none";
 
         //Format function for the tooltip values column
         var valueFormatter = function(d,i) {
@@ -124,6 +127,8 @@ window.nv.tooltip.* also has various helper methods.
 
             container.node().innerHTML = newContent;
             container.style("top",0).style("left",0).style("opacity",0);
+            container.selectAll("div, table, td, tr").classed(nvPointerEventsClass,true)
+            container.classed(nvPointerEventsClass,true);
             return container.node();
         }
 
@@ -150,8 +155,11 @@ window.nv.tooltip.* also has various helper methods.
                     svgOffset.top = Math.abs(svgBound.top - chartBound.top);
                     svgOffset.left = Math.abs(svgBound.left - chartBound.left);
                 }
-                left += chartContainer.offsetLeft + svgOffset.left;
-                top += chartContainer.offsetTop + svgOffset.top;
+                //If the parent container is an overflow <div> with scrollbars, subtract the scroll offsets.
+                //You need to also add any offset between the <svg> element and its containing <div>
+                //Finally, add any offset of the containing <div> on the whole page.
+                left += chartContainer.offsetLeft + svgOffset.left - 2*chartContainer.scrollLeft;
+                top += chartContainer.offsetTop + svgOffset.top - 2*chartContainer.scrollTop;
             }
 
             if (snapDistance && snapDistance > 0) {
@@ -162,6 +170,8 @@ window.nv.tooltip.* also has various helper methods.
             return nvtooltip;
         };
 
+        nvtooltip.nvPointerEventsClass = nvPointerEventsClass;
+        
         nvtooltip.content = function(_) {
             if (!arguments.length) return content;
             content = _;
@@ -258,6 +268,7 @@ window.nv.tooltip.* also has various helper methods.
 
 
   //Original tooltip.show function. Kept for backward compatibility.
+  // pos = [left,top]
   nv.tooltip.show = function(pos, content, gravity, dist, parentContainer, classes) {
       
         //Create new tooltip div if it doesn't exist on DOM.
@@ -275,7 +286,12 @@ window.nv.tooltip.* also has various helper methods.
         container.style.opacity = 0;
         container.innerHTML = content;
         body.appendChild(container);
-
+        
+        //If the parent container is an overflow <div> with scrollbars, subtract the scroll offsets.
+        if (parentContainer) {
+           pos[0] = pos[0] - parentContainer.scrollLeft;
+           pos[1] = pos[1] - parentContainer.scrollTop;
+        }
         nv.tooltip.calcTooltipPosition(pos, gravity, dist, container);
   };
 
@@ -314,7 +330,7 @@ window.nv.tooltip.* also has various helper methods.
   };
 
   //Global utility function to render a tooltip on the DOM.
-  //pos = [X,Y] coordinates of where to place the tooltip, relative to the SVG chart container.
+  //pos = [left,top] coordinates of where to place the tooltip, relative to the SVG chart container.
   //gravity = how to orient the tooltip
   //dist = how far away from the mouse to place tooltip
   //container = tooltip DIV
@@ -379,6 +395,12 @@ window.nv.tooltip.* also has various helper methods.
                 if (tLeft + width > windowWidth) left = left - width/2 + 5;
                 if (scrollTop > tTop) top = scrollTop;
                 break;
+              case 'none':
+                left = pos[0];
+                top = pos[1] - dist;
+                var tLeft = tooltipLeft(container);
+                var tTop = tooltipTop(container);
+                break;
             }
 
 
@@ -386,7 +408,6 @@ window.nv.tooltip.* also has various helper methods.
             container.style.top = top+'px';
             container.style.opacity = 1;
             container.style.position = 'absolute'; 
-            container.style.pointerEvents = 'none';
 
             return container;
     };

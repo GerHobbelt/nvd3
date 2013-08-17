@@ -3,9 +3,31 @@ apology, and commitment to its permanent status as an open-source
 project.
 [http://nvd3.org/statement.html](http://nvd3.org/statement.html)
 
-# nvd3 - v1.0.0-beta
 
-A reusable chart library for d3.JS by Bob Monteverde of Novus Partners.
+# nvd3 - v1.1.x-beta
+
+## Release notes for version 1.1 beta
+
+* Line charts now have a new tooltip option available. This new tooltip displays all series information at once, and shows up anywhere your mouse moves.
+To enable, set **useInteractiveGuideline** to true. See examples in the **test/** directory for how this tooltip works.
+* New test pages have been created for various kinds of charts. They live in the **test/** directory. The goal of these test pages is to aid
+in regression testing coverage when changes are made to charts.
+* Pie charts accept data in a different way, and if you update to version 1.1, your pie charts will likely break. See the pie chart examples for how
+data should be properly passed in. It's a very simple change.
+* Pie charts can now accept a 'labelType' property. 
+* Tooltip transitions are **turned off** by default, if you update to the latest nv.d3.css.  To bring them back, add a 'with-transitions' CSS class
+to the containing chart DIV.
+* Stacked area charts have transitions again. Duration is controlled via a 'transitionDuration' property.
+* Line, cumulative, scatter, multi bar and discrete bar charts also have the 'transitionDuration' property.
+* Issue #127: Adding ability to override individual scatter plot point colors.
+* Issue #216: Exposing xRange and yRange overrides for all charts.
+* Issue #168: Adding legend.radioButtonMode(). When set to true, legend click behavior will match those of radio buttons.
+* Line stroke-width has been reduced to 1.5px, from 2.5px.
+
+
+## Overview
+
+A reusable chart library for d3.js by Bob Monteverde of Novus Partners.
 
 NVD3 may change from its current state, but will always try to follow the style of d3.js.
 
@@ -15,17 +37,17 @@ You can also check out the [examples page](http://nvd3.org/ghpages/examples.html
 
 # Current development focus
 
--Error bars in bar charts
--Unifying common API functions between charts
--Bug fixes all around
+- Error bars in bar charts
+- Unifying common API functions between charts
+- Bug fixes all around
 
 ---
 
 # Installation Instructions
 
-d3.v3.js is a dependency of nv.d3.js. Be sure to include in in your project, then:
-Add a script tag to include nv.d3.js OR nv.d3.min.js in your project.
-Also add a link to the nv.d3.css file.
+`d3.v3.js` is a dependency of `nv.d3.js`. Be sure to include in in your project, then:  
+Add a script tag to include `nv.d3.js` OR `nv.d3.min.js` in your project.  
+Also add a link to the `nv.d3.css` file.
 
 See wiki -> Documentation for more detail
 
@@ -55,9 +77,10 @@ fork's root directory will rebuild both `nv.d3.js` and `nv.d3.min.js`.
 
 Without UglifyJS, you won't get the minified version when running make.
 
-## use grunt
 
-You can use grunt insteadof makefile to build js file. See more about [grunt](http://gruntjs.com/).
+## use `grunt`
+
+You can use `grunt` instead of `Makefile` to build the js file. See more about [grunt](http://gruntjs.com/).
 ***[Nodejs](http://nodejs.org/) must be installed before you can use grunt.***
 Run `npm install` in root dir to install grunt and it's dependencies.
 
@@ -72,9 +95,12 @@ Then, you can use these commands:
 If you need to minify please build pull request in separate branch, and
 merge and minify in your master.
 
-## (Officially) Supported Browsers
+
+## Supported Browsers
 
 * Chrome latest version (preferred)
 * Firefox latest version
 * Safari latest version
 * Internet Explorer 9 and 10
+* (unofficially) Opera 15+.
+

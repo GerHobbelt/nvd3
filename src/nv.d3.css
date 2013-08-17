@@ -10,6 +10,18 @@
   overflow: hidden;
 }
 
+/********************
+  Box shadow and border radius styling
+*/
+.nvtooltip.with-3d-shadow, .with-3d-shadow .nvtooltip {
+  -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  box-shadow: 0 5px 10px rgba(0,0,0,.2);
+
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+}
 
 /********************
  * TOOLTIP CSS
@@ -27,6 +39,8 @@
   text-align: left;
   pointer-events: none;
 
+  white-space: nowrap;
+
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -39,21 +53,13 @@
     putting a "with-transitions" class on the container div.
 */
 .nvtooltip.with-transitions, .with-transitions .nvtooltip {
-  transition: opacity 500ms linear;
-  -moz-transition: opacity 500ms linear;
-  -webkit-transition: opacity 500ms linear;
+  transition: opacity 250ms linear;
+  -moz-transition: opacity 250ms linear;
+  -webkit-transition: opacity 250ms linear;
 
-  transition-delay: 500ms;
-  -moz-transition-delay: 500ms;
-  -webkit-transition-delay: 500ms;
-
-  -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-  box-shadow: 0 5px 10px rgba(0,0,0,.2);
-
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
+  transition-delay: 250ms;
+  -moz-transition-delay: 250ms;
+  -webkit-transition-delay: 250ms;
 }
 
 .nvtooltip.x-nvtooltip,
@@ -185,6 +191,9 @@ svg .title {
 /**********
 *  Axes
 */
+.nvd3 .nv-axis {
+  pointer-events:none;
+}
 
 .nvd3 .nv-axis path {
   fill: none;
@@ -302,7 +311,6 @@ svg .title {
 
 .nvd3.nv-pie path {
   stroke-opacity: 0;
-
   transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
   -moz-transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
   -webkit-transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
@@ -322,12 +330,10 @@ svg .title {
 
 .nvd3.nv-pie .hover path {
   fill-opacity: .7;
-/*
-  stroke-width: 6px;
-  stroke-opacity: 1;
-*/
 }
-
+.nvd3.nv-pie .nv-label {
+  pointer-events: none;
+}
 .nvd3.nv-pie .nv-label rect {
   fill-opacity: 0;
   stroke-opacity: 0;
@@ -339,7 +345,7 @@ svg .title {
 
 .nvd3 .nv-groups path.nv-line {
   fill: none;
-  stroke-width: 2.5px;
+  stroke-width: 1.5px;
   /*
   stroke-linecap: round;
   shape-rendering: geometricPrecision;
@@ -353,6 +359,11 @@ svg .title {
   -webkit-transition-delay: 250ms;
   */
 }
+
+.nvd3 .nv-groups path.nv-line.nv-thin-line {
+  stroke-width: 1px;
+}
+
 
 .nvd3 .nv-groups path.nv-area {
   stroke: none;
@@ -541,7 +552,7 @@ svg .title {
 
 
 .nvd3.nv-bullet .nv-range {
-  fill: #999;
+  fill: #bababa;
   fill-opacity: .4;
 }
 .nvd3.nv-bullet .nv-range:hover {
@@ -734,6 +745,9 @@ svg .title {
 /****
 Interactive Layer
 */
+.nvd3 .nv-interactiveGuideLine {
+  pointer-events:none;
+}
 .nvd3 line.nv-guideline {
   stroke: #ccc;
 }
