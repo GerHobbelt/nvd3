@@ -61,7 +61,7 @@ nv.d3.js: Makefile
 	-rm -f $@
 	cat $(filter %.js,$^) >> $@
 
-nv.d3.min.js:: Makefile nv.d3.js
+nv.d3.min.js: Makefile nv.d3.js
 	-rm -f $@
 	$(JS_COMPILER) nv.d3.js >> $@
 
