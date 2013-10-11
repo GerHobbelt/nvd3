@@ -128,6 +128,7 @@ nv.models.indentedTree = function() {
             d3.select(this)
               .append('a')
               .attr('href',getUrl)
+              .attr('class', d3.functor(column.classes))
               .append('span')
           else
             d3.select(this)
@@ -243,7 +244,8 @@ nv.models.indentedTree = function() {
   //============================================================
   // Expose Public Variables
   //------------------------------------------------------------
-
+  chart.options = nv.utils.optionsFunc.bind(chart);
+  
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;

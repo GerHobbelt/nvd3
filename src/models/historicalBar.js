@@ -24,7 +24,6 @@ nv.models.historicalBar = function() {
     , yRange
     , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
     , interactive = true
-    , transitionDuration = 250
     ;
 
   //============================================================
@@ -51,7 +50,7 @@ nv.models.historicalBar = function() {
           .range(yRange || [availableHeight, 0]);
 
       // If scale's domain don't have a range, slightly adjust to make one... so a chart can show a single data point
-      if (x.domain()[0] === x.domain()[1] || y.domain()[0] === y.domain()[1]) singlePoint = true;
+
       if (x.domain()[0] === x.domain()[1])
         x.domain()[0] ?
             x.domain([x.domain()[0] - x.domain()[0] * 0.01, x.domain()[1] + x.domain()[1] * 0.01])
@@ -115,6 +114,7 @@ nv.models.historicalBar = function() {
           .attr('x', 0 )
           .attr('y', function(d,i) {  return nv.utils.NaNtoZero(y(Math.max(0, getY(d,i)))) })
           .attr('height', function(d,i) { return nv.utils.NaNtoZero(Math.abs(y(getY(d,i)) - y(0))) })
+          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; }) 
           .on('mouseover', function(d,i) {
             if (!interactive) return;
             d3.select(this).classed('hover', true);
@@ -169,11 +169,13 @@ nv.models.historicalBar = function() {
       bars
           .attr('fill', function(d,i) { return color(d, i); })
           .attr('class', function(d,i,j) { return (getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive') + ' nv-bar-' + j + '-' + i })
-          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; })  //TODO: better width calculations that don't assume always uniform data spacing;w
-          .attr('width', (availableWidth / data[0].values.length) * .9 )
+          .transition()
+          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; }) 
+           //TODO: better width calculations that don't assume always uniform data spacing;w
+          .attr('width', (availableWidth / data[0].values.length) * .9 );
 
 
-      bars.transition().duration(transitionDuration)
+      bars.transition()
           .attr('y', function(d,i) {
             var rval = getY(d,i) < 0 ?
                     y(0) :
@@ -209,6 +211,8 @@ nv.models.historicalBar = function() {
 
   chart.dispatch = dispatch;
 
+  chart.options = nv.utils.optionsFunc.bind(chart);
+  
   chart.x = function(_) {
     if (!arguments.length) return getX;
     getX = _;
@@ -317,12 +321,6 @@ nv.models.historicalBar = function() {
   chart.interactive = function(_) {
     if(!arguments.length) return interactive;
     interactive = false;
-    return chart;
-  };
-
-  chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
     return chart;
   };
 

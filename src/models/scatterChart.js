@@ -38,6 +38,7 @@ nv.models.scatterChart = function() {
     , defaultState = null
     , dispatch     = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
     , noData       = "No Data Available."
+    , transitionDuration = 250
     ;
 
   scatter
@@ -107,7 +108,7 @@ nv.models.scatterChart = function() {
           availableHeight = (height || parseInt(container.style('height')) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().call(chart); };
+      chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
       chart.container = this;
 
       //set state.disabled
@@ -478,7 +479,8 @@ nv.models.scatterChart = function() {
   chart.distY = distY;
 
   d3.rebind(chart, scatter, 'id', 'interactive', 'pointActive', 'x', 'y', 'shape', 'size', 'xScale', 'yScale', 'zScale', 'xDomain', 'yDomain', 'xRange', 'yRange', 'sizeDomain', 'sizeRange', 'forceX', 'forceY', 'forceSize', 'clipVoronoi', 'clipRadius', 'useVoronoi');
-
+  chart.options = nv.utils.optionsFunc.bind(chart);
+  
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
@@ -614,12 +616,8 @@ nv.models.scatterChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return scatter.transitionDuration();
-    scatter.transitionDuration(_);
-    xAxis.transitionDuration(_);
-    yAxis.transitionDuration(_);
-    distX.transitionDuration(_);
-    distY.transitionDuration(_);
+    if (!arguments.length) return transitionDuration;
+    transitionDuration = _;
     return chart;
   };
 

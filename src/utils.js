@@ -30,6 +30,7 @@ nv.utils.windowSize = function() {
 // Easy way to bind multiple functions to window.onresize
 // TODO: give a way to remove a function after its bound, other than removing all of them
 nv.utils.windowResize = function(fun){
+  if (fun === undefined) return;
   var oldresize = window.onresize;
 
   window.onresize = function(e) {
@@ -126,4 +127,26 @@ nv.utils.NaNtoZero = function(n) {
         || n === Infinity) return 0;
 
     return n;
+};
+
+/*
+Snippet of code you can insert into each nv.models.* to give you the ability to
+do things like:
+chart.options({
+  showXAxis: true,
+  tooltips: true
+});
+
+To enable in the chart:
+chart.options = nv.utils.optionsFunc.bind(chart);
+*/
+nv.utils.optionsFunc = function(args) {
+    if (args) {
+      d3.map(args).forEach((function(key,value) {
+        if (typeof this[key] === "function") {
+           this[key](value);
+        }
+      }).bind(this));
+    }
+    return this;
 };

@@ -36,6 +36,7 @@ nv.models.multiBarChart = function() {
     , noData = "No Data Available."
     , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
     , controlWidth = function() { return showControls ? 180 : 0 }
+    , transitionDuration = 250
     ;
 
   multibar
@@ -84,7 +85,7 @@ nv.models.multiBarChart = function() {
           availableHeight = (height || parseInt(container.style('height')) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().call(chart) };
+      chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
       chart.container = this;
 
       //set state.disabled
@@ -218,7 +219,7 @@ nv.models.multiBarChart = function() {
       var barsWrap = g.select('.nv-barsWrap')
           .datum(data.filter(function(d) { return !d.disabled }))
 
-      d3.transition(barsWrap).call(multibar);
+      barsWrap.transition().call(multibar);
 
       //------------------------------------------------------------
 
@@ -234,7 +235,7 @@ nv.models.multiBarChart = function() {
 
           g.select('.nv-x.nv-axis')
               .attr('transform', 'translate(0,' + y.range()[0] + ')');
-          d3.transition(g.select('.nv-x.nv-axis'))
+          g.select('.nv-x.nv-axis').transition()
               .call(xAxis);
 
           var xTicks = g.select('.nv-x.nv-axis > g').selectAll('g');
@@ -273,9 +274,9 @@ nv.models.multiBarChart = function() {
 
           if(rotateLabels)
             xTicks
-              .selectAll('text')
+              .selectAll('.tick text')
               .attr('transform', 'rotate(' + rotateLabels + ' 0,0)')
-              .attr('text-anchor', rotateLabels > 0 ? 'start' : 'end');
+              .style('text-anchor', rotateLabels > 0 ? 'start' : 'end');
 
           g.select('.nv-x.nv-axis').selectAll('g.nv-axisMaxMin text')
               .style('opacity', 1);
@@ -288,9 +289,10 @@ nv.models.multiBarChart = function() {
             .ticks( availableHeight / 36 )
             .tickSize( -availableWidth, 0);
 
-          d3.transition(g.select('.nv-y.nv-axis'))
+          g.select('.nv-y.nv-axis').transition()
               .call(yAxis);
       }
+
 
       //------------------------------------------------------------
 
@@ -391,8 +393,11 @@ nv.models.multiBarChart = function() {
   chart.xAxis = xAxis;
   chart.yAxis = yAxis;
 
-  d3.rebind(chart, multibar, 'x', 'y', 'xDomain', 'yDomain', 'xRange', 'yRange', 'forceX', 'forceY', 'clipEdge', 'id', 'stacked', 'delay', 'barColor');
+  d3.rebind(chart, multibar, 'x', 'y', 'xDomain', 'yDomain', 'xRange', 'yRange', 'forceX', 'forceY', 'clipEdge',
+   'id', 'stacked', 'delay', 'barColor','groupSpacing');
 
+  chart.options = nv.utils.optionsFunc.bind(chart);
+  
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
@@ -507,10 +512,8 @@ nv.models.multiBarChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return multibar.transitionDuration();
-    multibar.transitionDuration(_);
-    xAxis.transitionDuration(_);
-    yAxis.transitionDuration(_);
+    if (!arguments.length) return transitionDuration;
+    transitionDuration = _;
     return chart;
   };
 

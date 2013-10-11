@@ -36,6 +36,8 @@ nv.models.stackedAreaChart = function() {
     , noData = 'No Data Available.'
     , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
     , controlWidth = 250
+    , cData = ['Stacked','Stream','Expanded']
+    , transitionDuration = 250
     ;
 
   xAxis
@@ -77,7 +79,7 @@ nv.models.stackedAreaChart = function() {
           availableHeight = (height || parseInt(container.style('height')) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().call(chart); };
+      chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
       chart.container = this;
 
       //set state.disabled
@@ -134,7 +136,7 @@ nv.models.stackedAreaChart = function() {
       var gEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-stackedAreaChart').append('g');
       var g = wrap.select('g');
 
-      gEnter.append("rect").attr("width",availableWidth).attr("height",availableHeight).style("opacity",0);
+      gEnter.append("rect").style("opacity",0);
       gEnter.append('g').attr('class', 'nv-x nv-axis');
       gEnter.append('g').attr('class', 'nv-y nv-axis');
       gEnter.append('g').attr('class', 'nv-stackedWrap');
@@ -142,6 +144,7 @@ nv.models.stackedAreaChart = function() {
       gEnter.append('g').attr('class', 'nv-controlsWrap');
       gEnter.append('g').attr('class', 'nv-interactive');
 
+      g.select("rect").attr("width",availableWidth).attr("height",availableHeight);
       //------------------------------------------------------------
       // Legend
 
@@ -176,6 +179,12 @@ nv.models.stackedAreaChart = function() {
           { key: 'Stream', disabled: stacked.offset() != 'wiggle' },
           { key: 'Expanded', disabled: stacked.offset() != 'expand' }
         ];
+
+        controlWidth = (cData.length/3) * 260;
+
+        controlsData = controlsData.filter(function(d) {
+          return cData.indexOf(d.key) > -1;
+        })
 
         controls
           .width( controlWidth )
@@ -229,7 +238,7 @@ nv.models.stackedAreaChart = function() {
       var stackedWrap = g.select('.nv-stackedWrap')
           .datum(data);
 
-      stackedWrap.call(stacked);
+      stackedWrap.transition().call(stacked);
 
       //------------------------------------------------------------
 
@@ -258,7 +267,6 @@ nv.models.stackedAreaChart = function() {
           .tickSize(-availableWidth, 0)
           .setTickFormat(stacked.offset() == 'expand' ? d3.format('%') : yAxisTickFormat);
 
-
         g.select('.nv-y.nv-axis')
           .transition().duration(0)
             .call(yAxis);
@@ -286,7 +294,6 @@ nv.models.stackedAreaChart = function() {
         state.disabled = data.map(function(d) { return !!d.disabled });
         dispatch.stateChange(state);
 
-        //selection.transition().call(chart);
         chart.update();
       });
 
@@ -444,6 +451,8 @@ nv.models.stackedAreaChart = function() {
 
   d3.rebind(chart, stacked, 'x', 'y', 'size', 'xScale', 'yScale', 'xDomain', 'yDomain', 'xRange', 'yRange', 'sizeDomain', 'interactive', 'useVoronoi', 'offset', 'order', 'style', 'clipEdge', 'forceX', 'forceY', 'forceSize', 'interpolate');
 
+  chart.options = nv.utils.optionsFunc.bind(chart);
+  
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
@@ -454,13 +463,13 @@ nv.models.stackedAreaChart = function() {
   };
 
   chart.width = function(_) {
-    if (!arguments.length) return getWidth;
+    if (!arguments.length) return width;
     width = _;
     return chart;
   };
 
   chart.height = function(_) {
-    if (!arguments.length) return getHeight;
+    if (!arguments.length) return height;
     height = _;
     return chart;
   };
@@ -551,10 +560,14 @@ nv.models.stackedAreaChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return stacked.transitionDuration();
-    stacked.transitionDuration(_);
-    xAxis.transitionDuration(_);
-    yAxis.transitionDuration(_);
+    if (!arguments.length) return transitionDuration;
+    transitionDuration = _;
+    return chart;
+  };
+
+  chart.controlsData = function(_) {
+    if (!arguments.length) return cData;
+    cData = _;
     return chart;
   };
 

@@ -32,6 +32,7 @@ nv.models.lineChart = function() {
     , defaultState = null
     , noData = 'No Data Available.'
     , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , transitionDuration = 250
     ;
 
   xAxis
@@ -73,7 +74,7 @@ nv.models.lineChart = function() {
                              - margin.top - margin.bottom;
 
 
-      chart.update = function() { container.transition().call(chart) };
+      chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
       chart.container = this;
 
       //set state.disabled
@@ -131,13 +132,14 @@ nv.models.lineChart = function() {
       var gEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-lineChart').append('g');
       var g = wrap.select('g');
 
-      gEnter.append("rect").attr("width",availableWidth).attr("height",availableHeight).style("opacity",0);
+      gEnter.append("rect").style("opacity",0);
       gEnter.append('g').attr('class', 'nv-x nv-axis');
       gEnter.append('g').attr('class', 'nv-y nv-axis');
       gEnter.append('g').attr('class', 'nv-linesWrap');
       gEnter.append('g').attr('class', 'nv-legendWrap');
       gEnter.append('g').attr('class', 'nv-interactive');
 
+      g.select("rect").attr("width",availableWidth).attr("height",availableHeight);
       //------------------------------------------------------------
       // Legend
 
@@ -195,7 +197,7 @@ nv.models.lineChart = function() {
       var linesWrap = g.select('.nv-linesWrap')
           .datum(data.filter(function(d) { return !d.disabled }))
 
-      d3.transition(linesWrap).call(lines);
+      linesWrap.transition().call(lines);
 
       //------------------------------------------------------------
 
@@ -346,6 +348,8 @@ nv.models.lineChart = function() {
   d3.rebind(chart, lines, 'defined', 'isArea', 'x', 'y', 'size', 'xScale', 'yScale', 'xDomain', 'yDomain', 'xRange', 'yRange'
     , 'forceX', 'forceY', 'interactive', 'clipEdge', 'clipVoronoi', 'useVoronoi','id', 'interpolate');
 
+  chart.options = nv.utils.optionsFunc.bind(chart);
+
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
@@ -440,10 +444,8 @@ nv.models.lineChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return lines.transitionDuration();
-    lines.transitionDuration(_);
-    xAxis.transitionDuration(_);
-    yAxis.transitionDuration(_);
+    if (!arguments.length) return transitionDuration;
+    transitionDuration = _;
     return chart;
   };
 
