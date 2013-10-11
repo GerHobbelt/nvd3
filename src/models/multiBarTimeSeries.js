@@ -52,12 +52,10 @@ nv.models.multiBarTimeSeries = function() {
 
 
       //add series index to each data point for reference
-      data = data.map(function(series, i) {
-        series.values = series.values.map(function(point) {
+      data.forEach(function(series, i) {
+        series.values.forEach(function(point) {
           point.series = i;
-          return point;
         });
-        return series;
       });
 
       //------------------------------------------------------------

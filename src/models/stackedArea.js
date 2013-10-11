@@ -59,15 +59,14 @@ nv.models.stackedArea = function() {
 
       var dataRaw = data;
       // Injecting point index into each point because d3.layout.stack().out does not give index
-      data = data.map(function(aseries, i) {
-               aseries.seriesIndex = i;
-               aseries.values = aseries.values.map(function(d, j) {
-                 d.index = j;
-                 d.seriesIndex = i;
-                 return d;
-               })
-               return aseries;
-             });
+      data.forEach(function(aseries, i) {
+        aseries.seriesIndex = i;
+        aseries.values = aseries.values.map(function(d, j) {
+          d.index = j;
+          d.seriesIndex = i;
+          return d;
+        });
+      });
 
       var dataFiltered = data.filter(function(series) {
             return !series.disabled;
@@ -161,7 +160,7 @@ nv.models.stackedArea = function() {
               point: d,
               series: d.key,
               pos: [d3.event.pageX, d3.event.pageY],
-              seriesIndex: i
+              seriesIndex: d.seriesIndex
             });
           })
           .on('mouseout', function(d,i) {
@@ -170,7 +169,7 @@ nv.models.stackedArea = function() {
               point: d,
               series: d.key,
               pos: [d3.event.pageX, d3.event.pageY],
-              seriesIndex: i
+              seriesIndex: d.seriesIndex
             });
           })
           .on('click', function(d,i) {
@@ -179,7 +178,7 @@ nv.models.stackedArea = function() {
               point: d,
               series: d.key,
               pos: [d3.event.pageX, d3.event.pageY],
-              seriesIndex: i
+              seriesIndex: d.seriesIndex
             });
           })
       path.exit().transition()
@@ -191,8 +190,8 @@ nv.models.stackedArea = function() {
           })
           .style('stroke', function(d,i){ return d.color || color(d, d.seriesIndex) });
       path.transition()
-          .attr('d', function(d,i) { 
-            return area(d.values,i) 
+          .attr('d', function(d,i) {
+            return area(d.values,i)
           });
 
 
@@ -211,10 +210,10 @@ nv.models.stackedArea = function() {
       //============================================================
       //Special offset functions
       chart.d3_stackedOffset_stackPercent = function(stackData) {
-          var n = stackData.length,    //How many series 
+          var n = stackData.length,    //How many series
           m = stackData[0].length,     //how many points per series
           k = 1 / n,
-           i, 
+           i,
            j,
            o,
            y0 = [];
@@ -224,9 +223,9 @@ nv.models.stackedArea = function() {
                 o += getY(dataRaw[i].values[j])   //total value of all points at a certian point in time.
 
             if (o) for (i = 0; i < n; i++)
-               stackData[i][j][1] /= o; 
-            else 
-              for (i = 0; i < n; i++) 
+               stackData[i][j][1] /= o;
+            else
+              for (i = 0; i < n; i++)
                stackData[i][j][1] = k;
           }
           for (j = 0; j < m; ++j) y0[j] = 0;
@@ -264,11 +263,11 @@ nv.models.stackedArea = function() {
   chart.dispatch = dispatch;
   chart.scatter = scatter;
 
-  d3.rebind(chart, scatter, 'interactive', 'size', 'xScale', 'yScale', 'zScale', 'xDomain', 'yDomain', 'xRange', 'yRange', 
+  d3.rebind(chart, scatter, 'interactive', 'size', 'xScale', 'yScale', 'zScale', 'xDomain', 'yDomain', 'xRange', 'yRange',
     'sizeDomain', 'forceX', 'forceY', 'forceSize', 'clipVoronoi', 'useVoronoi','clipRadius','highlightPoint','clearHighlights');
 
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
   chart.x = function(_) {
     if (!arguments.length) return getX;
     getX = d3.functor(_);

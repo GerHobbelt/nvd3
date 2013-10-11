@@ -45,12 +45,10 @@ nv.models.discreteBar = function() {
 
 
       //add series index to each data point for reference
-      data = data.map(function(series, i) {
-        series.values = series.values.map(function(point) {
+      data.forEach(function(series, i) {
+        series.values.forEach(function(point) {
           point.series = i;
-          return point;
         });
-        return series;
       });
 
 
@@ -190,7 +188,7 @@ nv.models.discreteBar = function() {
           .transition()
           .attr('x', x.rangeBand() * .9 / 2)
           .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : -4 })
-          
+
           ;
       } else {
         bars.selectAll('text').remove();
@@ -239,7 +237,7 @@ nv.models.discreteBar = function() {
   chart.dispatch = dispatch;
 
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
   chart.x = function(_) {
     if (!arguments.length) return getX;
     getX = _;

@@ -58,12 +58,10 @@ nv.models.multiBarHorizontal = function() {
 
 
       //add series index to each data point for reference
-      data = data.map(function(series, i) {
-        series.values = series.values.map(function(point) {
+      data.forEach(function(series, i) {
+        series.values.forEach(function(point) {
           point.series = i;
-          return point;
         });
-        return series;
       });
 
 
@@ -289,7 +287,7 @@ nv.models.multiBarHorizontal = function() {
   chart.dispatch = dispatch;
 
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
   chart.x = function(_) {
     if (!arguments.length) return getX;
     getX = _;
