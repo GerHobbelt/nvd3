@@ -64,7 +64,13 @@ module.exports = function(grunt) {
         },
         jshint: {
             foo: {
-                src: "src/**/*.js"
+                src: [
+                     'src/core.js',
+                     'src/interactiveLayer.js',
+                     'src/tooltip.js',
+                     'src/utils.js',
+                     "src/models/**/*.js"
+                    ]
             },
             options: {
                 jshintrc: '.jshintrc'
@@ -84,7 +90,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
-    grunt.registerTask('default', ['concat']);
-    grunt.registerTask('production', ['concat', 'uglify']);
+    grunt.registerTask('default', ['concat', 'jshint']);
+    grunt.registerTask('production', ['concat', 'jshint', 'uglify']);
     grunt.registerTask('lint', ['jshint']);
 };
