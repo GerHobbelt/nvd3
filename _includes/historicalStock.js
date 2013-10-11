@@ -31,7 +31,7 @@ function getStockInfo(symbol) {
         .text(info.Change)
         .style('color', parseFloat(info.Change) > 0 ? 'green' : 'red' );
     d3.select('#stockChangePercent')
-        .text(d3.format('.2%')(parseInt(info.Change) / info.StockValue))
+        .text(d3.format('.2%')(parseInt(info.Change, 10) / info.StockValue))
         .style('color', parseFloat(info.Change) > 0 ? 'green' : 'red' );
     d3.select('#stockDate')
         .text(d3.time.format('%b %e %Y')(new Date(info.Date)));
@@ -104,7 +104,7 @@ function getHistoricalStockData(symbol, startDate, endDate, frequency) {
       chart.xAxis2
           .tickPadding(7)
           .tickFormat(function(d) {
-            d = parseInt(d);
+            d = parseInt(d, 10);
             var dx = lineData[0].values[d] && lineData[0].values[d].x || 0;
             return d3.time.format('%x')(new Date(dx))
           });

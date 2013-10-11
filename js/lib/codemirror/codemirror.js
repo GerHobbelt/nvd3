@@ -1255,7 +1255,7 @@ var CodeMirror = (function() {
         if (pad) node.insertBefore(document.createTextNode(pad), node.firstChild);
       }
       gutter.style.display = "";
-      var resized = Math.abs((parseInt(lineSpace.style.marginLeft) || 0) - gutter.offsetWidth) > 2;
+      var resized = Math.abs((parseInt(lineSpace.style.marginLeft, 10) || 0) - gutter.offsetWidth) > 2;
       lineSpace.style.marginLeft = gutter.offsetWidth + "px";
       gutterDirty = false;
       return resized;

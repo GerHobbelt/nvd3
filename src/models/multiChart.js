@@ -62,9 +62,9 @@ nv.models.multiChart = function() {
       chart.update = function() { container.transition().call(chart); };
       chart.container = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       var dataLines1 = data.filter(function(d) {return !d.disabled && d.type == 'line' && d.yAxis == 1})
@@ -120,7 +120,7 @@ nv.models.multiChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 

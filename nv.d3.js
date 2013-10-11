@@ -2219,7 +2219,7 @@ nv.models.bulletChart = function() {
     selection.each(function(d, i) {
       var container = d3.select(this);
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
           that = this;
@@ -2615,9 +2615,9 @@ nv.models.cumulativeLineChart = function() {
       var container = d3.select(this).classed('nv-chart-' + id, true),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 
@@ -2760,7 +2760,7 @@ nv.models.cumulativeLineChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -3708,9 +3708,9 @@ nv.models.discreteBarChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 
@@ -4215,9 +4215,9 @@ nv.models.historicalBarChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 
@@ -4298,7 +4298,7 @@ nv.models.historicalBarChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -5635,9 +5635,9 @@ nv.models.lineChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 
@@ -5719,7 +5719,7 @@ nv.models.lineChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -6112,9 +6112,9 @@ nv.models.linePlusBarChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().call(chart); };
@@ -6205,7 +6205,7 @@ nv.models.linePlusBarChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -6546,9 +6546,9 @@ nv.models.lineWithFocusChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight1 = (height || parseInt(container.style('height')) || 400)
+          availableHeight1 = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom - height2,
           availableHeight2 = height2 - margin2.top - margin2.bottom;
 
@@ -6627,7 +6627,7 @@ nv.models.lineWithFocusChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight1 = (height || parseInt(container.style('height')) || 400)
+          availableHeight1 = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom - height2;
         }
 
@@ -7139,9 +7139,9 @@ nv.models.linePlusBarWithFocusChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight1 = (height || parseInt(container.style('height')) || 400)
+          availableHeight1 = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom - height2,
           availableHeight2 = height2 - margin2.top - margin2.bottom;
 
@@ -7256,7 +7256,7 @@ nv.models.linePlusBarWithFocusChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight1 = (height || parseInt(container.style('height')) || 400)
+          availableHeight1 = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom - height2;
         }
 
@@ -8236,9 +8236,9 @@ nv.models.multiBarChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
@@ -8323,7 +8323,7 @@ nv.models.multiBarChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -9179,9 +9179,9 @@ nv.models.multiBarHorizontalChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
@@ -9267,7 +9267,7 @@ nv.models.multiBarHorizontalChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -9600,9 +9600,9 @@ nv.models.multiChart = function() {
       chart.update = function() { container.transition().call(chart); };
       chart.container = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       var dataLines1 = data.filter(function(d) {return !d.disabled && d.type == 'line' && d.yAxis == 1})
@@ -9658,7 +9658,7 @@ nv.models.multiChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -10818,9 +10818,9 @@ nv.models.pieChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width || parseInt(container.style('width')) || 960)
+      var availableWidth = (width || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().call(chart); };
@@ -10891,7 +10891,7 @@ nv.models.pieChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -11839,9 +11839,9 @@ nv.models.scatterChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
@@ -11928,7 +11928,7 @@ nv.models.scatterChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -12466,9 +12466,9 @@ nv.models.scatterPlusLineChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
@@ -12565,7 +12565,7 @@ nv.models.scatterPlusLineChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -13207,9 +13207,9 @@ nv.models.sparklinePlus = function() {
     selection.each(function(data) {
       var container = d3.select(this);
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 
@@ -13917,9 +13917,9 @@ nv.models.stackedAreaChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
@@ -14002,7 +14002,7 @@ nv.models.stackedAreaChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 
@@ -14061,7 +14061,7 @@ nv.models.stackedAreaChart = function() {
 
         if ( margin.top != Math.max(controls.height(), legend.height()) ) {
           margin.top = Math.max(controls.height(), legend.height());
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 

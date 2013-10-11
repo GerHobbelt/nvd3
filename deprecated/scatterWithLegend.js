@@ -85,48 +85,48 @@ nv.models.scatterWithLegend = function() {
         distWrap.enter().append('g').attr('class', function(d,i) { return 'distribution series-' + i })
 
         distWrap.style('stroke', function(d,i) { return color.filter(function(d,i) { return data[i] && !data[i].disabled })[i % 10] })
-      }
 
-      if (showDistX) {
-        var distX = distWrap.selectAll('line.distX')
+
+        if (showDistX) {
+          var distX = distWrap.selectAll('line.distX')
+                .data(function(d) { return d.values })
+          distX.enter().append('line')
+              .attr('x1', function(d,i) { return x0(scatter.x()(d,i)) })
+              .attr('x2', function(d,i) { return x0(scatter.x()(d,i)) })
+          //d3.transition(distX.exit())
+          d3.transition(distWrap.exit().selectAll('line.distX'))
+              .attr('x1', function(d,i) { return x(scatter.x()(d,i)) })
+              .attr('x2', function(d,i) { return x(scatter.x()(d,i)) })
+              .remove();
+          distX
+              .attr('class', function(d,i) { return 'distX distX-' + i })
+              .attr('y1', y.range()[0])
+              .attr('y2', y.range()[0] + 8);
+          d3.transition(distX)
+              .attr('x1', function(d,i) { return x(scatter.x()(d,i)) })
+              .attr('x2', function(d,i) { return x(scatter.x()(d,i)) })
+        }
+
+
+        if (showDistY) {
+          var distY = distWrap.selectAll('line.distY')
               .data(function(d) { return d.values })
-        distX.enter().append('line')
-            .attr('x1', function(d,i) { return x0(scatter.x()(d,i)) })
-            .attr('x2', function(d,i) { return x0(scatter.x()(d,i)) })
-        //d3.transition(distX.exit())
-        d3.transition(distWrap.exit().selectAll('line.distX'))
-            .attr('x1', function(d,i) { return x(scatter.x()(d,i)) })
-            .attr('x2', function(d,i) { return x(scatter.x()(d,i)) })
-            .remove();
-        distX
-            .attr('class', function(d,i) { return 'distX distX-' + i })
-            .attr('y1', y.range()[0])
-            .attr('y2', y.range()[0] + 8);
-        d3.transition(distX)
-            .attr('x1', function(d,i) { return x(scatter.x()(d,i)) })
-            .attr('x2', function(d,i) { return x(scatter.x()(d,i)) })
+          distY.enter().append('line')
+              .attr('y1', function(d,i) { return y0(scatter.y()(d,i)) })
+              .attr('y2', function(d,i) { return y0(scatter.y()(d,i)) });
+          //d3.transition(distY.exit())
+          d3.transition(distWrap.exit().selectAll('line.distY'))
+              .attr('y1', function(d,i) { return y(scatter.y()(d,i)) })
+              .attr('y2', function(d,i) { return y(scatter.y()(d,i)) })
+              .remove();
+          distY
+              .attr('class', function(d,i) { return 'distY distY-' + i })
+              .attr('x1', x.range()[0])
+              .attr('x2', x.range()[0] - 8)
+          d3.transition(distY)
+              .attr('y1', function(d,i) { return y(scatter.y()(d,i)) }) .attr('y2', function(d,i) { return y(scatter.y()(d,i)) });
+        }
       }
-
-
-      if (showDistY) {
-        var distY = distWrap.selectAll('line.distY')
-            .data(function(d) { return d.values })
-        distY.enter().append('line')
-            .attr('y1', function(d,i) { return y0(scatter.y()(d,i)) })
-            .attr('y2', function(d,i) { return y0(scatter.y()(d,i)) });
-        //d3.transition(distY.exit())
-        d3.transition(distWrap.exit().selectAll('line.distY'))
-            .attr('y1', function(d,i) { return y(scatter.y()(d,i)) })
-            .attr('y2', function(d,i) { return y(scatter.y()(d,i)) })
-            .remove();
-        distY
-            .attr('class', function(d,i) { return 'distY distY-' + i })
-            .attr('x1', x.range()[0])
-            .attr('x2', x.range()[0] - 8)
-        d3.transition(distY)
-            .attr('y1', function(d,i) { return y(scatter.y()(d,i)) }) .attr('y2', function(d,i) { return y(scatter.y()(d,i)) });
-      }
-
 
       xAxis
         .ticks( availableWidth / 100 )

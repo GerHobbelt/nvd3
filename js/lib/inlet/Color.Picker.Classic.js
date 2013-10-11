@@ -96,7 +96,7 @@ Color.Picker = function (props) {
 	Event.add(hexInput, "keydown change", function(event) {
 		var code = event.keyCode;
 		var value = hexInput.value.replace(isHex, '').substr(0, 6);
-		var hex = parseInt("0x" + value);
+		var hex = parseInt("0x" + value, 16);
 		if (event.type == "keydown") {
 			if (code == 40) { // less
 				hex = Math.max(0, hex - (event.shiftKey ? 10 : 1));

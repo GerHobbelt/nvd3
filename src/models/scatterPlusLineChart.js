@@ -102,9 +102,9 @@ nv.models.scatterPlusLineChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
       chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
@@ -201,7 +201,7 @@ nv.models.scatterPlusLineChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
         }
 

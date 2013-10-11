@@ -29,9 +29,9 @@ nv.models.sparklinePlus = function() {
     selection.each(function(data) {
       var container = d3.select(this);
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
+          availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 

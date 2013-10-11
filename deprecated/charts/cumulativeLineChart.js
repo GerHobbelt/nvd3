@@ -66,8 +66,8 @@ nv.charts.cumulativeLineChartDaily = function() {
     nv.addGraph({
       generate: function() {
         var container = d3.select(selector),
-            width = function() { return parseInt(container.style('width')) },
-            height = function() { return parseInt(container.style('height')) },
+            width = function() { return parseInt(container.style('width'), 10) },
+            height = function() { return parseInt(container.style('height'), 10) },
             svg = container.append('svg');
 
         graph

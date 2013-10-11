@@ -18,9 +18,9 @@ nv.models.lineWithLegend = function() {
   function chart(selection) {
     selection.each(function(data) {
 
-      var availableWidth = (width  || parseInt(d3.select(this).style('width')) || 960)
+      var availableWidth = (width  || parseInt(d3.select(this).style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight = (height || parseInt(d3.select(this).style('height')) || 400)
+          availableHeight = (height || parseInt(d3.select(this).style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
 

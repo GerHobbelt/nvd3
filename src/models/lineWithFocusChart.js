@@ -81,9 +81,9 @@ nv.models.lineWithFocusChart = function() {
       var container = d3.select(this),
           that = this;
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
-          availableHeight1 = (height || parseInt(container.style('height')) || 400)
+          availableHeight1 = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom - height2,
           availableHeight2 = height2 - margin2.top - margin2.bottom;
 
@@ -162,7 +162,7 @@ nv.models.lineWithFocusChart = function() {
 
         if ( margin.top != legend.height()) {
           margin.top = legend.height();
-          availableHeight1 = (height || parseInt(container.style('height')) || 400)
+          availableHeight1 = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom - height2;
         }
 

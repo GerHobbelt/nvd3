@@ -353,9 +353,11 @@ nv.models.scatter = function() {
           .style('fill-opacity', .5);
 
 
+      var points;
+
       if (onlyCircles) {
 
-        var points = groups.selectAll('circle.nv-point')
+        points = groups.selectAll('circle.nv-point')
             .data(function(d) { return d.values }, pointKey);
         points.enter().append('circle')
             .style('fill', function (d,i) { return d.color })
@@ -382,7 +384,7 @@ nv.models.scatter = function() {
 
       } else {
 
-        var points = groups.selectAll('path.nv-point')
+        points = groups.selectAll('path.nv-point')
             .data(function(d) { return d.values });
         points.enter().append('path')
             .style('fill', function (d,i) { return d.color })

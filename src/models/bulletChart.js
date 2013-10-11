@@ -51,7 +51,7 @@ nv.models.bulletChart = function() {
     selection.each(function(d, i) {
       var container = d3.select(this);
 
-      var availableWidth = (width  || parseInt(container.style('width')) || 960)
+      var availableWidth = (width  || parseInt(container.style('width'), 10) || 960)
                              - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
           that = this;

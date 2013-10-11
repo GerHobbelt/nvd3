@@ -110,7 +110,7 @@ Forumla is : text.length * font-size * constant_factor
 */
 nv.utils.calcApproxTextWidth = function (svgTextElem) {
     if (svgTextElem instanceof d3.selection) {
-        var fontSize = parseInt(svgTextElem.style("font-size").replace("px",""));
+        var fontSize = parseInt(svgTextElem.style("font-size").replace("px",""), 10);
         var textLength = svgTextElem.text().length;
 
         return textLength * fontSize * 0.5;

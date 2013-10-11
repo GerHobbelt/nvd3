@@ -69,7 +69,9 @@ module.exports = function(grunt) {
                      'src/interactiveLayer.js',
                      'src/tooltip.js',
                      'src/utils.js',
-                     "src/models/**/*.js"
+                     "src/models/**/*.js",
+                     "deprecated/**/*.js",
+                     "_includes/**/*.js"
                     ]
             },
             options: {
