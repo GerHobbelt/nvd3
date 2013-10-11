@@ -62,12 +62,10 @@ nv.models.scatter = function() {
           container = d3.select(this);
 
       //add series index to each data point for reference
-      data = data.map(function(series, i) {
-        series.values = series.values.map(function(point) {
+      data.forEach(function(series, i) {
+        series.values.forEach(function(point) {
           point.series = i;
-          return point;
         });
-        return series;
       });
 
       //------------------------------------------------------------
@@ -249,7 +247,7 @@ nv.models.scatter = function() {
                 if (needsUpdate) return 0;
                 var series = data[d.series];
                 if (typeof series === 'undefined') return;
-                
+
                 var point  = series.values[d.point];
 
                 mDispatch({
@@ -449,7 +447,7 @@ nv.models.scatter = function() {
 
   chart.highlightPoint = function(seriesIndex,pointIndex,isHoverOver) {
       d3.select(".nv-chart-" + id + " .nv-series-" + seriesIndex + " .nv-point-" + pointIndex)
-          .classed("hover",isHoverOver); 
+          .classed("hover",isHoverOver);
   };
 
 
@@ -470,7 +468,7 @@ nv.models.scatter = function() {
 
   chart.dispatch = dispatch;
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
   chart.x = function(_) {
     if (!arguments.length) return getX;
     getX = d3.functor(_);
