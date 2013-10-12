@@ -109,7 +109,7 @@ nv.models.lineWithBrushChart = function(options) {
             //          ymax[k] = minmax(data[i].values[0]);
             }
 
-            for (j in data[i].values) {
+            for (var j in data[i].values) {
             var point = data[i].values[j];
             xm[k] += + getX(point);
             ym[k] += +getY(point);
