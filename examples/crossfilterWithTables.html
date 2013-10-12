@@ -270,7 +270,7 @@ function testData() {
   var data2 = [];
   var data3 = [];
 
-  stream_layers(3,128,.1).map(function(layer, index) {
+  stream_layers(3,128,0.1).map(function(layer, index) {
     layer.forEach(function(item, i) {
       var object = { x: item.x };
       object['stream' + (index + 1)] = item.y;

@@ -119,7 +119,7 @@ nv.models.lineDotted = function() {
               .style('stroke', function(d,i){ return color(d, i)});
           d3.transition(groups)
               .style('stroke-opacity', 1)
-              .style('fill-opacity', .5);
+              .style('fill-opacity', 0.5);
 
 
 

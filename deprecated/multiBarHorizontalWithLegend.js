@@ -48,7 +48,7 @@ nv.models.multiBarHorizontalWithLegend = function() {
 
 
       x   .domain(d3.merge(seriesData).map(function(d) { return d.x }))
-          .rangeBands([0, availableHeight], .1);
+          .rangeBands([0, availableHeight], 0.1);
 
       y   .domain(d3.extent(d3.merge(seriesData).map(function(d) { return d.y }).concat(multibar.forceY) ))
           .range([0, availableWidth]);

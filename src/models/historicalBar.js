@@ -42,7 +42,7 @@ nv.models.historicalBar = function() {
       x   .domain(xDomain || d3.extent(data[0].values.map(getX).concat(forceX) ))
 
       if (padData)
-        x.range(xRange || [availableWidth * .5 / data[0].values.length, availableWidth * (data[0].values.length - .5)  / data[0].values.length ]);
+        x.range(xRange || [availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
       else
         x.range(xRange || [0, availableWidth]);
 
@@ -114,7 +114,7 @@ nv.models.historicalBar = function() {
           .attr('x', 0 )
           .attr('y', function(d,i) {  return nv.utils.NaNtoZero(y(Math.max(0, getY(d,i)))) })
           .attr('height', function(d,i) { return nv.utils.NaNtoZero(Math.abs(y(getY(d,i)) - y(0))) })
-          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; }) 
+          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * 0.45) + ',0)'; }) 
           .on('mouseover', function(d,i) {
             if (!interactive) return;
             d3.select(this).classed('hover', true);
@@ -170,9 +170,9 @@ nv.models.historicalBar = function() {
           .attr('fill', function(d,i) { return color(d, i); })
           .attr('class', function(d,i,j) { return (getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive') + ' nv-bar-' + j + '-' + i })
           .transition()
-          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; }) 
+          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * 0.45) + ',0)'; }) 
            //TODO: better width calculations that don't assume always uniform data spacing;w
-          .attr('width', (availableWidth / data[0].values.length) * .9 );
+          .attr('width', (availableWidth / data[0].values.length) * 0.9 );
 
 
       bars.transition()

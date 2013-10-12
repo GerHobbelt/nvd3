@@ -120,7 +120,7 @@ function sinAndCos() {
 
   for (var i = 0; i &lt; 100; i++) {
     sin.push({x: i, y: Math.sin(i/10)});
-    cos.push({x: i, y: .5 * Math.cos(i/10)});
+    cos.push({x: i, y: 0.5 * Math.cos(i/10)});
   }
 
   return [

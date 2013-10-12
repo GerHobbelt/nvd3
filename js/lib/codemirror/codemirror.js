@@ -1291,7 +1291,7 @@ var CodeMirror = (function() {
         var middleHeight = Math.min(toPos.y, clientHeight) - middleStart;
         if (middleHeight > 0.2 * th)
           add(0, middleStart, 0, middleHeight);
-        if ((!sameLine || !sel.from.ch) && toPos.y < clientHeight - .5 * th)
+        if ((!sameLine || !sel.from.ch) && toPos.y < clientHeight - 0.5 * th)
           add(0, toPos.y, clientWidth - toPos.x, th);
         selectionDiv.innerHTML = html;
         cursor.style.display = "none";
@@ -1757,7 +1757,7 @@ var CodeMirror = (function() {
       }
       var from = 0, fromX = 0, to = text.length, toX;
       // Guess a suitable upper bound for our search.
-      var estimated = Math.min(to, Math.ceil((x + innerOff * scroller.clientWidth * .9) / cw));
+      var estimated = Math.min(to, Math.ceil((x + innerOff * scroller.clientWidth * 0.9) / cw));
       for (;;) {
         var estX = getX(estimated);
         if (estX <= x && estimated < to) estimated = Math.min(to, Math.ceil(estimated * 1.2));
@@ -1826,7 +1826,7 @@ var CodeMirror = (function() {
       inputDiv.style.position = "absolute";
       input.style.cssText = "position: fixed; width: 30px; height: 30px; top: " + (e.clientY - 5) +
         "px; left: " + (e.clientX - 5) + "px; z-index: 1000; background: white; " +
-        "border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);";
+        "border-width: 0; outline: none; overflow: hidden; opacity: 0.05; filter: alpha(opacity=5);";
       leaveInputAlone = true;
       var val = input.value = getSelection();
       focusInput();

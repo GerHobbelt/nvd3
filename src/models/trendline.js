@@ -121,7 +121,7 @@ nv.models.line = function() {
       .style('opacity', function(d,i){return d.opacity || 1});
       d3.transition(groups)
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .5);
+          .style('fill-opacity', 0.5);
 
 
 

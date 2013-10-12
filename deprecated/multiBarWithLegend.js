@@ -52,8 +52,8 @@ nv.models.multiBarWithLegend = function() {
           //.range([0, availableWidth]);
 
       x   .domain(d3.merge(seriesData).map(function(d) { return d.x }))
-          .rangeBands([0, availableWidth], .1);
-          //.rangeRoundBands([0, availableWidth], .1);
+          .rangeBands([0, availableWidth], 0.1);
+          //.rangeRoundBands([0, availableWidth], 0.1);
 
       y   .domain(d3.extent(d3.merge(seriesData).map(function(d) { return d.y }).concat(multibar.forceY) ))
           .range([availableHeight, 0]);

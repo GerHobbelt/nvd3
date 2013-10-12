@@ -64,7 +64,7 @@ nv.models.discreteBar = function() {
             });
 
       x   .domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }))
-          .rangeBands(xRange || [0, availableWidth], .1);
+          .rangeBands(xRange || [0, availableWidth], 0.1);
 
       y   .domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) { return d.y }).concat(forceY)));
 
@@ -113,7 +113,7 @@ nv.models.discreteBar = function() {
       groups
           .transition()
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .75);
+          .style('fill-opacity', 0.75);
 
 
       var bars = groups.selectAll('g.nv-bar')
@@ -124,7 +124,7 @@ nv.models.discreteBar = function() {
 
       var barsEnter = bars.enter().append('g')
           .attr('transform', function(d,i,j) {
-              return 'translate(' + (x(getX(d,i)) + x.rangeBand() * .05 ) + ', ' + y(0) + ')'
+              return 'translate(' + (x(getX(d,i)) + x.rangeBand() * 0.05 ) + ', ' + y(0) + ')'
           })
           .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
             d3.select(this).classed('hover', true);
@@ -132,7 +132,7 @@ nv.models.discreteBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + .5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + 0.5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -154,7 +154,7 @@ nv.models.discreteBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + .5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + 0.5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -166,7 +166,7 @@ nv.models.discreteBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + .5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + 0.5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -176,7 +176,7 @@ nv.models.discreteBar = function() {
 
       barsEnter.append('rect')
           .attr('height', 0)
-          .attr('width', x.rangeBand() * .9 / data.length )
+          .attr('width', x.rangeBand() * 0.9 / data.length )
 
       if (showValues) {
         barsEnter.append('text')
@@ -186,7 +186,7 @@ nv.models.discreteBar = function() {
         bars.select('text')
           .text(function(d,i) { return valueFormat(getY(d,i)) })
           .transition()
-          .attr('x', x.rangeBand() * .9 / 2)
+          .attr('x', x.rangeBand() * 0.9 / 2)
           .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : -4 })
 
           ;
@@ -201,11 +201,11 @@ nv.models.discreteBar = function() {
         .select('rect')
           .attr('class', rectClass)
           .transition()
-          .attr('width', x.rangeBand() * .9 / data.length);
+          .attr('width', x.rangeBand() * 0.9 / data.length);
       bars.transition()
         //.delay(function(d,i) { return i * 1200 / data[0].values.length })
           .attr('transform', function(d,i) {
-            var left = x(getX(d,i)) + x.rangeBand() * .05,
+            var left = x(getX(d,i)) + x.rangeBand() * 0.05,
                 top = getY(d,i) < 0 ?
                         y(0) :
                         y(0) - y(getY(d,i)) < 1 ?

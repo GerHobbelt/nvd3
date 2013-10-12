@@ -95,7 +95,7 @@ nv.addGraph(function() {
     var chart = nv.models.pieChart()
         .x(function(d) { return d.key })
         //.y(function(d) { return d.value })
-        //.labelThreshold(.08)
+        //.labelThreshold(0.08)
         //.showLabels(false)
         .color(d3.scale.category10().range())
         .width(width)

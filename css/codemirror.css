@@ -114,7 +114,7 @@
   width: auto;
   border: 0;
   background: transparent;
-  background: rgba(0, 200, 0, .4);
+  background: rgba(0, 200, 0, 0.4);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#6600c800, endColorstr=#4c00c800);
 }
 /* Kludge to turn off filter in ie9+, which also accepts rgba */
@@ -131,7 +131,7 @@ div.CodeMirror-selected { background: #d9d9d9; }
 
 .CodeMirror-searching {
   background: #ffa;
-  background: rgba(255, 255, 0, .4);
+  background: rgba(255, 255, 0, 0.4);
 }
 
 /* Default theme */

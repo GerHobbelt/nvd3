@@ -43,8 +43,8 @@ text {
 <script src="stream_layers.js"></script>
 <script>
 
-var test_data = stream_layers(3,10+Math.random()*100,.1).map(function(data, i) {
-//var test_data = stream_layers(3,1,.1).map(function(data, i) { //for testing single data point
+var test_data = stream_layers(3,10+Math.random()*100,0.1).map(function(data, i) {
+//var test_data = stream_layers(3,1,0.1).map(function(data, i) { //for testing single data point
   return {
     key: 'Stream' + i,
     values: data

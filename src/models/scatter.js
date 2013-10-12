@@ -25,7 +25,7 @@ nv.models.scatter = function() {
     , pointKey     = null
     , pointActive  = function(d) { return !d.notActive } // any points that return false will be filtered out
     , padData      = false // If true, adds half a data points width to front and back, for lining up a line chart with a bar chart
-    , padDataOuter = .1 //outerPadding to imitate ordinal scale outer padding
+    , padDataOuter = 0.1 //outerPadding to imitate ordinal scale outer padding
     , clipEdge     = false // if true, masks points within x and y scale
     , clipVoronoi  = true // if true, masks each point with a circle... can turn off to slightly increase performance
     , clipRadius   = function() { return 25 } // function to get the radius for voronoi point clips
@@ -85,7 +85,7 @@ nv.models.scatter = function() {
 
       if (padData && data[0])
         x.range(xRange || [(availableWidth * padDataOuter +  availableWidth) / (2 *data[0].values.length), availableWidth - availableWidth * (1 + padDataOuter) / (2 * data[0].values.length)  ]);
-        //x.range([availableWidth * .5 / data[0].values.length, availableWidth * (data[0].values.length - .5)  / data[0].values.length ]);
+        //x.range([availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
       else
         x.range(xRange || [0, availableWidth]);
 
@@ -350,7 +350,7 @@ nv.models.scatter = function() {
           .style('fill', function(d,i) { return color(d, i) })
           .style('stroke', function(d,i) { return color(d, i) })
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .5);
+          .style('fill-opacity', 0.5);
 
 
       var points;

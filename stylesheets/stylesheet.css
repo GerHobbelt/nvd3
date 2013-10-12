@@ -177,14 +177,14 @@ pre, code {
 pre {
   width: 100%;
   padding: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
   overflow: auto;
 }
 
 code {
   padding: 3px;
   margin: 0 3px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 pre code {
@@ -287,7 +287,7 @@ Full-Width Styles
   color: #fff;
   background: url('../images/blacktocat.png') #0090ff no-repeat 95% 50%;
   font-weight: 700;
-  box-shadow: 0 0 10px rgba(0,0,0,.5);
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
 }

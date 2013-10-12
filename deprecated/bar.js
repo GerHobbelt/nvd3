@@ -22,7 +22,7 @@ nv.models.bar = function() {
   function chart(selection) {
     selection.each(function(data) {
       x .domain(data.map(function(d,i) { return d[label]; }))
-        .rangeRoundBands([0, width - margin.left - margin.right], .1);
+        .rangeRoundBands([0, width - margin.left - margin.right], 0.1);
 
 
       var min = d3.min(data, function(d) { return d[field] });

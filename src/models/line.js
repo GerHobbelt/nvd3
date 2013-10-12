@@ -121,7 +121,7 @@ nv.models.line = function() {
       groups
           .transition()
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .5);
+          .style('fill-opacity', 0.5);
 
 
 

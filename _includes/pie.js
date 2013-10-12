@@ -18,7 +18,7 @@ nv.addGraph(function() {
       .x(function(d) { return d.label })
       .y(function(d) { return d.value })
       .showLabels(true)
-      .labelThreshold(.05)
+      .labelThreshold(0.05)
       .donut(true);
 
     d3.select("#chart2 svg")

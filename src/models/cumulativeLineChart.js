@@ -191,7 +191,7 @@ nv.models.cumulativeLineChart = function() {
             var initialDomain = d3.extent(series.values, lines.y());
 
             //account for series being disabled when losing 95% or more
-            if (initialDomain[0] < -.95) initialDomain[0] = -.95;
+            if (initialDomain[0] < -0.95) initialDomain[0] = -0.95;
 
             return [
               (initialDomain[0] - initialDomain[1]) / (1 + initialDomain[1]),
@@ -392,7 +392,7 @@ nv.models.cumulativeLineChart = function() {
           .attr('width', 3)
           .attr('x', -2)
           .attr('fill', 'red')
-          .attr('fill-opacity', .5)
+          .attr('fill-opacity', 0.5)
           .style("pointer-events","all")
           .call(indexDrag)
 
@@ -759,7 +759,7 @@ nv.models.cumulativeLineChart = function() {
       var v = lines.y()(line.values[idx], idx);
 
       //TODO: implement check below, and disable series if series loses 100% or more cause divide by 0 issue
-      if (v < -.95) {
+      if (v < -0.95) {
         //if a series loses more than 100%, calculations fail.. anything close can cause major distortion (but is mathematically correct till it hits 100)
         line.tempDisabled = true;
         return line;

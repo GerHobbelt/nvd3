@@ -101,9 +101,9 @@ function randomize(d) {
 }
 
 function randomizer(d) {
-  var k = d3.max(d.ranges) * .2;
+  var k = d3.max(d.ranges) * 0.2;
   return function(d) {
-    return Math.max(0, d + k * (Math.random() - .5));
+    return Math.max(0, d + k * (Math.random() - 0.5));
   };
 }
 

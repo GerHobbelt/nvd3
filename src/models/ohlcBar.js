@@ -53,7 +53,7 @@ nv.models.ohlcBar = function() {
       x   .domain(xDomain || d3.extent(data[0].values.map(getX).concat(forceX) ));
 
       if (padData)
-        x.range(xRange || [availableWidth * .5 / data[0].values.length, availableWidth * (data[0].values.length - .5)  / data[0].values.length ]);
+        x.range(xRange || [availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
       else
         x.range(xRange || [0, availableWidth]);
 
@@ -125,7 +125,7 @@ nv.models.ohlcBar = function() {
       var ticksEnter = ticks.enter().append('path')
           .attr('class', function(d,i,j) { return (getOpen(d,i) > getClose(d,i) ? 'nv-tick negative' : 'nv-tick positive') + ' nv-tick-' + j + '-' + i })
           .attr('d', function(d,i) {
-            var w = (availableWidth / data[0].values.length) * .9;
+            var w = (availableWidth / data[0].values.length) * 0.9;
             return 'm0,0l0,'
                  + (y(getOpen(d,i))
                  - y(getHigh(d,i)))
@@ -202,7 +202,7 @@ nv.models.ohlcBar = function() {
       d3.transition(ticks)
           .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',' + y(getHigh(d,i)) + ')'; })
           .attr('d', function(d,i) {
-            var w = (availableWidth / data[0].values.length) * .9;
+            var w = (availableWidth / data[0].values.length) * 0.9;
             return 'm0,0l0,'
                  + (y(getOpen(d,i))
                  - y(getHigh(d,i)))
@@ -222,7 +222,7 @@ nv.models.ohlcBar = function() {
                  + (-w/2)
                  + ',0z';
           })
-          //.attr('width', (availableWidth / data[0].values.length) * .9 )
+          //.attr('width', (availableWidth / data[0].values.length) * 0.9 )
 
 
       //d3.transition(ticks)

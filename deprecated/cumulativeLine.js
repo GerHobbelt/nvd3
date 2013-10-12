@@ -127,7 +127,7 @@ nv.models.cumulativeLine = function() {
           .attr('width', 3)
           .attr('x', -2)
           .attr('fill', 'red')
-          .attr('fill-opacity', .5)
+          .attr('fill-opacity', 0.5)
           .call(indexDrag)
 
       indexLine
@@ -237,7 +237,7 @@ nv.models.cumulativeLine = function() {
         disabled: line.disabled,
         hover: line.hover
         /*
-        if (v < -.9) {
+        if (v < -0.9) {
           //if a series loses more than 100%, calculations fail.. anything close can cause major distortion (but is mathematically currect till it hits 100)
         }
         */

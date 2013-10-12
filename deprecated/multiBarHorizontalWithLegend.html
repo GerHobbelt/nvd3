@@ -41,7 +41,7 @@ text {
 <script src="stream_layers.js"></script>
 <script>
 
-var test_data = stream_layers(3,12,.1).map(function(data, i) {
+var test_data = stream_layers(3,12,0.1).map(function(data, i) {
   return {
     key: 'Stream' + i,
     values: data
@@ -237,7 +237,7 @@ function sinAndCos() {
 
   for (var i = 0; i < 100; i++) {
     sin.push({x: i, y: Math.sin(i/10)});
-    cos.push({x: i, y: .5 * Math.cos(i/10)});
+    cos.push({x: i, y: 0.5 * Math.cos(i/10)});
   }
 
   return [

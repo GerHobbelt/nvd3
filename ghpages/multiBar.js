@@ -21,7 +21,7 @@ nv.addGraph(function() {
 
 
 function exampleData() {
-  return stream_layers(3,10+Math.random()*100,.1).map(function(data, i) {
+  return stream_layers(3,10+Math.random()*100,0.1).map(function(data, i) {
     return {
       key: 'Stream' + i,
       values: data

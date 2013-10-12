@@ -1494,7 +1494,7 @@ nv.models.historicalBar = function() {
       x   .domain(xDomain || d3.extent(data[0].values.map(getX).concat(forceX) ))
 
       if (padData)
-        x.range(xRange || [availableWidth * .5 / data[0].values.length, availableWidth * (data[0].values.length - .5)  / data[0].values.length ]);
+        x.range(xRange || [availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
       else
         x.range(xRange || [0, availableWidth]);
 
@@ -1566,7 +1566,7 @@ nv.models.historicalBar = function() {
           .attr('x', 0 )
           .attr('y', function(d,i) {  return nv.utils.NaNtoZero(y(Math.max(0, getY(d,i)))) })
           .attr('height', function(d,i) { return nv.utils.NaNtoZero(Math.abs(y(getY(d,i)) - y(0))) })
-          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; }) 
+          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * 0.45) + ',0)'; }) 
           .on('mouseover', function(d,i) {
             if (!interactive) return;
             d3.select(this).classed('hover', true);
@@ -1622,9 +1622,9 @@ nv.models.historicalBar = function() {
           .attr('fill', function(d,i) { return color(d, i); })
           .attr('class', function(d,i,j) { return (getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive') + ' nv-bar-' + j + '-' + i })
           .transition()
-          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * .45) + ',0)'; }) 
+          .attr('transform', function(d,i) { return 'translate(' + (x(getX(d,i)) - availableWidth / data[0].values.length * 0.45) + ',0)'; }) 
            //TODO: better width calculations that don't assume always uniform data spacing;w
-          .attr('width', (availableWidth / data[0].values.length) * .9 );
+          .attr('width', (availableWidth / data[0].values.length) * 0.9 );
 
 
       bars.transition()
@@ -2702,7 +2702,7 @@ nv.models.cumulativeLineChart = function() {
             var initialDomain = d3.extent(series.values, lines.y());
 
             //account for series being disabled when losing 95% or more
-            if (initialDomain[0] < -.95) initialDomain[0] = -.95;
+            if (initialDomain[0] < -0.95) initialDomain[0] = -0.95;
 
             return [
               (initialDomain[0] - initialDomain[1]) / (1 + initialDomain[1]),
@@ -2903,7 +2903,7 @@ nv.models.cumulativeLineChart = function() {
           .attr('width', 3)
           .attr('x', -2)
           .attr('fill', 'red')
-          .attr('fill-opacity', .5)
+          .attr('fill-opacity', 0.5)
           .style("pointer-events","all")
           .call(indexDrag)
 
@@ -3269,7 +3269,7 @@ nv.models.cumulativeLineChart = function() {
       var v = lines.y()(line.values[idx], idx);
 
       //TODO: implement check below, and disable series if series loses 100% or more cause divide by 0 issue
-      if (v < -.95) {
+      if (v < -0.95) {
         //if a series loses more than 100%, calculations fail.. anything close can cause major distortion (but is mathematically correct till it hits 100)
         line.tempDisabled = true;
         return line;
@@ -3357,7 +3357,7 @@ nv.models.discreteBar = function() {
             });
 
       x   .domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }))
-          .rangeBands(xRange || [0, availableWidth], .1);
+          .rangeBands(xRange || [0, availableWidth], 0.1);
 
       y   .domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) { return d.y }).concat(forceY)));
 
@@ -3406,7 +3406,7 @@ nv.models.discreteBar = function() {
       groups
           .transition()
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .75);
+          .style('fill-opacity', 0.75);
 
 
       var bars = groups.selectAll('g.nv-bar')
@@ -3417,7 +3417,7 @@ nv.models.discreteBar = function() {
 
       var barsEnter = bars.enter().append('g')
           .attr('transform', function(d,i,j) {
-              return 'translate(' + (x(getX(d,i)) + x.rangeBand() * .05 ) + ', ' + y(0) + ')'
+              return 'translate(' + (x(getX(d,i)) + x.rangeBand() * 0.05 ) + ', ' + y(0) + ')'
           })
           .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
             d3.select(this).classed('hover', true);
@@ -3425,7 +3425,7 @@ nv.models.discreteBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + .5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + 0.5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -3447,7 +3447,7 @@ nv.models.discreteBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + .5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + 0.5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -3459,7 +3459,7 @@ nv.models.discreteBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + .5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (d.series + 0.5) / data.length), y(getY(d,i))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -3469,7 +3469,7 @@ nv.models.discreteBar = function() {
 
       barsEnter.append('rect')
           .attr('height', 0)
-          .attr('width', x.rangeBand() * .9 / data.length )
+          .attr('width', x.rangeBand() * 0.9 / data.length )
 
       if (showValues) {
         barsEnter.append('text')
@@ -3479,7 +3479,7 @@ nv.models.discreteBar = function() {
         bars.select('text')
           .text(function(d,i) { return valueFormat(getY(d,i)) })
           .transition()
-          .attr('x', x.rangeBand() * .9 / 2)
+          .attr('x', x.rangeBand() * 0.9 / 2)
           .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : -4 })
 
           ;
@@ -3494,11 +3494,11 @@ nv.models.discreteBar = function() {
         .select('rect')
           .attr('class', rectClass)
           .transition()
-          .attr('width', x.rangeBand() * .9 / data.length);
+          .attr('width', x.rangeBand() * 0.9 / data.length);
       bars.transition()
         //.delay(function(d,i) { return i * 1200 / data[0].values.length })
           .attr('transform', function(d,i) {
-            var left = x(getX(d,i)) + x.rangeBand() * .05,
+            var left = x(getX(d,i)) + x.rangeBand() * 0.05,
                 top = getY(d,i) < 0 ?
                         y(0) :
                         y(0) - y(getY(d,i)) < 1 ?
@@ -5404,7 +5404,7 @@ nv.models.line = function() {
       groups
           .transition()
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .5);
+          .style('fill-opacity', 0.5);
 
 
 
@@ -6808,10 +6808,10 @@ nv.models.lineWithFocusChart = function() {
         var e = +(d == 'e'),
             x = e ? 1 : -1,
             y = availableHeight2 / 3;
-        return 'M' + (.5 * x) + ',' + y
+        return 'M' + (0.5 * x) + ',' + y
             + 'A6,6 0 0 ' + e + ' ' + (6.5 * x) + ',' + (y + 6)
             + 'V' + (2 * y - 6)
-            + 'A6,6 0 0 ' + e + ' ' + (.5 * x) + ',' + (2 * y)
+            + 'A6,6 0 0 ' + e + ' ' + (0.5 * x) + ',' + (2 * y)
             + 'Z'
             + 'M' + (2.5 * x) + ',' + (y + 8)
             + 'V' + (2 * y - 8)
@@ -7403,10 +7403,10 @@ nv.models.linePlusBarWithFocusChart = function() {
         var e = +(d == 'e'),
             x = e ? 1 : -1,
             y = availableHeight2 / 3;
-        return 'M' + (.5 * x) + ',' + y
+        return 'M' + (0.5 * x) + ',' + y
             + 'A6,6 0 0 ' + e + ' ' + (6.5 * x) + ',' + (y + 6)
             + 'V' + (2 * y - 6)
-            + 'A6,6 0 0 ' + e + ' ' + (.5 * x) + ',' + (2 * y)
+            + 'A6,6 0 0 ' + e + ' ' + (0.5 * x) + ',' + (2 * y)
             + 'Z'
             + 'M' + (2.5 * x) + ',' + (y + 8)
             + 'V' + (2 * y - 8)
@@ -7875,7 +7875,7 @@ nv.models.multiBar = function() {
       groups
           .transition()
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .75);
+          .style('fill-opacity', 0.75);
 
 
       var bars = groups.selectAll('rect.nv-bar')
@@ -7903,7 +7903,7 @@ nv.models.multiBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + .5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + 0.5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -7925,7 +7925,7 @@ nv.models.multiBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + .5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + 0.5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -7937,7 +7937,7 @@ nv.models.multiBar = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + .5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + 0.5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -8779,7 +8779,7 @@ nv.models.multiBarHorizontal = function() {
             });
 
       x   .domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }))
-          .rangeBands(xRange || [0, availableHeight], .1);
+          .rangeBands(xRange || [0, availableHeight], 0.1);
 
       //y   .domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) { return d.y + (stacked ? d.y0 : 0) }).concat(forceY)))
       y   .domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) { return stacked ? (d.y > 0 ? d.y1 + d.y : d.y1 ) : d.y }).concat(forceY)))
@@ -8828,7 +8828,7 @@ nv.models.multiBarHorizontal = function() {
           .style('stroke', function(d,i){ return color(d, i) });
       groups.transition()
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .75);
+          .style('fill-opacity', 0.75);
 
 
       var bars = groups.selectAll('g.nv-bar')
@@ -8853,7 +8853,7 @@ nv.models.multiBarHorizontal = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [ y(getY(d,i) + (stacked ? d.y0 : 0)), x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + .5) / data.length) ],
+              pos: [ y(getY(d,i) + (stacked ? d.y0 : 0)), x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + 0.5) / data.length) ],
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -8875,7 +8875,7 @@ nv.models.multiBarHorizontal = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + .5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + 0.5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -8887,7 +8887,7 @@ nv.models.multiBarHorizontal = function() {
               value: getY(d,i),
               point: d,
               series: data[d.series],
-              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + .5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
+              pos: [x(getX(d,i)) + (x.rangeBand() * (stacked ? data.length / 2 : d.series + 0.5) / data.length), y(getY(d,i) + (stacked ? d.y0 : 0))],  // TODO: Figure out why the value appears to be shifted
               pointIndex: i,
               seriesIndex: d.series,
               e: d3.event
@@ -10043,7 +10043,7 @@ nv.models.ohlcBar = function() {
       x   .domain(xDomain || d3.extent(data[0].values.map(getX).concat(forceX) ));
 
       if (padData)
-        x.range(xRange || [availableWidth * .5 / data[0].values.length, availableWidth * (data[0].values.length - .5)  / data[0].values.length ]);
+        x.range(xRange || [availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
       else
         x.range(xRange || [0, availableWidth]);
 
@@ -10115,7 +10115,7 @@ nv.models.ohlcBar = function() {
       var ticksEnter = ticks.enter().append('path')
           .attr('class', function(d,i,j) { return (getOpen(d,i) > getClose(d,i) ? 'nv-tick negative' : 'nv-tick positive') + ' nv-tick-' + j + '-' + i })
           .attr('d', function(d,i) {
-            var w = (availableWidth / data[0].values.length) * .9;
+            var w = (availableWidth / data[0].values.length) * 0.9;
             return 'm0,0l0,'
                  + (y(getOpen(d,i))
                  - y(getHigh(d,i)))
@@ -10192,7 +10192,7 @@ nv.models.ohlcBar = function() {
       d3.transition(ticks)
           .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',' + y(getHigh(d,i)) + ')'; })
           .attr('d', function(d,i) {
-            var w = (availableWidth / data[0].values.length) * .9;
+            var w = (availableWidth / data[0].values.length) * 0.9;
             return 'm0,0l0,'
                  + (y(getOpen(d,i))
                  - y(getHigh(d,i)))
@@ -10212,7 +10212,7 @@ nv.models.ohlcBar = function() {
                  + (-w/2)
                  + ',0z';
           })
-          //.attr('width', (availableWidth / data[0].values.length) * .9 )
+          //.attr('width', (availableWidth / data[0].values.length) * 0.9 )
 
 
       //d3.transition(ticks)
@@ -10387,7 +10387,7 @@ nv.models.pie = function() {
     , pieLabelsOutside = true
     , donutLabelsOutside = false
     , labelType = "key"
-    , labelThreshold = .02 //if slice percentage is under this, don't show label
+    , labelThreshold = 0.02 //if slice percentage is under this, don't show label
     , donut = false
     , labelSunbeamLayout = false
     , startAngle = false
@@ -11086,7 +11086,7 @@ nv.models.scatter = function() {
     , pointKey     = null
     , pointActive  = function(d) { return !d.notActive } // any points that return false will be filtered out
     , padData      = false // If true, adds half a data points width to front and back, for lining up a line chart with a bar chart
-    , padDataOuter = .1 //outerPadding to imitate ordinal scale outer padding
+    , padDataOuter = 0.1 //outerPadding to imitate ordinal scale outer padding
     , clipEdge     = false // if true, masks points within x and y scale
     , clipVoronoi  = true // if true, masks each point with a circle... can turn off to slightly increase performance
     , clipRadius   = function() { return 25 } // function to get the radius for voronoi point clips
@@ -11146,7 +11146,7 @@ nv.models.scatter = function() {
 
       if (padData && data[0])
         x.range(xRange || [(availableWidth * padDataOuter +  availableWidth) / (2 *data[0].values.length), availableWidth - availableWidth * (1 + padDataOuter) / (2 * data[0].values.length)  ]);
-        //x.range([availableWidth * .5 / data[0].values.length, availableWidth * (data[0].values.length - .5)  / data[0].values.length ]);
+        //x.range([availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
       else
         x.range(xRange || [0, availableWidth]);
 
@@ -11411,7 +11411,7 @@ nv.models.scatter = function() {
           .style('fill', function(d,i) { return color(d, i) })
           .style('stroke', function(d,i) { return color(d, i) })
           .style('stroke-opacity', 1)
-          .style('fill-opacity', .5);
+          .style('fill-opacity', 0.5);
 
 
       if (onlyCircles) {

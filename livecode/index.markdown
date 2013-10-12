@@ -125,9 +125,9 @@ title: Live Code examples powered by CodeMirror
   -webkit-border-radius: 0;
      -moz-border-radius: 0;
           border-radius: 0;
-  -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,.1);
-     -moz-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,.1);
-          box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,.1);
+  -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,0.1);
+     -moz-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,0.1);
+          box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,0.1);
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); /* IE6-9 */
 }
 .subnav-fixed .nav {
