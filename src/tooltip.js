@@ -138,7 +138,7 @@ window.nv.tooltip.* also has various helper methods.
               var viewBox = (svg.node()) ? svg.attr('viewBox') : null;
               if (viewBox) {
                 viewBox = viewBox.split(' ');
-                var ratio = parseInt(svg.style('width')) / viewBox[2];
+                var ratio = parseInt(svg.style('width'), 10) / viewBox[2];
                 
                 position.left = position.left * ratio;
                 position.top  = position.top * ratio;

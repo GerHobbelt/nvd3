@@ -57,7 +57,7 @@ nv.models.historicalBarChart = function() {
       var viewBox = (svg.node()) ? svg.attr('viewBox') : null;
       if (viewBox) {
         viewBox = viewBox.split(' ');
-        var ratio = parseInt(svg.style('width')) / viewBox[2];
+        var ratio = parseInt(svg.style('width'), 10) / viewBox[2];
         e.pos[0] = e.pos[0] * ratio;
         e.pos[1] = e.pos[1] * ratio;
       }

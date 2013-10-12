@@ -195,6 +195,7 @@ nv.models.sparklinePlus = function() {
       function sparklineHover() {
         if (paused) return;
 
+        /* jshint validthis: true */
         var pos = d3.mouse(this)[0] - margin.left;
 
         function getClosestIndex(data, x) {

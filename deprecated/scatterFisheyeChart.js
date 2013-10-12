@@ -312,6 +312,7 @@ nv.models.scatterFisheyeChart = function() {
       g.select('.nv-point-paths').on('mousemove', updateFisheye);
 
       function updateFisheye() {
+        /* jshint validthis: true */
         var mouse = d3.mouse(this);
         x.distortion(fisheye).focus(mouse[0]);
         y.distortion(fisheye).focus(mouse[1]);

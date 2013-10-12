@@ -115,6 +115,7 @@ nv.addGraph(function() {
 
   //****THE CHANGES MADE TO THIS EXAMPLE BY ME ARE VERY UGLY.... TODO: Fix/Clean up after all functionality is correct
   bg.on('mousemove', function() {
+    /* jshint validthis: true */
     var m1 = d3.mouse(this);
     var x = m1[0];
     var scales = svg.node().__chart__;
@@ -141,6 +142,7 @@ nv.addGraph(function() {
 
     //var m2 = d3.mouse(d3.select('body').node());
     //nv.log(m1, m2);
+    ///* jshint validthis: true */
     //nv.log(d3.event, this, d3.mouse(this));
   });
 

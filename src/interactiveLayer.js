@@ -47,6 +47,7 @@ nv.interactiveGuideline = function() {
 				}
 
                 function mouseHandler() {
+                      /* jshint validthis: true */
                       var d3mouse = d3.mouse(this);
                       var mouseX = d3mouse[0];
                       var mouseY = d3mouse[1];

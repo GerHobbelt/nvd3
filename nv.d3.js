@@ -511,7 +511,7 @@ window.nv.tooltip.* also has various helper methods.
               var viewBox = (svg.node()) ? svg.attr('viewBox') : null;
               if (viewBox) {
                 viewBox = viewBox.split(' ');
-                var ratio = parseInt(svg.style('width')) / viewBox[2];
+                var ratio = parseInt(svg.style('width'), 10) / viewBox[2];
                 
                 position.left = position.left * ratio;
                 position.top  = position.top * ratio;
@@ -4192,7 +4192,7 @@ nv.models.historicalBarChart = function() {
       var viewBox = (svg.node()) ? svg.attr('viewBox') : null;
       if (viewBox) {
         viewBox = viewBox.split(' ');
-        var ratio = parseInt(svg.style('width')) / viewBox[2];
+        var ratio = parseInt(svg.style('width'), 10) / viewBox[2];
         e.pos[0] = e.pos[0] * ratio;
         e.pos[1] = e.pos[1] * ratio;
       }
@@ -13373,6 +13373,7 @@ nv.models.sparklinePlus = function() {
       function sparklineHover() {
         if (paused) return;
 
+        /* jshint validthis: true */
         var pos = d3.mouse(this)[0] - margin.left;
 
         function getClosestIndex(data, x) {

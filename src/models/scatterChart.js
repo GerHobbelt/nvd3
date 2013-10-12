@@ -349,6 +349,7 @@ nv.models.scatterChart = function() {
 
         g.select('.nv-point-paths').style('pointer-events', 'none' );
 
+        /* jshint validthis: true */
         var mouse = d3.mouse(this);
         x.distortion(fisheye).focus(mouse[0]);
         y.distortion(fisheye).focus(mouse[1]);

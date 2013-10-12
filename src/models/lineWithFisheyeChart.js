@@ -183,6 +183,7 @@ nv.models.lineChart = function() {
         g.select('.nv-background') .style('pointer-events', 'all');
         g.select('.nv-point-paths').style('pointer-events', 'none' );
 
+        /* jshint validthis: true */
         var mouse = d3.mouse(this);
         linesWrap.call(lines);
         g.select('.nv-x.nv-axis').call(xAxis);

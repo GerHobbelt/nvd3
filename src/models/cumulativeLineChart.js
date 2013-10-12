@@ -451,6 +451,7 @@ nv.models.cumulativeLineChart = function() {
 
       g.select('.nv-background rect')
           .on('click', function() {
+            /* jshint validthis: true */
             index.x = d3.mouse(this)[0];
             index.i = Math.round(dx.invert(index.x));
 
