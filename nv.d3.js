@@ -170,6 +170,7 @@ nv.interactiveGuideline = function() {
                 }
 
                 function mouseHandler() {
+                      /* jshint validthis: true */
                       var d3mouse = d3.mouse(this);
                       var mouseX = d3mouse[0];
                       var mouseY = d3mouse[1];
@@ -973,7 +974,7 @@ Forumla is : text.length * font-size * constant_factor
 */
 nv.utils.calcApproxTextWidth = function (svgTextElem) {
     if (svgTextElem instanceof d3.selection) {
-        var fontSize = parseInt(svgTextElem.style("font-size").replace("px",""));
+        var fontSize = parseInt(svgTextElem.style("font-size").replace("px",""), 10);
         var textLength = svgTextElem.text().length;
 
         return textLength * fontSize * 0.5;
@@ -2962,6 +2963,7 @@ nv.models.cumulativeLineChart = function() {
 
       g.select('.nv-background rect')
           .on('click', function() {
+            /* jshint validthis: true */
             index.x = d3.mouse(this)[0];
             index.i = Math.round(dx.invert(index.x));
 
@@ -11414,9 +11416,11 @@ nv.models.scatter = function() {
           .style('fill-opacity', 0.5);
 
 
+      var points;
+
       if (onlyCircles) {
 
-        var points = groups.selectAll('circle.nv-point')
+        points = groups.selectAll('circle.nv-point')
             .data(function(d) { return d.values }, pointKey);
         points.enter().append('circle')
             .style('fill', function (d,i) { return d.color })
@@ -11443,7 +11447,7 @@ nv.models.scatter = function() {
 
       } else {
 
-        var points = groups.selectAll('path.nv-point')
+        points = groups.selectAll('path.nv-point')
             .data(function(d) { return d.values });
         points.enter().append('path')
             .style('fill', function (d,i) { return d.color })
@@ -12085,6 +12089,7 @@ nv.models.scatterChart = function() {
 
         g.select('.nv-point-paths').style('pointer-events', 'none' );
 
+        /* jshint validthis: true */
         var mouse = d3.mouse(this);
         x.distortion(fisheye).focus(mouse[0]);
         y.distortion(fisheye).focus(mouse[1]);
@@ -12715,6 +12720,7 @@ nv.models.scatterPlusLineChart = function() {
 
         g.select('.nv-point-paths').style('pointer-events', 'none' );
 
+        /* jshint validthis: true */
         var mouse = d3.mouse(this);
         x.distortion(fisheye).focus(mouse[0]);
         y.distortion(fisheye).focus(mouse[1]);
