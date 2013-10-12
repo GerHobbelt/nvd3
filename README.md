@@ -14,7 +14,7 @@ To enable, set **useInteractiveGuideline** to true. See examples in the **test/*
 in regression testing coverage when changes are made to charts.
 * Pie charts accept data in a different way, and if you update to version 1.1, **your pie charts will break**. See the pie chart examples for how
 data should be properly passed in. It's a very simple change.
-* Pie charts can now accept a 'labelType' property. 
+* Pie charts can now accept a 'labelType' property.
 * Tooltip transitions are **turned off** by default, if you update to the latest nv.d3.css.  To bring them back, add a 'with-transitions' CSS class
 to the containing chart DIV.
 * Stacked area charts have transitions again. Duration is controlled via a 'transitionDuration' property.
@@ -49,8 +49,8 @@ You can also check out the [examples page](http://nvd3.org/ghpages/examples.html
 
 # Installation Instructions
 
-`d3.v3.js` is a dependency of `nv.d3.js`. Be sure to include in in your project, then:  
-Add a script tag to include `nv.d3.js` OR `nv.d3.min.js` in your project.  
+`d3.v3.js` is a dependency of `nv.d3.js`. Be sure to include in in your project, then:
+Add a script tag to include `nv.d3.js` OR `nv.d3.min.js` in your project.
 Also add a link to the `nv.d3.css` file.
 
 See wiki -> Documentation for more detail
@@ -102,7 +102,7 @@ merge and minify in your master.
 
 ## Supported Browsers
 
-NVD3 runs best on WebKit based browsers. 
+NVD3 runs best on WebKit based browsers.
 
 * **Google Chrome: latest version (preferred)**
 * **Opera 15+ (preferred)**

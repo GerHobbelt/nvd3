@@ -58,7 +58,7 @@ text {
 
 // Wrapping in nv.addGraph allows for '0 timeout render', stores rendered charts in nv.graphs, and may do more in the future... it's NOT required
 
-nv.addGraph(function() {  
+nv.addGraph(function() {
    var chart = nv.models.cumulativeLineChart()
              .useInteractiveGuideline(true)
              .x(function(d) { return d[0] })
@@ -88,7 +88,7 @@ nv.addGraph(function() {
   return chart;
 });
 
-nv.addGraph(function() {  
+nv.addGraph(function() {
    var chart = nv.models.cumulativeLineChart()
              .useInteractiveGuideline(false)
              .rightAlignYAxis(true)

@@ -168,8 +168,8 @@ nv.models.scatter = function() {
                 var pX = getX(point,pointIndex);
                 var pY = getY(point,pointIndex);
 
-                return [x(pX) + Math.random() * 1e-7, 
-                        y(pY) + Math.random() * 1e-7, 
+                return [x(pX) + Math.random() * 1e-7,
+                        y(pY) + Math.random() * 1e-7,
                         groupIndex,
                         pointIndex, point]; //temp hack to add noise untill I think of a better way so there are no duplicates
               })

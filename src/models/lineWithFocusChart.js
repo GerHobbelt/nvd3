@@ -254,7 +254,7 @@ nv.models.lineWithFocusChart = function() {
         .on('brush', function() {
             //When brushing, turn off transitions because chart needs to change immediately.
             var oldTransition = chart.transitionDuration();
-            chart.transitionDuration(0); 
+            chart.transitionDuration(0);
             onBrush();
             chart.transitionDuration(oldTransition);
         });
@@ -323,7 +323,7 @@ nv.models.lineWithFocusChart = function() {
       // Event Handling/Dispatching (in chart's scope)
       //------------------------------------------------------------
 
-      legend.dispatch.on('stateChange', function(newState) { 
+      legend.dispatch.on('stateChange', function(newState) {
         chart.update();
       });
 
@@ -456,7 +456,7 @@ nv.models.lineWithFocusChart = function() {
   d3.rebind(chart, lines, 'defined', 'isArea', 'x', 'y', 'size', 'xDomain', 'yDomain', 'xRange', 'yRange', 'forceX', 'forceY', 'interactive', 'clipEdge', 'clipVoronoi', 'id');
 
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
 
   chart.margin = function(_) {
     if (!arguments.length) return margin;
@@ -552,7 +552,7 @@ nv.models.lineWithFocusChart = function() {
     y2Axis.tickFormat(_);
     return chart;
   };
-  
+
   chart.brushExtent = function(_) {
     if (!arguments.length) return brushExtent;
     brushExtent = _;

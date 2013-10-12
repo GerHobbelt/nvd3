@@ -59,7 +59,7 @@ nv.models.scatterPlusLineChart = function() {
   distY
     .axis('y')
     ;
-  
+
   controls.updateState(false);
   //============================================================
 
@@ -245,7 +245,7 @@ nv.models.scatterPlusLineChart = function() {
 
       var regWrap = wrap.select('.nv-regressionLinesWrap').selectAll('.nv-regLines')
                       .data(function(d) {return d });
-      
+
       regWrap.enter().append('g').attr('class', 'nv-regLines');
 
       var regLine = regWrap.selectAll('.nv-regLine').data(function(d){return [d]});
@@ -401,7 +401,7 @@ nv.models.scatterPlusLineChart = function() {
         chart.update();
       });
 
-      legend.dispatch.on('stateChange', function(newState) { 
+      legend.dispatch.on('stateChange', function(newState) {
         state = newState;
         dispatch.stateChange(state);
         chart.update();
@@ -486,7 +486,7 @@ nv.models.scatterPlusLineChart = function() {
   d3.rebind(chart, scatter, 'id', 'interactive', 'pointActive', 'x', 'y', 'shape', 'size', 'xScale', 'yScale', 'zScale', 'xDomain', 'yDomain', 'xRange', 'yRange', 'sizeDomain', 'sizeRange', 'forceX', 'forceY', 'forceSize', 'clipVoronoi', 'clipRadius', 'useVoronoi');
 
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;

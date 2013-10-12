@@ -72,9 +72,9 @@ nv.models.discreteBarChart = function() {
                              - margin.top - margin.bottom;
 
 
-      chart.update = function() { 
-        dispatch.beforeUpdate(); 
-        container.transition().duration(transitionDuration).call(chart); 
+      chart.update = function() {
+        dispatch.beforeUpdate();
+        container.transition().duration(transitionDuration).call(chart);
       };
       chart.container = this;
 
@@ -254,7 +254,7 @@ nv.models.discreteBarChart = function() {
   d3.rebind(chart, discretebar, 'x', 'y', 'xDomain', 'yDomain', 'xRange', 'yRange', 'forceX', 'forceY', 'id', 'showValues', 'valueFormat');
 
   chart.options = nv.utils.optionsFunc.bind(chart);
-  
+
   chart.margin = function(_) {
     if (!arguments.length) return margin;
     margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;

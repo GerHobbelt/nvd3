@@ -5,7 +5,7 @@
 <link href="teststyle.css" rel="stylesheet" type='text/css'>
 
 <body>
-	 <div class='navigation'>
+     <div class='navigation'>
           Tests:
           <a href="lineChartTest.html">Line Chart</a>
           <a href="stackedAreaChartTest.html">Stacked Area</a>
@@ -18,8 +18,8 @@
   every half a second. Then, you call <strong>chart.update()</strong>.
 
 <div id='chart' class='chart half with-transitions'>
-	<svg></svg>
-	<button id='start-stop-button'>Start/Stop Stream</button>
+    <svg></svg>
+    <button id='start-stop-button'>Start/Stop Stream</button>
 </div>
 
 
@@ -39,14 +39,14 @@
 <script>
 var chart;
 var data = [{
-	key: "Stream 1",
-	color: "orange",
-	values: [
-		{x: 1, y: 1}
-	]
+    key: "Stream 1",
+    color: "orange",
+    values: [
+        {x: 1, y: 1}
+    ]
 }];
 nv.addGraph(function() {
-  
+
   chart = nv.models.historicalBarChart();
 
   chart
@@ -76,24 +76,24 @@ nv.addGraph(function() {
 var x = 2;
 var run = true;
 setInterval(function(){
-	if (!run) return;
-	
-	var spike = (Math.random() > 0.95) ? 10: 1;
-	data[0].values.push({
-		x: x,
-		y: Math.random() * spike
-	});
+    if (!run) return;
 
-	if (data[0].values.length > 70) {
-		data[0].values.shift();
-	}
-	x++;
+    var spike = (Math.random() > 0.95) ? 10: 1;
+    data[0].values.push({
+        x: x,
+        y: Math.random() * spike
+    });
 
-	chart.update();
+    if (data[0].values.length > 70) {
+        data[0].values.shift();
+    }
+    x++;
+
+    chart.update();
 }, 500);
 
 d3.select("#start-stop-button").on("click",function() {
-	run = !run;
+    run = !run;
 });
 
 </script>
