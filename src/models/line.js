@@ -108,11 +108,9 @@ nv.models.line = function() {
       groups.enter().append('g')
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6);
-      groups.exit()
-          .transition()
-          .style('stroke-opacity', 1e-6)
-          .style('fill-opacity', 1e-6)
-          .remove();
+
+      groups.exit().remove();
+
       groups
           .attr('class', function(d,i) { return 'nv-group nv-series-' + i })
           .classed('hover', function(d) { return d.hover })
@@ -168,15 +166,7 @@ nv.models.line = function() {
               .x(function(d,i) { return nv.utils.NaNtoZero(x0(getX(d,i))) })
               .y(function(d,i) { return nv.utils.NaNtoZero(y0(getY(d,i))) })
           );
-      groups.exit().selectAll('path.nv-line')
-          .transition()
-          .attr('d',
-            d3.svg.line()
-              .interpolate(interpolate)
-              .defined(defined)
-              .x(function(d,i) { return nv.utils.NaNtoZero(x(getX(d,i))) })
-              .y(function(d,i) { return nv.utils.NaNtoZero(y(getY(d,i))) })
-          );
+
       linePaths
           .transition()
           .attr('d',

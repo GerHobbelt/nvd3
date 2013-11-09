@@ -95,7 +95,7 @@ nv.models.axis = function() {
                   return 'translate(' + scale(d) + ',0)'
                 })
               .select('text')
-                .attr('dy', '0em')
+                .attr('dy', '-0.5em')
                 .attr('y', -axis.tickPadding())
                 .attr('text-anchor', 'middle')
                 .text(function(d,i) {
