@@ -376,7 +376,13 @@ nv.models.stackedAreaChart = function() {
             var yValue = chart.yScale().invert(e.mouseY);
             var yDistMax = Infinity, indexToHighlight = null;
             allData.forEach(function(series,i) {
-               if ( yValue >= series.stackedValue.y0 && yValue <= (series.stackedValue.y0 + series.stackedValue.y))
+
+               //To handle situation where the stacked area chart is negative, we need to use absolute values
+               //when checking if the mouse Y value is within the stack area.
+               yValue = Math.abs(yValue);
+               var stackedY0 = Math.abs(series.stackedValue.y0);
+               var stackedY = Math.abs(series.stackedValue.y);
+               if ( yValue >= stackedY0 && yValue <= (stackedY + stackedY0))
                {
                   indexToHighlight = i;
                   return;

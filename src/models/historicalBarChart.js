@@ -276,7 +276,7 @@ nv.models.historicalBarChart = function() {
           state.disabled = e.disabled;
         }
 
-        selection.call(chart);
+        chart.update();
       });
 
       //============================================================

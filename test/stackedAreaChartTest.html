@@ -19,6 +19,7 @@
   <div class='chart half' id='chart6'>Total random points<button>Select chart</button><svg></svg></div>
   <div class='chart half' id='chart7'>Less than four points, old tooltips<button>Select chart</button><svg></svg></div>
   <div class='chart half' id='chart8'>No data<svg></svg></div>
+  <div class='chart half' id='chart9'>Data is all negative<svg></svg></div>
 
 <script src="../lib/d3.v3.js"></script>
 <script src="../nv.d3.js"></script>
@@ -317,4 +318,5 @@ defaultChartConfig("chart5", histcatexplong_withholes);
 defaultChartConfig("chart6", totalRandom(), false);
 defaultChartConfig("chart7", nPoints(),false);
 defaultChartConfig("chart8", []);
+defaultChartConfig("chart9", histcatexpshort,true);
 </script>
