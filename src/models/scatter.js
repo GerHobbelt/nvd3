@@ -158,20 +158,19 @@ nv.models.scatter = function() {
 
         var eventElements;
 
+        var verticesPrecision = 1e-1;
         var vertices = d3.merge(data.map(function(group, groupIndex) {
             return group.values
               .map(function(point, pointIndex) {
-                // *Adding noise to make duplicates very unlikely
-                // *Injecting series and point index for reference
-                /* *Adding a 'jitter' to the points, because there's an issue in d3.geom.voronoi.
-                */
-                var pX = getX(point,pointIndex);
-                var pY = getY(point,pointIndex);
+                var pX = getX(point, pointIndex);
+                var pY = getY(point, pointIndex);
 
-                return [x(pX)+ Math.random() * 1e-7,
-                        y(pY)+ Math.random() * 1e-7,
+                // Round coordinates to a precision lower than what is required by voronoi (see d3#1578)
+                // Subpixel voronoi is not very useful considering the mouse can't interact with it.
+                return [Math.round(x(pX) / verticesPrecision) * verticesPrecision,
+                        Math.round(y(pY) / verticesPrecision) * verticesPrecision,
                         groupIndex,
-                        pointIndex, point]; //temp hack to add noise untill I think of a better way so there are no duplicates
+                        pointIndex, point]; //temp hack to add noise until I think of a better way so there are no duplicates
               })
               .filter(function(pointArray, pointIndex) {
                 return pointActive(pointArray[4], pointIndex); // Issue #237.. move filter to after map, so pointIndex is correct!
@@ -207,7 +206,7 @@ nv.models.scatter = function() {
           }
 
 
-          if(vertices.length) {
+          if(vertices.length < 3) {
             // Issue #283 - Adding 2 dummy points to the voronoi b/c voronoi requires min 3 points to work
             vertices.push([x.range()[0] - 20, y.range()[0] - 20, null, null]);
             vertices.push([x.range()[1] + 20, y.range()[1] + 20, null, null]);
@@ -228,7 +227,7 @@ nv.models.scatter = function() {
                 'series': vertices[i][2],
                 'point': vertices[i][3]
               }
-            });
+            }).filter(function(d) { return d; });
 
 
           var pointPaths = wrap.select('.nv-point-paths').selectAll('path')
