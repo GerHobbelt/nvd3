@@ -86,11 +86,12 @@ nv.models.scatter = function() {
 
       x   .domain(xDomain || d3.extent(seriesData.map(function(d) { return d.x; }).concat(forceX)))
 
-      if (padData && data[0])
-        x.range(xRange || [(availableWidth * padDataOuter +  availableWidth) / (2 *data[0].values.length), availableWidth - availableWidth * (1 + padDataOuter) / (2 * data[0].values.length)  ]);
+      if (padData && data[0]) {
+        x.range(xRange || [(availableWidth * padDataOuter +  availableWidth) / (2 * data[0].values.length), availableWidth - availableWidth * (1 + padDataOuter) / (2 * data[0].values.length) ]);
         //x.range([availableWidth * 0.5 / data[0].values.length, availableWidth * (data[0].values.length - 0.5)  / data[0].values.length ]);
-      else
+      } else {
         x.range(xRange || [0, availableWidth]);
+      }
 
       y   .domain(yDomain || d3.extent(seriesData.map(function(d) { return d.y }).concat(forceY)))
           .range(yRange || [availableHeight, 0]);
@@ -99,16 +100,18 @@ nv.models.scatter = function() {
           .range(sizeRange || [16, 256]);
 
       // If scale's domain don't have a range, slightly adjust to make one... so a chart can show a single data point
-      singlePoint = x.domain()[0] === x.domain()[1] || y.domain()[0] === y.domain()[1];
-      if (x.domain()[0] === x.domain()[1])
+      singlePoint = (x.domain()[0] === x.domain()[1] || y.domain()[0] === y.domain()[1]);
+      if (x.domain()[0] === x.domain()[1]) {
         x.domain()[0] ?
             x.domain([x.domain()[0] - x.domain()[0] * 0.01, x.domain()[1] + x.domain()[1] * 0.01])
           : x.domain([-1,1]);
+      }
 
-      if (y.domain()[0] === y.domain()[1])
+      if (y.domain()[0] === y.domain()[1]) {
         y.domain()[0] ?
             y.domain([y.domain()[0] - y.domain()[0] * 0.01, y.domain()[1] + y.domain()[1] * 0.01])
           : y.domain([-1,1]);
+      }
 
       if ( isNaN(x.domain()[0])) {
           x.domain([-1,1]);
