@@ -18,6 +18,33 @@ nv.logs = {}; //stores some statistics and potential error messages
 nv.dispatch = d3.dispatch('render_start', 'render_end');
 
 // *************************************************************************
+// Function bind polyfill, from MDN
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Compatibility
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function (oThis) {
+    if (typeof this !== "function") {
+      // closest thing possible to the ECMAScript 5 internal IsCallable function
+      throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+    }
+
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP = function () {},
+        fBound = function () {
+          return fToBind.apply(this instanceof fNOP && oThis
+                                 ? this
+                                 : oThis,
+                               aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+
+// *************************************************************************
 //  Development render timers - disabled if dev = false
 
 if (nv.dev) {
@@ -48,6 +75,11 @@ nv.log = function() {
   }
   return arguments[arguments.length - 1];
 };
+
+nv.deprecated = function(name) {
+  if (nv.dev && console && console.warn)
+    console.warn('`' + name + '` has been deprecated.');
+}
 
 
 nv.render = function render(step) {
@@ -714,7 +746,11 @@ window.nv.tooltip.* also has various helper methods.
         container.style.left = 0;
         container.style.top = 0;
         container.style.opacity = 0;
-        container.innerHTML = content;
+        // Content can also be dom element
+        if (typeof content !== 'string')
+            container.appendChild(content);
+        else
+            container.innerHTML = content;
         body.appendChild(container);
 
         //If the parent container is an overflow <div> with scrollbars, subtract the scroll offsets.
@@ -997,6 +1033,90 @@ nv.utils.NaNtoZero = function(n) {
     return n;
 };
 
+// This utility class watches for d3 transition ends.
+
+(function(){
+  d3.selection.prototype.watchTransition = function(renderWatch){
+    var args = [this].concat([].slice.call(arguments, 1));
+    return renderWatch.transition.apply(renderWatch, args);
+  }
+})();
+
+nv.utils.renderWatch = function(dispatch, duration) {
+  if (!(this instanceof nv.utils.renderWatch))
+    return new nv.utils.renderWatch(dispatch, duration);
+  var _duration = duration !== undefined ? duration : 250;
+  var renderStack = [];
+  var self = this;
+  this.models = function(models) {
+    models = [].slice.call(arguments, 0);
+    models.forEach(function(model){
+      model.__rendered = false;
+      (function(m){
+        m.dispatch.on('renderEnd', function(arg){
+          // nv.log('nv.utils renderEnd', arg);
+          m.__rendered = true;
+          self.renderEnd('model');
+        });
+      })(model);
+      if (renderStack.indexOf(model) < 0)
+        renderStack.push(model);
+    });
+    return this;
+  }
+
+  this.reset = function(duration) {
+    if (duration !== undefined) _duration = duration;
+    renderStack = [];
+  }
+
+  this.transition = function(selection, args, duration) {
+    args = arguments.length > 1 ? [].slice.call(arguments, 1) : [];
+    duration = args.length > 1 ? args.pop() :
+               _duration !== undefined ? _duration :
+               250;
+    selection.__rendered = false;
+    
+    if (renderStack.indexOf(selection) < 0)
+      renderStack.push(selection);
+
+    if (duration === 0)
+    {
+      selection.__rendered = true;
+      selection.delay = function(){console.warn('`delay` not specified for selection.'); return this;}
+      selection.duration = function(){console.warn('`duration` not specified for selection.'); return this;}
+      return selection;
+    }
+    else
+    {
+      selection.__rendered = selection.length === 0 ? true :
+                             selection.every( function(d){ return !d.length; }) ? true :
+                             false;
+      var n = 0;
+      return selection
+        .transition()
+        .duration(duration)
+        .each(function(){ ++n; })
+        .each('end', function(d, i){
+          if (--n === 0)
+          {
+            selection.__rendered = true;
+            self.renderEnd.apply(this, args);
+          }
+        });
+    }
+  }
+
+  this.renderEnd = function() {
+    if (renderStack.every( function(d){ return d.__rendered; } ))
+    {
+      renderStack.forEach( function(d){ d.__rendered = false; });
+      dispatch.renderEnd.apply(this, arguments);
+    }
+  }
+
+}
+
 /*
 Snippet of code you can insert into each nv.models.* to give you the ability to
 do things like:
@@ -1009,6 +1129,7 @@ To enable in the chart:
 chart.options = nv.utils.optionsFunc.bind(chart);
 */
 nv.utils.optionsFunc = function(args) {
+    nv.deprecated('nv.utils.optionsFunc');
     if (args) {
       d3.map(args).forEach((function(key,value) {
         if (typeof this[key] === "function") {
@@ -1018,6 +1139,7 @@ nv.utils.optionsFunc = function(args) {
     }
     return this;
 };
+
 nv.models.axis = function() {
   "use strict";
   //============================================================
@@ -1040,8 +1162,11 @@ nv.models.axis = function() {
     , isOrdinal = false
     , ticks = null
     , axisLabelDistance = 12 //The larger this number is, the closer the axis label is to the axis.
+    , duration = 250
+    , dispatch = d3.dispatch('renderEnd')
+    , axisRendered = false
+    , maxMinRendered = false
     ;
-
   axis
     .scale(scale)
     .orient('bottom')
@@ -1055,15 +1180,16 @@ nv.models.axis = function() {
   // Private Variables
   //------------------------------------------------------------
 
-  var scale0;
+  var scale0
+    , renderWatch = nv.utils.renderWatch(dispatch, duration)
+    ;
 
   //============================================================
 
-
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var container = d3.select(this);
-
 
       //------------------------------------------------------------
       // Setup containers and skeleton of chart
@@ -1083,9 +1209,7 @@ nv.models.axis = function() {
 
 
       //TODO: consider calculating width/height based on whether or not label is added, for reference in charts using this component
-
-
-      g.transition().call(axis);
+      g.watchTransition(renderWatch, 'axis').call(axis);
 
       scale0 = scale0 || axis.scale();
 
@@ -1122,7 +1246,7 @@ nv.models.axis = function() {
                   var v = fmt(d);
                   return ('' + v).match('NaN') ? '' : v;
                 });
-            axisMaxMin.transition()
+            axisMaxMin.watchTransition(renderWatch, 'min-max top')
                 .attr('transform', function(d,i) {
                   return 'translate(' + scale.range()[i] + ',0)'
                 });
@@ -1172,10 +1296,8 @@ nv.models.axis = function() {
                   var v = fmt(d);
                   return ('' + v).match('NaN') ? '' : v;
                 });
-            axisMaxMin.transition()
+            axisMaxMin.watchTransition(renderWatch, 'min-max bottom')
                 .attr('transform', function(d,i) {
-                  //return 'translate(' + scale.range()[i] + ',0)'
-                  //return 'translate(' + scale(d) + ',0)'
                   return 'translate(' + (scale(d) + (isOrdinal ? scale.rangeBand() / 2 : 0)) + ',0)'
                 });
           }
@@ -1210,7 +1332,7 @@ nv.models.axis = function() {
                   var v = fmt(d);
                   return ('' + v).match('NaN') ? '' : v;
                 });
-            axisMaxMin.transition()
+            axisMaxMin.watchTransition(renderWatch, 'min-max right')
                 .attr('transform', function(d,i) {
                   return 'translate(0,' + scale.range()[i] + ')'
                 })
@@ -1252,7 +1374,7 @@ nv.models.axis = function() {
                   var v = fmt(d);
                   return ('' + v).match('NaN') ? '' : v;
                 });
-            axisMaxMin.transition()
+            axisMaxMin.watchTransition(renderWatch, 'min-max right')
                 .attr('transform', function(d,i) {
                   return 'translate(0,' + scale.range()[i] + ')'
                 })
@@ -1355,7 +1477,8 @@ nv.models.axis = function() {
       scale0 = scale.copy();
 
     });
-
+    
+    renderWatch.renderEnd('axis immediate');
     return chart;
   }
 
@@ -1366,6 +1489,7 @@ nv.models.axis = function() {
 
   // expose chart's sub-components
   chart.axis = axis;
+  chart.dispatch = dispatch;
 
   d3.rebind(chart, axis, 'orient', 'tickValues', 'tickSubdivide', 'tickSize', 'tickPadding', 'tickFormat');
   d3.rebind(chart, scale, 'domain', 'range', 'rangeBand', 'rangeBands'); //these are also accessible by chart.scale(), but added common ones directly for ease of use
@@ -1449,6 +1573,14 @@ nv.models.axis = function() {
     axisLabelDistance = _;
     return chart;
   };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    return chart;
+  };
+
 
   //============================================================
 
@@ -2552,8 +2684,9 @@ nv.models.cumulativeLineChart = function() {
     , defaultState = null
     , noData = 'No Data Available.'
     , average = function(d) { return d.average }
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
     , transitionDuration = 250
+    , duration = 250
     , noErrorCheck = false  //if set to TRUE, will bypass an error check in the indexify function.
     ;
 
@@ -2572,9 +2705,11 @@ nv.models.cumulativeLineChart = function() {
   // Private Variables
   //------------------------------------------------------------
 
-   var dx = d3.scale.linear()
-     , index = {i: 0, x: 0}
-     ;
+  var dx = d3.scale.linear()
+    , index = {i: 0, x: 0}
+    , renderWatch = nv.utils.renderWatch(dispatch, duration)
+    ;
+
 
   var showTooltip = function(e, offsetElement) {
     var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
@@ -2589,6 +2724,10 @@ nv.models.cumulativeLineChart = function() {
   //============================================================
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(lines);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
     selection.each(function(data) {
       var container = d3.select(this).classed('nv-chart-' + id, true),
           that = this;
@@ -2599,7 +2738,12 @@ nv.models.cumulativeLineChart = function() {
                              - margin.top - margin.bottom;
 
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
+      chart.update = function() {
+        if (duration === 0)
+          container.call(chart);
+        else
+          container.transition().duration(duration).call(chart)
+      };
       chart.container = this;
 
       //set state.disabled
@@ -2910,7 +3054,7 @@ nv.models.cumulativeLineChart = function() {
 
         g.select('.nv-x.nv-axis')
             .attr('transform', 'translate(0,' + y.range()[0] + ')');
-        d3.transition(g.select('.nv-x.nv-axis'))
+        g.select('.nv-x.nv-axis')
             .call(xAxis);
       }
 
@@ -2921,7 +3065,7 @@ nv.models.cumulativeLineChart = function() {
           .ticks( availableHeight / 36 )
           .tickSize( -availableWidth, 0);
 
-        d3.transition(g.select('.nv-y.nv-axis'))
+        g.select('.nv-y.nv-axis')
             .call(yAxis);
       }
       //------------------------------------------------------------
@@ -2938,10 +3082,10 @@ nv.models.cumulativeLineChart = function() {
 
         //When dragging the index line, turn off line transitions.
         // Then turn them back on when done dragging.
-        var oldDuration = chart.transitionDuration();
-        chart.transitionDuration(0);
+        var oldDuration = chart.duration();
+        chart.duration(0);
         chart.update();
-        chart.transitionDuration(oldDuration);
+        chart.duration(oldDuration);
       }
 
       g.select('.nv-background rect')
@@ -3080,6 +3224,8 @@ nv.models.cumulativeLineChart = function() {
       //============================================================
 
     });
+
+    renderWatch.renderEnd('cumulativeLineChart immediate');
 
     return chart;
   }
@@ -3233,8 +3379,17 @@ nv.models.cumulativeLineChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+    nv.deprecated('cumulativeLineChart.transitionDuration');
+    return chart.duration(_);
+  };
+
+  chart.duration = function(_) {
+    if(!arguments.length) return duration;
+    duration = _;
+    lines.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
+    renderWatch.reset(duration);
     return chart;
   };
 
@@ -3257,7 +3412,11 @@ nv.models.cumulativeLineChart = function() {
       if (!line.values) {
          return line;
       }
-      var v = lines.y()(line.values[idx], idx);
+      var indexValue = line.values[idx];
+      if (indexValue == null) {
+        return line;
+      }
+      var v = lines.y()(indexValue, idx);
 
       //TODO: implement check below, and disable series if series loses 100% or more cause divide by 0 issue
       if (v < -0.95 && !noErrorCheck) {
@@ -3305,8 +3464,9 @@ nv.models.discreteBar = function() {
     , yDomain
     , xRange
     , yRange
-    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
+    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout','renderEnd')
     , rectClass = 'discreteBar'
+    , duration = 250
     ;
 
   //============================================================
@@ -3317,11 +3477,13 @@ nv.models.discreteBar = function() {
   //------------------------------------------------------------
 
   var x0, y0;
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
@@ -3387,7 +3549,7 @@ nv.models.discreteBar = function() {
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6);
       groups.exit()
-          .transition()
+          .watchTransition(renderWatch, 'discreteBar: exit groups')
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6)
           .remove();
@@ -3395,7 +3557,7 @@ nv.models.discreteBar = function() {
           .attr('class', function(d,i) { return 'nv-group nv-series-' + i })
           .classed('hover', function(d) { return d.hover });
       groups
-          .transition()
+          .watchTransition(renderWatch, 'discreteBar: groups')
           .style('stroke-opacity', 1)
           .style('fill-opacity', 0.75);
 
@@ -3469,7 +3631,7 @@ nv.models.discreteBar = function() {
 
         bars.select('text')
           .text(function(d,i) { return valueFormat(getY(d,i)) })
-          .transition()
+          .watchTransition(renderWatch, 'discreteBar: bars text')
           .attr('x', x.rangeBand() * 0.9 / 2)
           .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : -4 })
 
@@ -3484,9 +3646,9 @@ nv.models.discreteBar = function() {
           .style('stroke', function(d,i) { return d.color || color(d,i) })
         .select('rect')
           .attr('class', rectClass)
-          .transition()
+          .watchTransition(renderWatch, 'discreteBar: bars rect')
           .attr('width', x.rangeBand() * 0.9 / data.length);
-      bars.transition()
+      bars.watchTransition(renderWatch, 'discreteBar: bars')
         //.delay(function(d,i) { return i * 1200 / data[0].values.length })
           .attr('transform', function(d,i) {
             var left = x(getX(d,i)) + x.rangeBand() * 0.05,
@@ -3510,6 +3672,7 @@ nv.models.discreteBar = function() {
 
     });
 
+    renderWatch.renderEnd('discreteBar immediate');
     return chart;
   }
 
@@ -3626,6 +3789,13 @@ nv.models.discreteBar = function() {
     rectClass = _;
     return chart;
   };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    return chart;
+  };
   //============================================================
 
 
@@ -3659,8 +3829,8 @@ nv.models.discreteBarChart = function() {
     , x
     , y
     , noData = "No Data Available."
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'beforeUpdate')
-    , transitionDuration = 250
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'beforeUpdate','renderEnd')
+    , duration = 250
     ;
 
   xAxis
@@ -3691,10 +3861,16 @@ nv.models.discreteBarChart = function() {
     nv.tooltip.show([left, top], content, e.value < 0 ? 'n' : 's', null, offsetElement);
   };
 
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(discretebar);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -3707,7 +3883,7 @@ nv.models.discreteBarChart = function() {
 
       chart.update = function() {
         dispatch.beforeUpdate();
-        container.transition().duration(transitionDuration).call(chart);
+        container.transition().duration(duration).call(chart);
       };
       chart.container = this;
 
@@ -3757,7 +3933,7 @@ nv.models.discreteBarChart = function() {
       gEnter.append('g').attr('class', 'nv-y nv-axis')
             .append('g').attr('class', 'nv-zeroLine')
             .append('line');
-        
+
       gEnter.append('g').attr('class', 'nv-barsWrap');
 
       g.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
@@ -3808,9 +3984,8 @@ nv.models.discreteBarChart = function() {
 
           g.select('.nv-x.nv-axis')
               .attr('transform', 'translate(0,' + (y.range()[0] + ((discretebar.showValues() && y.domain()[0] < 0) ? 16 : 0)) + ')');
-          //d3.transition(g.select('.nv-x.nv-axis'))
-          g.select('.nv-x.nv-axis').transition()
-              .call(xAxis);
+
+          g.select('.nv-x.nv-axis').call(xAxis);
 
 
           var xTicks = g.select('.nv-x.nv-axis').selectAll('g');
@@ -3834,8 +4009,7 @@ nv.models.discreteBarChart = function() {
             .ticks( availableHeight / 36 )
             .tickSize( -availableWidth, 0);
 
-          g.select('.nv-y.nv-axis').transition()
-              .call(yAxis);
+          g.select('.nv-y.nv-axis').call(yAxis);
       }
 
       // Zero line
@@ -3862,6 +4036,7 @@ nv.models.discreteBarChart = function() {
 
     });
 
+    renderWatch.renderEnd('discreteBar chart immediate');
     return chart;
   }
 
@@ -3977,8 +4152,17 @@ nv.models.discreteBarChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+    nv.deprecated('discreteBar.transitionDuration');
+    return chart.duration(_);
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    discretebar.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
     return chart;
   };
 
@@ -4002,6 +4186,8 @@ nv.models.distribution = function() {
     , color = nv.utils.defaultColor()
     , scale = d3.scale.linear()
     , domain
+    , duration = 250
+    , dispatch = d3.dispatch('renderEnd')
     ;
 
   //============================================================
@@ -4012,11 +4198,13 @@ nv.models.distribution = function() {
   //------------------------------------------------------------
 
   var scale0;
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var availableLength = width - (axis === 'x' ? margin.left + margin.right : margin.top + margin.bottom),
           naxis = axis == 'x' ? 'y' : 'x',
@@ -4057,8 +4245,8 @@ nv.models.distribution = function() {
       dist.enter().append('line')
           .attr(axis + '1', function(d,i) { return scale0(getData(d,i)) })
           .attr(axis + '2', function(d,i) { return scale0(getData(d,i)) })
-      distWrap.exit().selectAll('line.nv-dist' + axis)
-          .transition()
+      renderWatch.transition(distWrap.exit().selectAll('line.nv-dist' + axis), 'dist exit')
+          // .transition()
           .attr(axis + '1', function(d,i) { return scale(getData(d,i)) })
           .attr(axis + '2', function(d,i) { return scale(getData(d,i)) })
           .style('stroke-opacity', 0)
@@ -4067,8 +4255,8 @@ nv.models.distribution = function() {
           .attr('class', function(d,i) { return 'nv-dist' + axis + ' nv-dist' + axis + '-' + i })
           .attr(naxis + '1', 0)
           .attr(naxis + '2', size);
-      dist
-          .transition()
+      renderWatch.transition(dist, 'dist')
+          // .transition()
           .attr(axis + '1', function(d,i) { return scale(getData(d,i)) })
           .attr(axis + '2', function(d,i) { return scale(getData(d,i)) })
 
@@ -4076,7 +4264,7 @@ nv.models.distribution = function() {
       scale0 = scale.copy();
 
     });
-
+    renderWatch.renderEnd('distribution immediate');
     return chart;
   }
 
@@ -4085,6 +4273,7 @@ nv.models.distribution = function() {
   // Expose Public Variables
   //------------------------------------------------------------
   chart.options = nv.utils.optionsFunc.bind(chart);
+  chart.dispatch = dispatch;
 
   chart.margin = function(_) {
     if (!arguments.length) return margin;
@@ -4128,6 +4317,13 @@ nv.models.distribution = function() {
   chart.color = function(_) {
     if (!arguments.length) return color;
     color = nv.utils.getColor(_);
+    return chart;
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
     return chart;
   };
   //============================================================
@@ -5304,6 +5500,8 @@ nv.models.line = function() {
     , x //can be accessed via chart.xScale()
     , y //can be accessed via chart.yScale()
     , interpolate = "linear" // controls the line interpolation
+    , duration = 250
+    , dispatch = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
     ;
 
   scatter
@@ -5319,12 +5517,15 @@ nv.models.line = function() {
   //------------------------------------------------------------
 
   var x0, y0 //used to store previous scales
-      ;
+    , renderWatch = nv.utils.renderWatch(dispatch, duration)
+    ;
 
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(scatter);
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
@@ -5368,7 +5569,7 @@ nv.models.line = function() {
       var scatterWrap = wrap.select('.nv-scatterWrap');
           //.datum(data); // Data automatically trickles down from the wrap
 
-      scatterWrap.transition().call(scatter);
+      scatterWrap.call(scatter);
 
 
 
@@ -5386,7 +5587,6 @@ nv.models.line = function() {
 
 
 
-
       var groups = wrap.select('.nv-groups').selectAll('.nv-group')
           .data(function(d) { return d }, function(d) { return d.key });
       groups.enter().append('g')
@@ -5400,8 +5600,7 @@ nv.models.line = function() {
           .classed('hover', function(d) { return d.hover })
           .style('fill', function(d,i){ return color(d, i) })
           .style('stroke', function(d,i){ return color(d, i)});
-      groups
-          .transition()
+      groups.watchTransition(renderWatch, 'line: groups')
           .style('stroke-opacity', 1)
           .style('fill-opacity', 0.5);
 
@@ -5424,8 +5623,7 @@ nv.models.line = function() {
       groups.exit().selectAll('path.nv-area')
            .remove();
 
-      areaPaths
-          .transition()
+      areaPaths.watchTransition(renderWatch, 'line: areaPaths')
           .attr('d', function(d) {
             return d3.svg.area()
                 .interpolate(interpolate)
@@ -5451,8 +5649,7 @@ nv.models.line = function() {
               .y(function(d,i) { return nv.utils.NaNtoZero(y0(getY(d,i))) })
           );
 
-      linePaths
-          .transition()
+      linePaths.watchTransition(renderWatch, 'line: linePaths')
           .attr('d',
             d3.svg.line()
               .interpolate(interpolate)
@@ -5468,7 +5665,7 @@ nv.models.line = function() {
       y0 = y.copy();
 
     });
-
+    renderWatch.renderEnd('line immediate');
     return chart;
   }
 
@@ -5477,8 +5674,12 @@ nv.models.line = function() {
   // Expose Public Variables
   //------------------------------------------------------------
 
-  chart.dispatch = scatter.dispatch;
+  chart.dispatch = dispatch;
   chart.scatter = scatter;
+  // Pass through events
+  scatter.dispatch.on('elementClick', function(){ dispatch.elementClick.apply(this, arguments); })
+  scatter.dispatch.on('elementMouseover', function(){ dispatch.elementMouseover.apply(this, arguments); })
+  scatter.dispatch.on('elementMouseout', function(){ dispatch.elementMouseout.apply(this, arguments); })
 
   d3.rebind(chart, scatter, 'id', 'interactive', 'size', 'xScale', 'yScale', 'zScale', 'xDomain', 'yDomain', 'xRange', 'yRange',
     'sizeDomain', 'forceX', 'forceY', 'forceSize', 'clipVoronoi', 'useVoronoi', 'clipRadius', 'padData','highlightPoint','clearHighlights');
@@ -5551,6 +5752,14 @@ nv.models.line = function() {
     return chart;
   };
 
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    scatter.duration(duration);
+    return chart;
+  };
+
   //============================================================
 
 
@@ -5589,8 +5798,8 @@ nv.models.lineChart = function() {
     , state = {}
     , defaultState = null
     , noData = 'No Data Available.'
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
-    , transitionDuration = 250
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
+    , duration = 250
     ;
 
   xAxis
@@ -5618,10 +5827,17 @@ nv.models.lineChart = function() {
     nv.tooltip.show([left, top], content, null, null, offsetElement);
   };
 
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
+
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(lines);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -5632,7 +5848,12 @@ nv.models.lineChart = function() {
                              - margin.top - margin.bottom;
 
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
+      chart.update = function() {
+        if (duration === 0)
+          container.call(chart);
+        else
+          container.transition().duration(duration).call(chart)
+      };
       chart.container = this;
 
       //set state.disabled
@@ -5757,7 +5978,7 @@ nv.models.lineChart = function() {
       var linesWrap = g.select('.nv-linesWrap')
           .datum(data.filter(function(d) { return !d.disabled }))
 
-      linesWrap.transition().call(lines);
+      linesWrap.call(lines);
 
       //------------------------------------------------------------
 
@@ -5774,7 +5995,6 @@ nv.models.lineChart = function() {
         g.select('.nv-x.nv-axis')
             .attr('transform', 'translate(0,' + y.range()[0] + ')');
         g.select('.nv-x.nv-axis')
-            .transition()
             .call(xAxis);
       }
 
@@ -5785,7 +6005,6 @@ nv.models.lineChart = function() {
           .tickSize( -availableWidth, 0);
 
         g.select('.nv-y.nv-axis')
-            .transition()
             .call(yAxis);
       }
       //------------------------------------------------------------
@@ -5878,6 +6097,7 @@ nv.models.lineChart = function() {
 
     });
 
+    renderWatch.renderEnd('lineChart immediate');
     return chart;
   }
 
@@ -6013,8 +6233,17 @@ nv.models.lineChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+    nv.deprecated('lineChart.transitionDuration');
+    return chart.duration(_);
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    lines.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
     return chart;
   };
 
@@ -7709,13 +7938,13 @@ nv.models.multiBar = function() {
     , hideable = false
     , barColor = null // adding the ability to set the color for each rather than the whole group
     , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
-    , delay = 1200
+    , duration = 1000
     , xDomain
     , yDomain
     , xRange
     , yRange
     , groupSpacing = 0.1
-    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
+    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
     ;
 
   //============================================================
@@ -7726,16 +7955,29 @@ nv.models.multiBar = function() {
   //------------------------------------------------------------
 
   var x0, y0 //used to store previous scales
+      , renderWatch = nv.utils.renderWatch(dispatch, duration)
       ;
+
 
   //============================================================
 
 
+
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
           container = d3.select(this);
+
+
+      // This function defines the requirements for render complete
+      var endFn = function(d, i) {
+        if (d.series === data.length - 1 && i === data[0].values.length - 1)
+          return true;
+        return false;
+      }
+      
 
       if(hideable && data.length) hideable = [{
         values: data[0].values.map(function(d) {
@@ -7844,29 +8086,27 @@ nv.models.multiBar = function() {
 
       g   .attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + id + ')' : '');
 
-
-
       var groups = wrap.select('.nv-groups').selectAll('.nv-group')
           .data(function(d) { return d }, function(d,i) { return i });
       groups.enter().append('g')
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6);
-      groups.exit()
-        .transition()
-        .selectAll('rect.nv-bar')
-        .delay(function(d,i) {
-             return i * delay/ data[0].values.length;
-        })
+      
+      var exitTransition = renderWatch
+          .transition(groups.exit().selectAll('rect.nv-bar'), 'multibarExit', Math.min(250, duration))
           .attr('y', function(d) { return stacked ? y0(d.y0) : y0(0) })
           .attr('height', 0)
           .remove();
+      if (exitTransition.delay)
+          exitTransition.delay(function(d,i) {
+            return i * duration / data[0].values.length;
+          });
       groups
           .attr('class', function(d,i) { return 'nv-group nv-series-' + i })
           .classed('hover', function(d) { return d.hover })
           .style('fill', function(d,i){ return color(d, i) })
           .style('stroke', function(d,i){ return color(d, i) });
       groups
-          .transition()
           .style('stroke-opacity', 1)
           .style('fill-opacity', 0.75);
 
@@ -7939,7 +8179,6 @@ nv.models.multiBar = function() {
           });
       bars
           .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
-          .transition()
           .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',0)'; })
 
       if (barColor) {
@@ -7949,63 +8188,61 @@ nv.models.multiBar = function() {
           .style('stroke', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); });
       }
 
-
+      var barSelection =
+          bars.watchTransition(renderWatch, 'multibar', Math.min(250, duration))
+          .delay(function(d,i) {
+            return i * duration / data[0].values.length;
+          });
       if (stacked)
-          bars.transition()
-            .delay(function(d,i) {
-
-                  return i * delay / data[0].values.length;
-            })
+          barSelection
             .attr('y', function(d,i) {
-
               return y((stacked ? d.y1 : 0));
             })
             .attr('height', function(d,i) {
               return Math.max(Math.abs(y(d.y + (stacked ? d.y0 : 0)) - y((stacked ? d.y0 : 0))),1);
             })
             .attr('x', function(d,i) {
-                  return stacked ? 0 : (d.series * x.rangeBand() / data.length )
+              return stacked ? 0 : (d.series * x.rangeBand() / data.length )
             })
             .attr('width', x.rangeBand() / (stacked ? 1 : data.length) );
       else
-          bars.transition()
-            .delay(function(d,i) {
-                return i * delay/ data[0].values.length;
-            })
+          barSelection
             .attr('x', function(d,i) {
               return d.series * x.rangeBand() / data.length
             })
             .attr('width', x.rangeBand() / data.length)
             .attr('y', function(d,i) {
-                return getY(d,i) < 0 ?
-                        y(0) :
-                        y(0) - y(getY(d,i)) < 1 ?
-                          y(0) - 1 :
-                        y(getY(d,i)) || 0;
+              return getY(d,i) < 0 ?
+                      y(0) :
+                      y(0) - y(getY(d,i)) < 1 ?
+                        y(0) - 1 :
+                      y(getY(d,i)) || 0;
             })
             .attr('height', function(d,i) {
-                return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0;
+              return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0;
             });
-
-
 
       //store old scales for use in transitions on update
       x0 = x.copy();
       y0 = y.copy();
 
     });
-
+    
+    renderWatch.renderEnd('multibar immediate');
+    
     return chart;
   }
-
 
   //============================================================
   // Expose Public Variables
   //------------------------------------------------------------
 
-  chart.dispatch = dispatch;
+  // As a getter, returns a new instance of d3 dispatch and sets appropriate vars.
+  // As a setter, sets dispatch.
+  // Useful when same chart instance is used to render several data models.
+  // Since dispatch is instance-specific, it cannot be contained inside chart model.
 
-  chart.options = nv.utils.optionsFunc.bind(chart);
+  chart.dispatch = dispatch;
 
   chart.x = function(_) {
     if (!arguments.length) return getX;
@@ -8130,20 +8367,33 @@ nv.models.multiBar = function() {
     return chart;
   };
 
-  chart.delay = function(_) {
-    if (!arguments.length) return delay;
-    delay = _;
-    return chart;
-  };
-
   chart.groupSpacing = function(_) {
     if (!arguments.length) return groupSpacing;
     groupSpacing = _;
     return chart;
   };
 
-  //============================================================
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    return chart;
+  }
 
+  
+
+  //============================================================
+  // Deprecated Methods
+  //------------------------------------------------------------
+
+  chart.delay = function(_) {
+    nv.deprecated('multiBar.delay');
+    return chart.duration(_);
+  };
+
+  chart.options = nv.utils.optionsFunc.bind(chart);
+
+  //============================================================
 
   return chart;
 }
@@ -8183,9 +8433,10 @@ nv.models.multiBarChart = function() {
     , state = { stacked: false }
     , defaultState = null
     , noData = "No Data Available."
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
     , controlWidth = function() { return showControls ? 180 : 0 }
-    , transitionDuration = 250
+    , duration = 250
+    
     ;
 
   multibar
@@ -8210,7 +8461,8 @@ nv.models.multiBarChart = function() {
   //============================================================
   // Private Variables
   //------------------------------------------------------------
-
+  var renderWatch = nv.utils.renderWatch(dispatch);
+  
   var showTooltip = function(e, offsetElement) {
     var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
         top = e.pos[1] + ( offsetElement.offsetTop || 0),
@@ -8225,6 +8477,11 @@ nv.models.multiBarChart = function() {
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(multibar);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -8234,7 +8491,14 @@ nv.models.multiBarChart = function() {
           availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
+      chart.update = function() {
+        if (duration === 0)
+          container.call(chart);
+        else
+          container.transition()
+            .duration(duration)
+            .call(chart);
+      };
       chart.container = this;
 
       //set state.disabled
@@ -8368,7 +8632,7 @@ nv.models.multiBarChart = function() {
       var barsWrap = g.select('.nv-barsWrap')
           .datum(data.filter(function(d) { return !d.disabled }))
 
-      barsWrap.transition().call(multibar);
+      barsWrap.call(multibar);
 
       //------------------------------------------------------------
 
@@ -8384,7 +8648,7 @@ nv.models.multiBarChart = function() {
 
           g.select('.nv-x.nv-axis')
               .attr('transform', 'translate(0,' + y.range()[0] + ')');
-          g.select('.nv-x.nv-axis').transition()
+          g.select('.nv-x.nv-axis')
               .call(xAxis);
 
           var xTicks = g.select('.nv-x.nv-axis > g').selectAll('g');
@@ -8438,7 +8702,7 @@ nv.models.multiBarChart = function() {
             .ticks( availableHeight / 36 )
             .tickSize( -availableWidth, 0);
 
-          g.select('.nv-y.nv-axis').transition()
+          g.select('.nv-y.nv-axis')
               .call(yAxis);
       }
 
@@ -8508,6 +8772,8 @@ nv.models.multiBarChart = function() {
 
     });
 
+    renderWatch.renderEnd('multibarchart immediate');
+
     return chart;
   }
 
@@ -8527,6 +8793,7 @@ nv.models.multiBarChart = function() {
   dispatch.on('tooltipHide', function() {
     if (tooltips) nv.tooltip.cleanup();
   });
+
 
   //============================================================
 
@@ -8563,12 +8830,14 @@ nv.models.multiBarChart = function() {
   };
 
   chart.height = function(_) {
+
     if (!arguments.length) return height;
     height = _;
     return chart;
   };
 
   chart.color = function(_) {
+
     if (!arguments.length) return color;
     color = nv.utils.getColor(_);
     legend.color(color);
@@ -8661,10 +8930,19 @@ nv.models.multiBarChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
-    return chart;
+    nv.deprecated('multiBarChart.transitionDuration');
+    return chart.duration(_);
   };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    multibar.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
+    renderWatch.reset(duration);
+    return chart;
+  }
 
   //============================================================
 
@@ -8700,7 +8978,8 @@ nv.models.multiBarHorizontal = function() {
     , yDomain
     , xRange
     , yRange
-    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
+    , duration = 250
+    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout','renderEnd')
     ;
 
   //============================================================
@@ -8710,13 +8989,15 @@ nv.models.multiBarHorizontal = function() {
   // Private Variables
   //------------------------------------------------------------
 
-  var x0, y0 //used to store previous scales
-      ;
+  var x0, y0; //used to store previous scales
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
+
 
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
@@ -8811,7 +9092,7 @@ nv.models.multiBarHorizontal = function() {
       groups.enter().append('g')
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6);
-      groups.exit().transition()
+      groups.exit().watchTransition(renderWatch, 'multibarhorizontal: exit groups')
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6)
           .remove();
@@ -8820,7 +9101,7 @@ nv.models.multiBarHorizontal = function() {
           .classed('hover', function(d) { return d.hover })
           .style('fill', function(d,i){ return color(d, i) })
           .style('stroke', function(d,i){ return color(d, i) });
-      groups.transition()
+      groups.watchTransition(renderWatch, 'multibarhorizontal: groups')
           .style('stroke-opacity', 1)
           .style('fill-opacity', 0.75);
 
@@ -8898,7 +9179,7 @@ nv.models.multiBarHorizontal = function() {
             .attr('y', x.rangeBand() / (data.length * 2))
             .attr('dy', '.32em')
             .text(function(d,i) { return valueFormat(getY(d,i)) })
-        bars.transition()
+        bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
           .select('text')
             .attr('x', function(d,i) { return getY(d,i) < 0 ? -4 : y(getY(d,i)) - y(0) + 4 })
       } else {
@@ -8912,7 +9193,7 @@ nv.models.multiBarHorizontal = function() {
             .attr('y', x.rangeBand() / (data.length * 2))
             .attr('dy', '.32em')
             .text(function(d,i) { return getX(d,i) });
-        bars.transition()
+        bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
           .select('text.nv-bar-label')
             .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) - y(getY(d,i)) + 4 : -4 });
       }
@@ -8931,7 +9212,7 @@ nv.models.multiBarHorizontal = function() {
       }
 
       if (stacked)
-        bars.transition()
+        bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
             .attr('transform', function(d,i) {
               return 'translate(' + y(d.y1) + ',' + x(getX(d,i)) + ')'
             })
@@ -8941,7 +9222,7 @@ nv.models.multiBarHorizontal = function() {
             })
             .attr('height', x.rangeBand() );
       else
-        bars.transition()
+        bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
             .attr('transform', function(d,i) {
               //TODO: stacked must be all positive or all negative, not both?
               return 'translate(' +
@@ -8965,6 +9246,7 @@ nv.models.multiBarHorizontal = function() {
 
     });
 
+    renderWatch.renderEnd('multibarHorizontal immediate');
     return chart;
   }
 
@@ -9113,6 +9395,13 @@ nv.models.multiBarHorizontal = function() {
     return chart;
   };
 
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    return chart;
+  };
+
   //============================================================
 
 
@@ -9151,9 +9440,9 @@ nv.models.multiBarHorizontalChart = function() {
     , state = { stacked: stacked }
     , defaultState = null
     , noData = 'No Data Available.'
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState','renderEnd')
     , controlWidth = function() { return showControls ? 180 : 0 }
-    , transitionDuration = 250
+    , duration = 250
     ;
 
   multibar
@@ -9190,9 +9479,14 @@ nv.models.multiBarHorizontalChart = function() {
   };
 
   //============================================================
-
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(multibar);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -9202,7 +9496,7 @@ nv.models.multiBarHorizontalChart = function() {
           availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart) };
+      chart.update = function() { container.transition().duration(duration).call(chart) };
       chart.container = this;
 
       //set state.disabled
@@ -9349,8 +9643,7 @@ nv.models.multiBarHorizontalChart = function() {
             .ticks( availableHeight / 24 )
             .tickSize(-availableWidth, 0);
 
-          g.select('.nv-x.nv-axis').transition()
-              .call(xAxis);
+          g.select('.nv-x.nv-axis').call(xAxis);
 
           var xTicks = g.select('.nv-x.nv-axis').selectAll('g');
 
@@ -9366,8 +9659,7 @@ nv.models.multiBarHorizontalChart = function() {
 
           g.select('.nv-y.nv-axis')
               .attr('transform', 'translate(0,' + availableHeight + ')');
-          g.select('.nv-y.nv-axis').transition()
-              .call(yAxis);
+          g.select('.nv-y.nv-axis').call(yAxis);
       }
 
       // Zero line
@@ -9439,9 +9731,8 @@ nv.models.multiBarHorizontalChart = function() {
       });
       //============================================================
 
-
     });
-
+    renderWatch.renderEnd('multibar horizontal chart immediate');
     return chart;
   }
 
@@ -9570,8 +9861,17 @@ nv.models.multiBarHorizontalChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+    nv.deprecated('multiBarHorizontalChart.transitionDuration');
+    return chart.duration(_);
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    multibar.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
     return chart;
   };
   //============================================================
@@ -10436,13 +10736,15 @@ nv.models.pie = function() {
     , startAngle = false
     , endAngle = false
     , donutRatio = 0.5
-    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout')
+    , duration = 250
+    , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
     ;
 
   //============================================================
-
+  var renderWatch = nv.utils.renderWatch(dispatch);
 
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
@@ -10611,7 +10913,7 @@ nv.models.pie = function() {
 
               return Math.floor(coordinates[0]/avgWidth) * avgWidth + ',' + Math.floor(coordinates[1]/avgHeight) * avgHeight;
           };
-          pieLabels.transition()
+          pieLabels.watchTransition(renderWatch,'pie labels')
                 .attr('transform', function(d) {
                   if (labelSunbeamLayout) {
                       d.outerRadius = arcRadius + 10; // Set Outer Coordinate
@@ -10682,6 +10984,7 @@ nv.models.pie = function() {
 
     });
 
+    renderWatch.renderEnd('pie immediate');
     return chart;
   }
 
@@ -10815,6 +11118,13 @@ nv.models.pie = function() {
     labelThreshold = _;
     return chart;
   };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    return chart;
+  };
   //============================================================
 
 
@@ -10843,7 +11153,8 @@ nv.models.pieChart = function() {
     , state = {}
     , defaultState = null
     , noData = "No Data Available."
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , duration = 250
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState','renderEnd')
     ;
 
   //============================================================
@@ -10863,10 +11174,14 @@ nv.models.pieChart = function() {
     nv.tooltip.show([left, top], content, e.value < 0 ? 'n' : 's', null, offsetElement);
   };
 
+  var renderWatch = nv.utils.renderWatch(dispatch);
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(pie);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -11007,6 +11322,7 @@ nv.models.pieChart = function() {
 
     });
 
+    renderWatch.renderEnd('pieChart immediate');
     return chart;
   }
 
@@ -11107,6 +11423,14 @@ nv.models.pieChart = function() {
     return chart;
   };
 
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    pie.duration(duration);
+    return chart;
+  };
+
   //============================================================
 
 
@@ -11150,8 +11474,9 @@ nv.models.scatter = function() {
     , sizeDomain   = null // Override point size domain
     , sizeRange    = null
     , singlePoint  = false
-    , dispatch     = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout')
+    , dispatch     = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
     , useVoronoi   = true
+    , duration     = 250
     ;
 
   //============================================================
@@ -11164,12 +11489,14 @@ nv.models.scatter = function() {
   var x0, y0, z0 // used to store previous scales
     , timeoutID
     , needsUpdate = false // Flag for when the points are visually updating, but the interactive layer is behind, to disable tooltips
+    , renderWatch = nv.utils.renderWatch(dispatch, duration)
     ;
 
   //============================================================
 
 
   function chart(selection) {
+    renderWatch.reset();
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
@@ -11448,7 +11775,6 @@ nv.models.scatter = function() {
       }
 
       needsUpdate = true;
-
       var groups = wrap.select('.nv-groups').selectAll('.nv-group')
           .data(function(d) { return d }, function(d) { return d.key });
       groups.enter().append('g')
@@ -11459,8 +11785,7 @@ nv.models.scatter = function() {
       groups
           .attr('class', function(d,i) { return 'nv-group nv-series-' + i })
           .classed('hover', function(d) { return d.hover });
-      groups
-          .transition()
+      groups.watchTransition(renderWatch, 'scatter: groups')
           .style('fill', function(d,i) { return color(d, i) })
           .style('stroke', function(d,i) { return color(d, i) })
           .style('stroke-opacity', 1)
@@ -11470,7 +11795,6 @@ nv.models.scatter = function() {
       var points;
 
       if (onlyCircles) {
-
         points = groups.selectAll('circle.nv-point')
             .data(function(d) { return d.values }, pointKey);
         points.enter().append('circle')
@@ -11480,7 +11804,8 @@ nv.models.scatter = function() {
             .attr('cy', function(d,i) { return nv.utils.NaNtoZero(y0(getY(d,i))) })
             .attr('r', function(d,i) { return Math.sqrt(z(getSize(d,i))/Math.PI) });
         points.exit().remove();
-        groups.exit().selectAll('path.nv-point').transition()
+        groups.exit().selectAll('path.nv-point')
+            .watchTransition(renderWatch, 'scatter exit')
             .attr('cx', function(d,i) { return nv.utils.NaNtoZero(x(getX(d,i))) })
             .attr('cy', function(d,i) { return nv.utils.NaNtoZero(y(getY(d,i))) })
             .remove();
@@ -11491,7 +11816,8 @@ nv.models.scatter = function() {
             .classed('hover',false)
             ;
         });
-        points.transition()
+        points
+            .watchTransition(renderWatch, 'scatter points')
             .attr('cx', function(d,i) { return nv.utils.NaNtoZero(x(getX(d,i))) })
             .attr('cy', function(d,i) { return nv.utils.NaNtoZero(y(getY(d,i))) })
             .attr('r', function(d,i) { return Math.sqrt(z(getSize(d,i))/Math.PI) });
@@ -11513,7 +11839,7 @@ nv.models.scatter = function() {
             );
         points.exit().remove();
         groups.exit().selectAll('path.nv-point')
-            .transition()
+            .watchTransition(renderWatch, 'scatter exit')
             .attr('transform', function(d,i) {
               return 'translate(' + x(getX(d,i)) + ',' + y(getY(d,i)) + ')'
             })
@@ -11525,7 +11851,8 @@ nv.models.scatter = function() {
             .classed('hover',false)
             ;
         });
-        points.transition()
+        points
+            .watchTransition(renderWatch, 'scatter points')
             .attr('transform', function(d,i) {
               //nv.log(d,i,getX(d,i), x(getX(d,i)));
               return 'translate(' + x(getX(d,i)) + ',' + y(getY(d,i)) + ')'
@@ -11549,7 +11876,7 @@ nv.models.scatter = function() {
       z0 = z.copy();
 
     });
-
+    renderWatch.renderEnd('scatter immediate');
     return chart;
   }
 
@@ -11784,6 +12111,13 @@ nv.models.scatter = function() {
     return chart;
   };
 
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    return chart;
+  };
+
   //============================================================
 
 
@@ -11827,9 +12161,10 @@ nv.models.scatterChart = function() {
     , tooltip      = null
     , state = {}
     , defaultState = null
-    , dispatch     = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch     = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
     , noData       = "No Data Available."
     , transitionDuration = 250
+    , duration = 250
     ;
 
   scatter
@@ -11861,6 +12196,7 @@ nv.models.scatterChart = function() {
   //------------------------------------------------------------
 
   var x0, y0;
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
   var showTooltip = function(e, offsetElement) {
     //TODO: make tooltip style an option between single or dual on axes (maybe on all charts with axes?)
@@ -11890,6 +12226,13 @@ nv.models.scatterChart = function() {
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(scatter);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+    if (showDistX) renderWatch.models(distX);
+    if (showDistY) renderWatch.models(distY);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -11899,7 +12242,12 @@ nv.models.scatterChart = function() {
           availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
+      chart.update = function() {
+        if (duration === 0)
+          container.call(chart);
+        else
+          container.transition().duration(duration).call(chart);
+      };
       chart.container = this;
 
       //set state.disabled
@@ -12030,7 +12378,6 @@ nv.models.scatterChart = function() {
 
       if (yPadding !== 0)
         scatter.yDomain(null);
-
       wrap.select('.nv-scatterWrap')
           .datum(data.filter(function(d) { return !d.disabled }))
           .call(scatter);
@@ -12232,7 +12579,7 @@ nv.models.scatterChart = function() {
 
 
     });
-
+    renderWatch.renderEnd('scatterChart immediate');
     return chart;
   }
 
@@ -12406,11 +12753,20 @@ nv.models.scatterChart = function() {
     noData = _;
     return chart;
   };
-
-  chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    scatter.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
+    distX.duration(duration);
+    distY.duration(duration);
     return chart;
+  }
+  chart.transitionDuration = function(_) {
+    nv.deprecated('scatterChart.transitionDuration');
+    return chart.duration(_);
   };
 
   //============================================================
@@ -12456,9 +12812,9 @@ nv.models.scatterPlusLineChart = function() {
                                                       + '<p>' + date + '</p>' }
     , state = {}
     , defaultState = null
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
     , noData       = "No Data Available."
-    , transitionDuration = 250
+    , duration = 250
     ;
 
   scatter
@@ -12488,7 +12844,9 @@ nv.models.scatterPlusLineChart = function() {
   // Private Variables
   //------------------------------------------------------------
 
-  var x0, y0;
+  var x0, y0
+    , renderWatch = nv.utils.renderWatch(dispatch, duration)
+    ;
 
   var showTooltip = function(e, offsetElement) {
     //TODO: make tooltip style an option between single or dual on axes (maybe on all charts with axes?)
@@ -12518,6 +12876,13 @@ nv.models.scatterPlusLineChart = function() {
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(scatter);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+    if (showDistX) renderWatch.models(distX);
+    if (showDistY) renderWatch.models(distY);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -12527,7 +12892,12 @@ nv.models.scatterPlusLineChart = function() {
           availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
+      chart.update = function() {
+        if (duration === 0)
+          container.call(chart);
+        else
+          container.transition().duration(duration).call(chart);
+      };
       chart.container = this;
 
       //set state.disabled
@@ -12559,7 +12929,9 @@ nv.models.scatterPlusLineChart = function() {
           .attr('x', margin.left + availableWidth / 2)
           .attr('y', margin.top + availableHeight / 2)
           .text(function(d) { return d });
-
+        
+        renderWatch.renderEnd('scatter immediate');
+        
         return chart;
       } else {
         container.selectAll('.nv-noData').remove();
@@ -12674,7 +13046,7 @@ nv.models.scatterPlusLineChart = function() {
                        .style('stroke-opacity', 0);
 
       regLine
-          .transition()
+          .watchTransition(renderWatch, 'scatterPlusLineChart: regline')
           .attr('x1', x.range()[0])
           .attr('x2', x.range()[1])
           .attr('y1', function(d,i) {return y(x.domain()[0] * d.slope + d.intercept) })
@@ -12761,6 +13133,8 @@ nv.models.scatterPlusLineChart = function() {
           pauseFisheye = !pauseFisheye;
         });
       }
+
+      // At this point, everything has been selected and bound... I think
 
 
       function updateFisheye() {
@@ -12866,9 +13240,9 @@ nv.models.scatterPlusLineChart = function() {
 
     });
 
+    renderWatch.renderEnd('scatter with line immediate');
     return chart;
   }
-
 
   //============================================================
   // Event Handling/Dispatching (out of chart's scope)
@@ -13029,8 +13403,13 @@ nv.models.scatterPlusLineChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+    nv.deprecated('scatterPlusLineChart.transitionDuration')
+    return chart.duration(_);
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
     return chart;
   };
 
@@ -13551,7 +13930,8 @@ nv.models.stackedArea = function() {
     , x //can be accessed via chart.xScale()
     , y //can be accessed via chart.yScale()
     , scatter = nv.models.scatter()
-    , dispatch =  d3.dispatch('tooltipShow', 'tooltipHide', 'areaClick', 'areaMouseover', 'areaMouseout')
+    , duration = 250
+    , dispatch =  d3.dispatch('tooltipShow', 'tooltipHide', 'areaClick', 'areaMouseover', 'areaMouseout','renderEnd')
     ;
 
   scatter
@@ -13572,9 +13952,12 @@ nv.models.stackedArea = function() {
    ************************************/
 
   //============================================================
+  var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(scatter);
     selection.each(function(data) {
       var availableWidth = width - margin.left - margin.right,
           availableHeight = height - margin.top - margin.bottom,
@@ -13720,7 +14103,7 @@ nv.models.stackedArea = function() {
             return d.color || color(d, d.seriesIndex)
           })
           .style('stroke', function(d,i){ return d.color || color(d, d.seriesIndex) });
-      path.transition()
+      path.watchTransition(renderWatch,'stackedArea path')
           .attr('d', function(d,i) {
             return area(d.values,i)
           });
@@ -13765,7 +14148,7 @@ nv.models.stackedArea = function() {
 
     });
 
-
+    renderWatch.renderEnd('stackedArea immediate');
     return chart;
   }
 
@@ -13893,6 +14276,14 @@ nv.models.stackedArea = function() {
         return chart;
   };
 
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    scatter.duration(duration);
+    return chart;
+  };
+
   //============================================================
 
 
@@ -13934,11 +14325,11 @@ nv.models.stackedAreaChart = function() {
     , state = { style: stacked.style() }
     , defaultState = null
     , noData = 'No Data Available.'
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState','renderEnd')
     , controlWidth = 250
     , cData = ['Stacked','Stream','Expanded']
     , controlLabels = {}
-    , transitionDuration = 250
+    , duration = 250
     ;
 
   xAxis
@@ -13956,6 +14347,7 @@ nv.models.stackedAreaChart = function() {
   //============================================================
   // Private Variables
   //------------------------------------------------------------
+  var renderWatch = nv.utils.renderWatch(dispatch);
 
   var showTooltip = function(e, offsetElement) {
     var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
@@ -13971,6 +14363,11 @@ nv.models.stackedAreaChart = function() {
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(stacked);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -13980,7 +14377,7 @@ nv.models.stackedAreaChart = function() {
           availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
+      chart.update = function() { container.transition().duration(duration).call(chart); };
       chart.container = this;
 
       //set state.disabled
@@ -14344,7 +14741,7 @@ nv.models.stackedAreaChart = function() {
 
     });
 
-
+    renderWatch.renderEnd('stacked Area chart immediate');
     return chart;
   }
 
@@ -14502,9 +14899,8 @@ nv.models.stackedAreaChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
-    return chart;
+    nv.deprecated('lineChart.transitionDuration');
+    return chart.duration(_);
   };
 
   chart.controlsData = function(_) {
@@ -14526,6 +14922,16 @@ nv.models.stackedAreaChart = function() {
     if (!arguments.length) return yAxisTickFormat;
     yAxisTickFormat = _;
     return yAxis;
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
+    renderWatch.reset(duration);
+    stacked.duration(duration);
+    xAxis.duration(duration);
+    yAxis.duration(duration);
+    return chart;
   };
 
 

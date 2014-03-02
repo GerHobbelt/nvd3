@@ -36,9 +36,9 @@ nv.models.scatterPlusLineChart = function() {
                                                       + '<p>' + date + '</p>' }
     , state = {}
     , defaultState = null
-    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState')
+    , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
     , noData       = "No Data Available."
-    , transitionDuration = 250
+    , duration = 250
     ;
 
   scatter
@@ -68,7 +68,9 @@ nv.models.scatterPlusLineChart = function() {
   // Private Variables
   //------------------------------------------------------------
 
-  var x0, y0;
+  var x0, y0
+    , renderWatch = nv.utils.renderWatch(dispatch, duration)
+    ;
 
   var showTooltip = function(e, offsetElement) {
     //TODO: make tooltip style an option between single or dual on axes (maybe on all charts with axes?)
@@ -98,6 +100,13 @@ nv.models.scatterPlusLineChart = function() {
 
 
   function chart(selection) {
+    renderWatch.reset();
+    renderWatch.models(scatter);
+    if (showXAxis) renderWatch.models(xAxis);
+    if (showYAxis) renderWatch.models(yAxis);
+    if (showDistX) renderWatch.models(distX);
+    if (showDistY) renderWatch.models(distY);
+
     selection.each(function(data) {
       var container = d3.select(this),
           that = this;
@@ -107,7 +116,12 @@ nv.models.scatterPlusLineChart = function() {
           availableHeight = (height || parseInt(container.style('height'), 10) || 400)
                              - margin.top - margin.bottom;
 
-      chart.update = function() { container.transition().duration(transitionDuration).call(chart); };
+      chart.update = function() {
+        if (duration === 0)
+          container.call(chart);
+        else
+          container.transition().duration(duration).call(chart);
+      };
       chart.container = this;
 
       //set state.disabled
@@ -139,7 +153,9 @@ nv.models.scatterPlusLineChart = function() {
           .attr('x', margin.left + availableWidth / 2)
           .attr('y', margin.top + availableHeight / 2)
           .text(function(d) { return d });
-
+        
+        renderWatch.renderEnd('scatter immediate');
+        
         return chart;
       } else {
         container.selectAll('.nv-noData').remove();
@@ -254,7 +270,7 @@ nv.models.scatterPlusLineChart = function() {
                        .style('stroke-opacity', 0);
 
       regLine
-          .transition()
+          .watchTransition(renderWatch, 'scatterPlusLineChart: regline')
           .attr('x1', x.range()[0])
           .attr('x2', x.range()[1])
           .attr('y1', function(d,i) {return y(x.domain()[0] * d.slope + d.intercept) })
@@ -341,6 +357,8 @@ nv.models.scatterPlusLineChart = function() {
           pauseFisheye = !pauseFisheye;
         });
       }
+
+      // At this point, everything has been selected and bound... I think
 
 
       function updateFisheye() {
@@ -446,9 +464,9 @@ nv.models.scatterPlusLineChart = function() {
 
     });
 
+    renderWatch.renderEnd('scatter with line immediate');
     return chart;
   }
-
 
   //============================================================
   // Event Handling/Dispatching (out of chart's scope)
@@ -609,8 +627,13 @@ nv.models.scatterPlusLineChart = function() {
   };
 
   chart.transitionDuration = function(_) {
-    if (!arguments.length) return transitionDuration;
-    transitionDuration = _;
+    nv.deprecated('scatterPlusLineChart.transitionDuration')
+    return chart.duration(_);
+  };
+
+  chart.duration = function(_) {
+    if (!arguments.length) return duration;
+    duration = _;
     return chart;
   };
 
