@@ -65,7 +65,7 @@ nv.models.stackedArea = function() {
       // Injecting point index into each point because d3.layout.stack().out does not give index
       data.forEach(function(aseries, i) {
         aseries.seriesIndex = i;
-        aseries.values = aseries.values.map(function(d, j) {
+        aseries.values.forEach(function(d, j) {
           d.index = j;
           d.seriesIndex = i;
           return d;
