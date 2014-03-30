@@ -3406,8 +3406,10 @@ nv.models.cumulativeLineChart = function() {
   // Functions
   //------------------------------------------------------------
 
+  var indexifyYGetter = null;
   /* Normalize the data according to an index point. */
   function indexify(idx, data) {
+    if (!indexifyYGetter) indexifyYGetter = lines.y();
     return data.map(function(line, i) {
       if (!line.values) {
          return line;
@@ -3416,7 +3418,7 @@ nv.models.cumulativeLineChart = function() {
       if (indexValue == null) {
         return line;
       }
-      var v = lines.y()(indexValue, idx);
+      var v = indexifyYGetter(indexValue, idx);
 
       //TODO: implement check below, and disable series if series loses 100% or more cause divide by 0 issue
       if (v < -0.95 && !noErrorCheck) {
@@ -3428,7 +3430,7 @@ nv.models.cumulativeLineChart = function() {
       line.tempDisabled = false;
 
       line.values = line.values.map(function(point, pointIndex) {
-        point.display = {'y': (lines.y()(point, pointIndex) - v) / (1 + v) };
+        point.display = {'y': (indexifyYGetter(point, pointIndex) - v) / (1 + v) };
         return point;
       })
 
