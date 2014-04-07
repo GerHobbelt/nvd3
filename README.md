@@ -10,6 +10,7 @@ project.
 
 * Various fixes across the board
 
+
 ## Overview
 
 A reusable chart library for d3.js (originally by Bob Monteverde of Novus Partners).
@@ -21,6 +22,7 @@ You can also check out the [examples page](http://nvd3.org/ghpages/examples.html
 
 ---
 
+
 # Current development focus
 
 - Getting documentation up.
@@ -28,6 +30,7 @@ You can also check out the [examples page](http://nvd3.org/ghpages/examples.html
 - Bug fixes that come up.
 
 ---
+
 
 # Installation Instructions
 
@@ -48,6 +51,7 @@ Please do not aggregate pull requests. Aggregated pull requests are actually mor
 We are currently changing our branch structure so that master will be gauranteed stable. In addition, there is now a "development" branch. This branch reflects the latest changes to NVD3 and is not necessarily stable.
 
 ---
+
 
 ## Minifying your fork:
 
